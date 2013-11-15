@@ -6,7 +6,7 @@
         #:cram-plan-knowledge #:cram-plan-library #:cpl
 	#:cram-plan-failures)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
-  (:export test1)
+  (:export test1 initial)
   (:desig-properties #:to #:perceive #:obj #:ground
                      #:type #:box #:bowl #:cutlery
                      #:color #:red #:white #:blue #:green
