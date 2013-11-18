@@ -20,7 +20,7 @@
   (roslisp:ros-info (suturo planlib)
                     "FIND-OBJECTS"))
 
-(declare-goal filter-objects (designators)
+(declare-goal get-edible-objects (indicator designators)
   (roslisp:ros-info (suturo planlib)
                     "FILTER-OBJECTS ~a LENGTH ~a" designators (length designators)))
 
@@ -44,7 +44,7 @@
          `((desig-props:type desig-props:box)
            (desig-props:color desig-props:blue)))))
 
-(def-goal (filter-objects ?objs)
+(def-goal (get-edible-objects the ?objs)
   (let ((filtered-objects ?objs)) ;todo pm einbauen
     (cond ((= (length filtered-objects) 1)
            (first filtered-objects))
@@ -53,6 +53,12 @@
                       :result ?objs))
           (t (cpl:error 'food-overflow
                         :result filtered-objects))))
+  (roslisp:ros-info (suturo planlib)
+                      "OBJECTS FILTERED"))
+
+(def-goal (get-edible-objects all ?objs)
+  (let ((filtered-objects ?objs)) ;todo pm einbauen
+    filtered-objects)
   (roslisp:ros-info (suturo planlib)
                       "OBJECTS FILTERED"))
 

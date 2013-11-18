@@ -15,7 +15,7 @@
            (roslisp:ros-error
             (perceive-failure plan)
             "More than one edible object.")))
-    (let ((edible-object (suturo-planlib::filter-objects perceived-objects)))
+    (let ((edible-object (suturo-planlib::get-edible-objects 'suturo-planlib:the perceived-objects)))
       (suturo-planlib::touch-object edible-object))))
   (ros-info (suturo-executive) "PLAN SUCCESS"))
 
