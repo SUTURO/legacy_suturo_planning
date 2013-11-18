@@ -4,6 +4,10 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "food-overflow"))
 
+(define-condition starvation (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "starvation"))
+
 (declare-goal test-plan (indicator)
   (roslisp:ros-info (suturo planlib)
                     "TEST-PLAN ~a" indicator))
@@ -18,7 +22,7 @@
 
 (declare-goal filter-objects (designators)
   (roslisp:ros-info (suturo planlib)
-                    "FILTER-OBJECTS ~a" designators))
+                    "FILTER-OBJECTS ~a LENGTH ~a" designators (length designators)))
 
 (declare-goal touch-object (designator)
   (roslisp:ros-info (suturo planlib)
@@ -34,12 +38,19 @@
 
 (def-goal (find-objects)
   (roslisp:ros-info (suturo planlib)
-                    "OBJECTS FOUND"))
+                    "OBJECTS FOUND")
+  (list (make-designator
+   'cram-designators:object
+   `((desig-props:type desig-props:box)
+     (desig-props:color desig-props:blue)))))
 
 (def-goal (filter-objects ?objs)
-  (let (filtered-objects ?objs)
+  (let ((filtered-objects ?objs)) ;todo pm einbauen
     (cond ((= (length filtered-objects) 1)
            (first filtered-objects))
+          ((= (length filtered-objects) 0)
+           (cpl:error 'starvation
+                      :result ?objs))
           (t (cpl:error 'food-overflow
                         :result filtered-objects))))
   (roslisp:ros-info (suturo planlib)

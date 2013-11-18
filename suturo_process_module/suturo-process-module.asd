@@ -6,6 +6,8 @@
                cram-roslisp-common
                cram-reasoning
                cram-projection
+               cram-plan-failures
+               cram-plan-knowledge
                alexandria)
 
   :components
