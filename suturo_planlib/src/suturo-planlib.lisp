@@ -40,9 +40,9 @@
   (roslisp:ros-info (suturo planlib)
                     "OBJECTS FOUND")
   (list (make-designator
-   'cram-designators:object
-   `((desig-props:type desig-props:box)
-     (desig-props:color desig-props:blue)))))
+         'cram-designators:object
+         `((desig-props:type desig-props:box)
+           (desig-props:color desig-props:blue)))))
 
 (def-goal (filter-objects ?objs)
   (let ((filtered-objects ?objs)) ;todo pm einbauen
