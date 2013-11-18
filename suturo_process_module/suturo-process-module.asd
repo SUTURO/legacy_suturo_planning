@@ -4,6 +4,8 @@
   :depends-on (designators-ros
                process-modules
                cram-roslisp-common
+               cram-reasoning
+               cram-projection
                alexandria)
 
   :components
