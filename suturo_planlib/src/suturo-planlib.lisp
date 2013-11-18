@@ -42,15 +42,19 @@
   (list (make-designator
          'cram-designators:object
          `((desig-props:type desig-props:box)
-           (desig-props:color desig-props:blue)))))
+           (desig-props:color desig-props:blue)))
+        (make-designator
+         'cram-designators:object
+         `((desig-props:type desig-props:box)
+           (desig-props:color desig-props:red)))))
 
 (def-goal (get-edible-objects the ?objs)
   (let ((filtered-objects ?objs)) ;todo pm einbauen
     (cond ((= (length filtered-objects) 1)
-           (first filtered-objects))
+           filtered-objects)
           ((= (length filtered-objects) 0)
            (cpl:error 'starvation
-                      :result ?objs))
+                      :result filtered-objects))
           (t (cpl:error 'food-overflow
                         :result filtered-objects))))
   (roslisp:ros-info (suturo planlib)
