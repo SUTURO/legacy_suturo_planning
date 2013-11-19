@@ -18,4 +18,4 @@
                      #:color #:red #:white #:blue #:green
                      #:move #:at #:loc
                      #:name #:container #:category #:owner #:cornflakes
-                     #:pose))
+                     #:pose #:edible))

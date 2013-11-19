@@ -1,5 +1,10 @@
 (in-package :suturo-planlib)
 
+(defmacro with-process-modules (&body body)
+  `(cpm:with-process-modules-running
+       (suturo-process-module:suturo-process-module)
+     ,@body))
+
 (define-condition food-overflow (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "food-overflow"))
@@ -49,24 +54,29 @@
            (desig-props:color desig-props:red)))))
 
 (def-goal (get-edible-objects the ?objs)
-  (let ((filtered-objects (get-edible-objects 'all ?objs)))
-    (cond ((= (length filtered-objects) 1)
-           filtered-objects)
-          ((= (length filtered-objects) 0)
+  (let ((edible-objects (get-edible-objects 'all ?objs)))
+    (cond ((= (length edible-objects) 1)
+           edible-objects)
+          ((= (length edible-objects) 0)
            (cpl:error 'no-food-found
-                      :result filtered-objects))
+                      :result edible-objects))
           (t (cpl:error 'food-overflow
-                        :result filtered-objects)))
+                        :result edible-objects)))
     (roslisp:ros-info (suturo planlib)
                       "FOUND THE EDIBLE OBJECT ~a"
-                      filtered-objects)))
+                      edible-objects)))
 
 (def-goal (get-edible-objects all ?objs)
-  (let ((filtered-objects ?objs)) ;todo pm einbauen
-    (roslisp:ros-info (suturo planlib)
-                      "OBJECTS FILTERED ~a"
-                      filtered-objects)
-    filtered-objects))
+  (with-process-modules
+    (with-designators
+        ((act-ground (action
+                      `((desig-props:to
+                         desig-props:ground)
+                        (desig-props:obj, ?objs)))))      
+      (perform act-ground)
+      (roslisp:ros-info (suturo planlib)
+                        "OBJECTS FILTERED")
+      ?objs)))     ;?objs muss spaeter geloescht werden
 
 (def-goal (touch-object ?obj)
   (roslisp:ros-info (suturo planlib)
