@@ -4,9 +4,9 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "food-overflow"))
 
-(define-condition starvation (simple-plan-failure)
+(define-condition no-food-found (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
-  (:default-initargs :format-control "starvation"))
+  (:default-initargs :format-control "no-food-found"))
 
 (declare-goal test-plan (indicator)
   (roslisp:ros-info (suturo planlib)
@@ -22,7 +22,7 @@
 
 (declare-goal get-edible-objects (indicator designators)
   (roslisp:ros-info (suturo planlib)
-                    "FILTER-OBJECTS ~a LENGTH ~a" designators (length designators)))
+                    "GET-EDIBLE-OBJECTS ~a ~a" indicator designators))
 
 (declare-goal touch-object (designator)
   (roslisp:ros-info (suturo planlib)
@@ -49,22 +49,24 @@
            (desig-props:color desig-props:red)))))
 
 (def-goal (get-edible-objects the ?objs)
-  (let ((filtered-objects ?objs)) ;todo pm einbauen
+  (let ((filtered-objects (get-edible-objects 'all ?objs)))
     (cond ((= (length filtered-objects) 1)
            filtered-objects)
           ((= (length filtered-objects) 0)
-           (cpl:error 'starvation
+           (cpl:error 'no-food-found
                       :result filtered-objects))
           (t (cpl:error 'food-overflow
-                        :result filtered-objects))))
-  (roslisp:ros-info (suturo planlib)
-                      "OBJECTS FILTERED"))
+                        :result filtered-objects)))
+    (roslisp:ros-info (suturo planlib)
+                      "FOUND THE EDIBLE OBJECT ~a"
+                      filtered-objects)))
 
 (def-goal (get-edible-objects all ?objs)
   (let ((filtered-objects ?objs)) ;todo pm einbauen
-    filtered-objects)
-  (roslisp:ros-info (suturo planlib)
-                      "OBJECTS FILTERED"))
+    (roslisp:ros-info (suturo planlib)
+                      "OBJECTS FILTERED ~a"
+                      filtered-objects)
+    filtered-objects))
 
 (def-goal (touch-object ?obj)
   (roslisp:ros-info (suturo planlib)
