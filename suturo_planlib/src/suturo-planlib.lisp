@@ -1,10 +1,5 @@
 (in-package :suturo-planlib)
 
-(defmacro with-process-modules (&body body)
-  `(cpm:with-process-modules-running
-       (suturo-process-module:suturo-process-module)
-     ,@body))
-
 (define-condition food-overflow (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "food-overflow"))
@@ -34,11 +29,10 @@
                     "TOUCH-OBJECT ~a" designator))              
 
 (def-goal (test-plan test1)
-  (roslisp:ros-info (suturo planlib)
-                    "TEST1 COMPLETED"))
+    (roslisp:ros-info (suturo planlib)
+                      "TEST1 COMPLETED"))
 
 (def-goal (reach-position initial)
-  (with-process-modules
     (with-designators
         ((act-pose (action
                     `((desig-props:to
@@ -46,16 +40,15 @@
                       (desig-props:pose, 'initial)))))
       (perform act-pose)
       (roslisp:ros-info (suturo planlib)
-                        "REACHED INITIAL-POSITION"))))
+                        "REACHED INITIAL-POSITION")))
 
 (def-goal (find-objects)
-  (with-process-modules
     (with-designators
         ((obj-1 (object ()))
          (act-perceive (action
-                      `((desig-props:to
-                         desig-props:perceive)
-                        (desig-props:obj, obj-1)))))      
+                        `((desig-props:to
+                           desig-props:perceive)
+                          (desig-props:obj, obj-1)))))      
       (perform act-perceive)
       (roslisp:ros-info (suturo planlib)
                         "OBJECTS FOUND")
@@ -66,23 +59,22 @@
             (make-designator
              'cram-designators:object
              `((desig-props:type desig-props:box)
-               (desig-props:color desig-props:red)))))))
+               (desig-props:color desig-props:red))))))
 
 (def-goal (get-edible-objects the ?objs)
-  (let ((edible-objects (get-edible-objects 'all ?objs)))
-    (cond ((= (length edible-objects) 1)
-           edible-objects)
-          ((= (length edible-objects) 0)
-           (cpl:error 'no-food-found
-                      :result edible-objects))
-          (t (cpl:error 'food-overflow
-                        :result edible-objects)))
-    (roslisp:ros-info (suturo planlib)
-                      "FOUND THE EDIBLE OBJECT ~a"
-                      edible-objects)))
+    (let ((edible-objects (get-edible-objects 'all ?objs)))
+      (cond ((= (length edible-objects) 1)
+             edible-objects)
+            ((= (length edible-objects) 0)
+             (cpl:error 'no-food-found
+                        :result edible-objects))
+            (t (cpl:error 'food-overflow
+                          :result edible-objects)))
+      (roslisp:ros-info (suturo planlib)
+                        "FOUND THE EDIBLE OBJECT ~a"
+                        edible-objects)))
 
 (def-goal (get-edible-objects all ?objs)
-  (with-process-modules
     (with-designators
         ((act-ground (action
                       `((desig-props:to
@@ -91,9 +83,9 @@
       (perform act-ground)
       (roslisp:ros-info (suturo planlib)
                         "OBJECTS FILTERED")
-      ?objs)))     ;?objs muss spaeter geloescht werden
+      ?objs))    ;?objs muss spaeter geloescht werden
 
 (def-goal (touch-object ?obj)
-  (roslisp:ros-info (suturo planlib)
+    (roslisp:ros-info (suturo planlib)
                       "TOUCHED OBJECT"))
 
