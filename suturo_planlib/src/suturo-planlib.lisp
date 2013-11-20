@@ -38,20 +38,35 @@
                     "TEST1 COMPLETED"))
 
 (def-goal (reach-position initial)
-  (roslisp:ros-info (suturo planlib)
-                    "REACHED INITIAL-POSITION"))
+  (with-process-modules
+    (with-designators
+        ((act-pose (action
+                    `((desig-props:to
+                       desig-props:move)
+                      (desig-props:pose, 'initial)))))
+      (perform act-pose)
+      (roslisp:ros-info (suturo planlib)
+                        "REACHED INITIAL-POSITION"))))
 
 (def-goal (find-objects)
-  (roslisp:ros-info (suturo planlib)
-                    "OBJECTS FOUND")
-  (list (make-designator
-         'cram-designators:object
-         `((desig-props:type desig-props:box)
-           (desig-props:color desig-props:blue)))
-        (make-designator
-         'cram-designators:object
-         `((desig-props:type desig-props:box)
-           (desig-props:color desig-props:red)))))
+  (with-process-modules
+    (with-designators
+        ((obj-1 (object ()))
+         (act-perceive (action
+                      `((desig-props:to
+                         desig-props:perceive)
+                        (desig-props:obj, obj-1)))))      
+      (perform act-perceive)
+      (roslisp:ros-info (suturo planlib)
+                        "OBJECTS FOUND")
+      (list (make-designator
+             'cram-designators:object
+             `((desig-props:type desig-props:box)
+               (desig-props:color desig-props:blue)))
+            (make-designator
+             'cram-designators:object
+             `((desig-props:type desig-props:box)
+               (desig-props:color desig-props:red)))))))
 
 (def-goal (get-edible-objects the ?objs)
   (let ((edible-objects (get-edible-objects 'all ?objs)))

@@ -12,11 +12,11 @@
 
 (def-action-handler ground (obj-desig)
   "Looks up matching objects from the knowledge base"
-  (roslisp:ros-info (suturo-pm perceive)
+  (roslisp:ros-info (suturo-pm ground)
                     "Grounding object."))
 
-(def-action-handler move (obj-desig)
+(def-action-handler move (pose)
   "Foobar"
-  (roslisp:ros-info (suturo-pm perceive)
-                    "Moving object."))
-
+  (roslisp:ros-info (suturo-pm move)
+                    "Reached pose ~a."
+                    pose))
