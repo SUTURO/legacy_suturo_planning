@@ -6,10 +6,10 @@
         #:cram-plan-knowledge #:cram-plan-library #:cpl
 	#:cram-plan-failures)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
-  (:export test1 initial a the all)
+  (:export test1 initial a the all right left)
   (:desig-properties #:to #:perceive #:obj #:ground
                      #:type #:box #:bowl #:cutlery
                      #:color #:red #:white #:blue #:green
                      #:move #:at #:loc
                      #:name #:container #:category #:owner #:cornflakes
-                     #:pose #:all #:a #:the :#edible))
+                     #:pose #:all #:a #:the :#edible :#left :#right))

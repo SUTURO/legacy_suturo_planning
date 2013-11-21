@@ -24,7 +24,7 @@
   (roslisp:ros-info (suturo planlib)
                     "GET-EDIBLE-OBJECTS ~a ~a" indicator designators))
 
-(declare-goal touch-object (designator)
+(declare-goal touch-object (indicator designator)
   (roslisp:ros-info (suturo planlib)
                     "TOUCH-OBJECT ~a" designator))              
 
@@ -85,7 +85,7 @@
                         "OBJECTS FILTERED")
       ?objs))    ;?objs muss spaeter geloescht werden
 
-(def-goal (touch-object ?obj)
+(def-goal (touch-object ?arm ?obj)
     (roslisp:ros-info (suturo planlib)
                       "TOUCHED OBJECT"))
 
