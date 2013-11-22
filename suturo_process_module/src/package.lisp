@@ -9,8 +9,8 @@
         #:designators-ros
         #:cram-roslisp-common
         #:cram-process-modules
-	#:cram-plan-failures
-	#:cram-plan-knowledge)
+        #:cram-plan-failures
+        #:cram-plan-knowledge)
   (:import-from alexandria ignore-some-conditions)
   (:export suturo-process-module)
   (:desig-properties #:to #:perceive #:obj #:ground #:touch

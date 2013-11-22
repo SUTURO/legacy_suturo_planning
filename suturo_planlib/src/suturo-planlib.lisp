@@ -57,7 +57,7 @@
                         `((desig-props:to
                            desig-props:perceive)
                           (desig-props:obj, obj-1)))))      
-      (perform act-perceive)
+      (format t "~a~%" (perform act-perceive))
       (roslisp:ros-info (suturo planlib)
                         "OBJECTS FOUND")
       (list (make-designator

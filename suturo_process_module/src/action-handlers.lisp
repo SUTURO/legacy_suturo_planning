@@ -7,8 +7,21 @@
 
 (def-action-handler perceive (obj-desig)
   "Returns a list of objects perceived on the table"
-  (roslisp:ros-info (suturo-pm perceive)
-                    "Perceiving object."))
+  (roslisp:with-ros-node ("perception_client_planning")
+    (let ((service "/GetClusters"))
+      (if (not (roslisp:wait-for-service service 10))
+          (roslisp:ros-warn nil "Timed out waiting for service GetClusters")
+          (let ((results (roslisp:call-service
+                          service
+                          "suturo_perception_msgs/GetClusters"
+                          :s "get")))
+            (roslisp:with-fields (perceivedobjs) results
+              (loop for i from 0 below (length perceivedobjs)
+                    for obj = (elt perceivedobjs i)
+                    do 
+                       (roslisp:with-fields (c_id c_centroid c_volume) obj
+                         (format t "~a~%" c_centroid)
+                         (format t "~a~%" c_volume)))))))))
 
 (def-action-handler ground (obj-desig)
   "Looks up matching objects from the knowledge base"
