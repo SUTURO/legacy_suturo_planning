@@ -8,6 +8,14 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "no-food-found"))
 
+(define-condition touch-failed (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "touch-failed"))
+
+(define-condition pose-not-reached (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "pose-not-reached"))
+
 (declare-goal test-plan (indicator)
   (roslisp:ros-info (suturo planlib)
                     "TEST-PLAN ~a" indicator))

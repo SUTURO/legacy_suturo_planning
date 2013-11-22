@@ -9,7 +9,7 @@
   "Finds and touches the edible object out of the objects located on the table"
   (with-process-modules
     (with-failure-handling
-        ((suturo-planlib::no-food-found ;Platzhalter fuer die Exception von reach-position
+        ((suturo-planlib::pose-not-reached
            (f)
            (declare (ignore f))
            (roslisp:ros-error
@@ -25,7 +25,7 @@
             (perceive-failure plan)
             "No edible object found.")
            (retry))
-         (suturo-planlib::food-overflow ;Platzhalter fuer exception von touch-object
+         (suturo-planlib::touch-failed
            (f)
            (declare (ignore f))
            (roslisp:ros-error
@@ -49,7 +49,7 @@
                 (arm 'suturo-planlib:right)
                 (attempts-left 4))
             (with-failure-handling
-                ((suturo-planlib::food-overflow ;Platzhalter fuer exception von touch-object
+                ((suturo-planlib::touch-failed
                    (f)
                    (declare (ignore f))
                    (roslisp:ros-error
