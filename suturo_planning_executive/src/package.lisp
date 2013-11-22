@@ -1,4 +1,4 @@
-(defpackage suturo-executive
+(defpackage suturo-planning-executive
   (:nicknames :exec)
   (:use #:roslisp #:cram-utilities #:designators-ros
         #:cram-roslisp-common #:cram-designators

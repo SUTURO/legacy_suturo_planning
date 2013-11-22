@@ -1,4 +1,4 @@
-(in-package :suturo-planlib)
+(in-package :suturo-planning-planlib)
 
 (define-condition food-overflow (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
@@ -95,13 +95,13 @@
                         "OBJECTS FILTERED")
       ?objs))    ;?objs muss spaeter geloescht werden
 
-(def-goal (touch-object ?obj ?arm)
+(def-goal (touch-object ?arm ?obj)
     (with-designators
         ((act-touch (action
                      `((desig-props:to
                         desig-props:touch)
-                        (desig-props:obj ,?obj)
-                        (desig-props:arm ,?arm)))))
+                        (desig-props:arm ,?arm)
+                        (desig-props:obj ,?obj)))))
       (perform act-touch)
       (roslisp:ros-info (suturo planlib)
                         "TOUCHED OBJECT")))

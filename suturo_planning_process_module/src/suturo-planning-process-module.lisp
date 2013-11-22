@@ -1,4 +1,4 @@
-(in-package :suturo-process-module)
+(in-package :suturo-planning-process-module)
 
 (defgeneric call-action (action &rest params))
 
@@ -17,5 +17,5 @@
     (roslisp:ros-info (suturo process-module)
                       "Action done.")))
 
-(def-process-module suturo-process-module (desig)
+(def-process-module suturo-planning-process-module (desig)
   (apply #'call-action (reference desig)))

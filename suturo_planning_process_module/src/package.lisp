@@ -1,6 +1,6 @@
 (in-package :cl-user)
 
-(desig-props:def-desig-package suturo-process-module
+(desig-props:def-desig-package suturo-planning-process-module
   (:nicknames :suturo-pm)
   (:use #:common-lisp
         #:crs
@@ -12,7 +12,7 @@
         #:cram-plan-failures
         #:cram-plan-knowledge)
   (:import-from alexandria ignore-some-conditions)
-  (:export suturo-process-module)
+  (:export suturo-planning-process-module)
   (:desig-properties #:to #:perceive #:obj #:ground #:touch
                      #:type #:box #:bowl #:cutlery #:arm
                      #:color #:red #:white #:blue #:green

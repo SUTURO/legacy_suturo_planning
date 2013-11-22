@@ -1,4 +1,4 @@
-(defsystem suturo-process-module
+(defsystem suturo-planning-process-module
   :author "SUTURO Planning <suturo-planning@cs.uni-bremen.de>"
   
   :depends-on (designators-ros
@@ -19,5 +19,5 @@
             ((:file "package")
              (:file "designators" :depends-on ("package"))
              (:file "action-handlers" :depends-on ("package" "designators"))
-             (:file "suturo-process-module"
+             (:file "suturo-planning-process-module"
               :depends-on ("package" "designators" "action-handlers"))))))

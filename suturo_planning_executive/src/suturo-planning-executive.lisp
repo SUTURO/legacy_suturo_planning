@@ -1,55 +1,55 @@
-(in-package :suturo-executive)
+(in-package :suturo-planning-executive)
 
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
-       (suturo-process-module:suturo-process-module)
+       (suturo-planning-process-module:suturo-planning-process-module)
      ,@body))
 
 (def-top-level-cram-function touch-edible ()
   "Finds and touches the edible object out of the objects located on the table"
   (with-process-modules
     (with-failure-handling
-        ((suturo-planlib::pose-not-reached
+        ((suturo-planning-planlib::pose-not-reached
            (f)
            (declare (ignore f))
            (roslisp:ros-error
             (manipulation-failure plan)
             "Failed bring the robot in the initial pose.")
            (retry)))
-      (suturo-planlib::reach-position 'suturo-planlib:initial))
+      (suturo-planning-planlib::reach-position 'suturo-planning-planlib:initial))
     (with-failure-handling
-        ((suturo-planlib::no-food-found 
+        ((suturo-planning-planlib::no-food-found 
            (f)
            (declare (ignore f))
            (roslisp:ros-error
             (perceive-failure plan)
             "No edible object found.")
            (retry))
-         (suturo-planlib::touch-failed
+         (suturo-planning-planlib::touch-failed
            (f)
            (declare (ignore f))
            (roslisp:ros-error
             (manipulation-failure plan)
             "Still failed to touch object after serveral attempts.")
            (retry)))
-      (let ((perceived-objects (suturo-planlib::find-objects))
-            (edible-obj-indicator 'suturo-planlib:the))
+      (let ((perceived-objects (suturo-planning-planlib::find-objects))
+            (edible-obj-indicator 'suturo-planning-planlib:the))
         (with-failure-handling
-            ((suturo-planlib::food-overflow 
+            ((suturo-planning-planlib::food-overflow 
                (f)
                (declare (ignore f))
                (roslisp:ros-error
                 (perceive-failure plan)
                 "More than one edible object.")
-               (setq edible-obj-indicator 'suturo-planlib:all)
+               (setq edible-obj-indicator 'suturo-planning-planlib:all)
                (retry)))
-          (let ((edible-object (first (suturo-planlib::get-edible-objects
+          (let ((edible-object (elt (suturo-planning-planlib::get-edible-objects
                                        edible-obj-indicator
-                                       perceived-objects)))
-                (arm 'suturo-planlib:right)
+                                       perceived-objects) 0))
+                (arm 'suturo-planning-planlib:right)
                 (attempts-left 4))
             (with-failure-handling
-                ((suturo-planlib::touch-failed
+                ((suturo-planning-planlib::touch-failed
                    (f)
                    (declare (ignore f))
                    (roslisp:ros-error
@@ -58,11 +58,11 @@
                    (setq arm (switch-arms arm))
                    (setq attempts-left (- attempts-left 1))
                    (if (> attempts-left 0) (retry))))
-                 (suturo-planlib::touch-object arm edible-object))))))
-      (ros-info (suturo-executive) "PLAN SUCCESS")))
+                 (suturo-planning-planlib::touch-object arm edible-object))))))
+      (ros-info (suturo-planning-executive) "PLAN SUCCESS")))
 
 (def-top-level-cram-function test-planlib ()
-  (suturo-planlib::test-plan 'suturo-planlib:test1))
+  (suturo-planning-planlib::test-plan 'suturo-planning-planlib:test1))
 
 (def-top-level-cram-function test-process-module ()
   (with-process-modules
@@ -75,8 +75,8 @@
         (perform act-perceive))))
 
 (defun switch-arms (arm)
-  (if (eql arm 'suturo-planlib:left)
-      'suturo-planlib:right
-      'suturo-planlib:left))
+  (if (eql arm 'suturo-planning-planlib:left)
+      'suturo-planning-planlib:right
+      'suturo-planning-planlib:left))
 
 

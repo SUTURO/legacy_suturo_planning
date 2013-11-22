@@ -1,4 +1,4 @@
-(in-package :suturo-process-module)
+(in-package :suturo-planning-process-module)
 
 (defmacro def-action-handler (name args &body body)
   (alexandria:with-gensyms (action-sym params)

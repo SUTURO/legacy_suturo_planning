@@ -1,4 +1,4 @@
-(defsystem suturo-executive
+(defsystem suturo-planning-executive
   :author "SUTURO Planning <suturo-planning@cs.uni-bremen.de>"
   
   :depends-on (roslisp
@@ -6,10 +6,10 @@
                cram-roslisp-common
                alexandria
                cram-language
-               suturo-process-module
-               suturo-planlib)
+               suturo-planning-process-module
+               suturo-planning-planlib)
   :components
   ((:module "src"
     :components
     ((:file "package")
-     (:file "suturo-executive" :depends-on ("package"))))))
+     (:file "suturo-planning-executive" :depends-on ("package"))))))
