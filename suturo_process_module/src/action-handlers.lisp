@@ -16,17 +16,19 @@
                           "suturo_perception_msgs/GetClusters"
                           :s "get")))
             (roslisp:with-fields (perceivedobjs) results
-              (loop for i from 0 below (length perceivedobjs)
-                    for obj = (elt perceivedobjs i)
-                    do 
-                       (roslisp:with-fields (c_id c_centroid c_volume) obj
-                         (format t "~a~%" c_centroid)
-                         (format t "~a~%" c_volume)))))))))
+;              (loop for i from 0 below (length perceivedobjs)
+;                    for obj = (elt perceivedobjs i)
+;                    do 
+;                       (roslisp:with-fields (c_id c_centroid c_volume) obj
+;                         (format t "~a~%" c_centroid)
+;                         (format t "~a~%" c_volume)))
+              perceivedobjs))))))
 
 (def-action-handler ground (obj-desig)
   "Looks up matching objects from the knowledge base"
   (roslisp:ros-info (suturo-pm ground)
-                    "Grounding object."))
+                    "Grounding object.")
+  (format t "OBJ-DESIG: ~a" obj-desig))
 
 (def-action-handler move (pose)
   "Foobar"

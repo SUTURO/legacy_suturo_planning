@@ -57,17 +57,19 @@
                         `((desig-props:to
                            desig-props:perceive)
                           (desig-props:obj, obj-1)))))      
-      (format t "~a~%" (perform act-perceive))
-      (roslisp:ros-info (suturo planlib)
-                        "OBJECTS FOUND")
-      (list (make-designator
-             'cram-designators:object
-             `((desig-props:type desig-props:box)
-               (desig-props:color desig-props:blue)))
-            (make-designator
-             'cram-designators:object
-             `((desig-props:type desig-props:box)
-               (desig-props:color desig-props:red))))))
+      (let ((results (perform act-perceive)))
+        (format t "Foo ~a~%" results)
+        (roslisp:ros-info (suturo planlib)
+                          "OBJECTS FOUND")
+        results)))
+;      (list (make-designator
+;             'cram-designators:object
+;             `((desig-props:type desig-props:box)
+;               (desig-props:color desig-props:blue)))
+;            (make-designator
+;             'cram-designators:object
+;             `((desig-props:type desig-props:box)
+;               (desig-props:color desig-props:red))))))
 
 (def-goal (get-edible-objects the ?objs)
     (let ((edible-objects (get-edible-objects 'all ?objs)))
