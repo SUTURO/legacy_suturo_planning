@@ -12,7 +12,12 @@
 
   (<- (action-desig ?desig (move ?pose))
     (desig-prop ?desig (to move))
-    (desig-prop ?desig (pose ?pose))))
+    (desig-prop ?desig (pose ?pose)))
+
+  (<- (action-desig ?desig (touch ?obj ?arm))
+    (desig-prop ?desig (to touch))
+    (desig-prop ?desig (obj ?obj))
+    (desig-prop ?desig (arm ?arm))))
 
 (def-fact-group suturo-process-module (matching-process-module
                                        available-process-module)

@@ -87,13 +87,20 @@
         ((act-ground (action
                       `((desig-props:to
                          desig-props:ground)
-                        (desig-props:obj, ?objs)))))      
+                        (desig-props:obj ,?objs)))))      
       (perform act-ground)
       (roslisp:ros-info (suturo planlib)
                         "OBJECTS FILTERED")
       ?objs))    ;?objs muss spaeter geloescht werden
 
-(def-goal (touch-object ?arm ?obj)
-    (roslisp:ros-info (suturo planlib)
-                      "TOUCHED OBJECT"))
+(def-goal (touch-object ?obj ?arm)
+    (with-designators
+        ((act-touch (action
+                     `((desig-props:to
+                        desig-props:touch)
+                        (desig-props:obj ,?obj)
+                        (desig-props:arm ,?arm)))))
+      (perform act-touch)
+      (roslisp:ros-info (suturo planlib)
+                        "TOUCHED OBJECT")))
 

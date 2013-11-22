@@ -7,8 +7,8 @@
 	#:cram-plan-failures)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
   (:export test1 initial a the all right left)
-  (:desig-properties #:to #:perceive #:obj #:ground
-                     #:type #:box #:bowl #:cutlery
+  (:desig-properties #:to #:perceive #:obj #:ground #:touch
+                     #:type #:box #:bowl #:cutlery #:arm
                      #:color #:red #:white #:blue #:green
                      #:move #:at #:loc
                      #:name #:container #:category #:owner #:cornflakes

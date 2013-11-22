@@ -20,3 +20,8 @@
   (roslisp:ros-info (suturo-pm move)
                     "Reached pose ~a."
                     pose))
+
+(def-action-handler touch (arm obj)
+  "Moves the arm to the object"
+  (roslisp:ros-info (suturo-pm touch)
+                    "Touched object"))

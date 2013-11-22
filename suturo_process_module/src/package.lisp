@@ -13,8 +13,8 @@
 	#:cram-plan-knowledge)
   (:import-from alexandria ignore-some-conditions)
   (:export suturo-process-module)
-  (:desig-properties #:to #:perceive #:obj #:ground
-                     #:type #:box #:bowl #:cutlery
+  (:desig-properties #:to #:perceive #:obj #:ground #:touch
+                     #:type #:box #:bowl #:cutlery #:arm
                      #:color #:red #:white #:blue #:green
                      #:move #:at #:loc
                      #:name #:container #:category #:owner #:cornflakes
