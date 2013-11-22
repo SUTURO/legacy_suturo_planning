@@ -3,12 +3,15 @@
   
   :depends-on (designators-ros
                process-modules
+               roslisp
                cram-roslisp-common
                cram-reasoning
                cram-projection
                cram-plan-failures
                cram-plan-knowledge
-               alexandria)
+               alexandria
+               suturo_perception_msgs-srv
+               suturo_perception_msgs-msg)
 
   :components
   ((:module "src"
