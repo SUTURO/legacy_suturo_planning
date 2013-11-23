@@ -5,7 +5,7 @@
 
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
-       (suturo-planning-process-module:suturo-planning-process-module)
+       (suturo-planning-process-module-dummy:suturo-planning-process-module-dummy)
      ,@body))
 
 (def-top-level-cram-function touch-edible ()
