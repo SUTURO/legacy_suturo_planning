@@ -1,27 +1,22 @@
 (in-package :suturo-planning-planlib)
 
-(declare-goal test-plan (indicator)
-  ;Testrun for top-level plan.
-  (roslisp:ros-info (suturo planlib)
-                    "TEST-PLAN ~a" indicator))
-
 (declare-goal reach-position (indicator)
-  ;Manipulation moves arms into position
+  "Manipulation moves arms into position"
   (roslisp:ros-info (suturo planlib)
                     "INITIAL-POSITION ~a" indicator))
 
 (declare-goal find-objects ()
-  ;Perception perceives objects
+  "Perception perceives objects"
   (roslisp:ros-info (suturo planlib)
                     "FIND-OBJECTS"))
 
 (declare-goal get-edible-objects (indicator designators)
-  ;Knowledge Representation returns edible object(s)
+  "Knowledge Representation returns edible object(s)"
   (roslisp:ros-info (suturo planlib)
                     "GET-EDIBLE-OBJECTS ~a ~a" indicator designators))
 
 (declare-goal touch-object (indicator designator)
-  ;Manipulation moves arm to object
+  "Manipulation moves arm to object"
   (roslisp:ros-info (suturo planlib)
                     "TOUCH-OBJECT ~a" designator))              
 
