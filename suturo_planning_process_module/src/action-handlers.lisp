@@ -85,8 +85,8 @@
 
 (defun init-action-client ()
   (setf *touch-action-client* (actionlib:make-action-client
-                                "actionname"
-                                "suturo_manipulation_msg/action_typeAction"))
+                                "suturo_manipulation_move_server"
+                                "suturo_manipulation_msgs/suturo_manipulation_moveAction"))
   (roslisp:ros-info (suturo-pm touch-action-client)
                     "Waiting for action server...")
   (loop until
@@ -111,5 +111,39 @@
         (get-action-client)
         (make-touch-action-goal arm obj)))
     (roslisp:ros-info (suturo-pm touch-action-client)
+                      "Action finished. Object hopefully touched.")
+    (values result status)))
+
+;same for initial pose 
+
+(defvar *initial-action-client* nil)
+
+(defun init-initial-action-client ()
+  (setf *initial-action-client* (actionlib:make-action-client
+                                "suturo_manipulation_move_server"
+                                "suturo_manipulation_msgs/suturo_manipulation_homeAction"))
+  (roslisp:ros-info (suturo-pm initial-action-client)
+                    "Waiting for action server...")
+  (loop until
+        (actionlib:wait-for-server *initial-action-client*))
+  (roslisp:ros-info (suturo-pm initial-action-client)
+                    "Action client created..."))
+
+(defun get-initial-action-client ()
+  (when (null *initial-action-client*)
+    (init-initial-action-client))
+    *initial-action-client*)
+
+(defun make-initial-action-goal (in-arm)
+  (actionlib:make-action-goal (get-initial-action-client)
+                              arm in-arm))
+
+(defun call-initial-action (&key arm)
+  (multiple-value-bind (result status)
+    (let ((actionlib:*action-server-timeout* 10.0))
+      (actionlib:call-goal
+        (get-initial-action-client)
+        (make-initial-action-goal arm)))
+    (roslisp:ros-info (suturo-pm initial-action-client)
                       "Action finished. Object hopefully touched.")
     (values result status)))
