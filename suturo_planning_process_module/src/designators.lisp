@@ -25,7 +25,8 @@
   (<- (matching-process-module ?designator suturo-planning-process-module)
     (or (desig-prop ?designator (to perceive))
         (desig-prop ?designator (to move))
-        (desig-prop ?designator (to ground))))
+        (desig-prop ?designator (to ground))
+        (desig-prop ?designator (to touch))))
   
   (<- (available-process-module suturo-planning-process-module)
     (symbol-value cram-projection:*projection-environment* nil)))
