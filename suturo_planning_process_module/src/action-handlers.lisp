@@ -24,11 +24,21 @@
 ;                         (format t "~a~%" c_volume)))
               perceivedobjs))))))
 
-(def-action-handler ground (obj-desig)
+(def-action-handler ground (objs)
   "Looks up matching objects from the knowledge base"
-  (roslisp:ros-info (suturo-pm ground)
-                    "Grounding object.")
-  (format t "OBJ-DESIG: ~a" obj-desig))
+  (roslisp:with-ros-node ("knowledge_client_planning")
+    (let ((service "/simple_query"))
+      (if (not (roslisp:wait-for-service service 10))
+          (roslisp:ros-warn nil "Timed out waiting for simple_query")
+          (let ((results (roslisp:call-service
+                         service
+                         "json_prolog/simple_query"
+                         :mode 0
+                         :id ""
+                         :query (parse-perceived-objects-to-string objs))))
+            (roslisp:with-fields (ok message) results
+              (filter-objects-by-ids (parse-object-ids-from-string message) 
+                                     objs)))))))
 
 (def-action-handler move (pose)
   "Foobar"
