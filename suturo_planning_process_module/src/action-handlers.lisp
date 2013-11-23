@@ -28,6 +28,7 @@
   "Looks up matching objects from the knowledge base"
   (roslisp:ros-info (suturo-pm ground)
                     "Grounding object.")
+  (format t "~a~%" (concatenate 'string "is_edible(" (parse-perceived-objects-to-string obj-desig) ", edible_object)"))
   (format t "OBJ-DESIG: ~a" obj-desig))
 
 (def-action-handler move (pose)
@@ -40,3 +41,36 @@
   "Moves the arm to the object"
   (roslisp:ros-info (suturo-pm touch)
                     "Touched object"))
+
+;; utility functions
+
+(defun parse-perceived-objects-to-string (objs)
+  (let ((result "["))
+    (loop for i from 0 below (length objs)
+          for obj = (elt objs i)
+          do
+            (setq result (concatenate 'string
+                                      result 
+                                      (parse-perceived-object-to-string obj)
+                                      ", ")))
+    (concatenate 'string (subseq result 0 (- (length result) 2)) "]")))
+
+(defun parse-perceived-object-to-string (obj)
+; uint32 (float64 float64 float64) float32
+  (roslisp:with-fields (c_id c_centroid c_volume) obj 
+    (concatenate 'string 
+                 "["
+                 (write-to-string c_id)
+                 ", "
+                 (roslisp:with-fields (x y z) c_centroid
+                   (concatenate 'string
+                                "["
+                                (write-to-string x)
+                                ", "
+                                (write-to-string y)
+                                ", "
+                                (write-to-string z)
+                                "]"))
+                 ", "
+                 (write-to-string c_volume)
+                 "]")))
