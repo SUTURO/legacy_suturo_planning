@@ -28,7 +28,6 @@
   "Looks up matching objects from the knowledge base"
   (roslisp:ros-info (suturo-pm ground)
                     "Grounding object.")
-  (format t "~a~%" (concatenate 'string "is_edible(" (parse-perceived-objects-to-string obj-desig) ", edible_object)"))
   (format t "OBJ-DESIG: ~a" obj-desig))
 
 (def-action-handler move (pose)
@@ -39,6 +38,19 @@
 
 (def-action-handler touch (arm obj)
   "Moves the arm to the object"
+  (roslisp:with-ros-node ("manipulation_client_planning")
+    (let ((service "/suturo_manipulation_move_action_server"))
+      (if (not (roslisp:wait-for-service service 10))
+          (roslisp:ros-warn nil "Timed out waiting for service suturo_manipulation_move_action_server")
+          (let ((results (roslisp:call-service
+                          service
+                          "suturo_manipulation_msgs/suturo_manipulation_move_action_server"
+                          :p obj
+                          :arm (if (eql arm 'left) 
+                                   "left_arm"
+                                   "right_arm"))))
+            (roslisp:with-fields (answer) results
+              (format t "RESULT ~a" answer))))))
   (roslisp:ros-info (suturo-pm touch)
                     "Touched object"))
 
