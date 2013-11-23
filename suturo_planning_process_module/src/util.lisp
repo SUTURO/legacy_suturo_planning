@@ -32,3 +32,17 @@
     (ppcre:do-matches (s e "[0-9]{1,}" str nil :start 0 :end (length str))
                       (push (read-from-string (subseq str s e)) result))
     result))
+
+(defun filter-ids (objs ids)
+  (let objs-to-delet nil
+    (loop for obj across objs
+          do
+             (roslisp:with-fields 
+                 (c_id c_centroid recognition_label_2d c_volume shape) 
+               objs
+               (if (not (find c_id ids))
+                   push obj objs-to-delete)))
+    (loop for obj in objs-to-delete
+          (remove obj objs))))
+
+             
