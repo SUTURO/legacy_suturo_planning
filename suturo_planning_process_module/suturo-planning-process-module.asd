@@ -11,13 +11,15 @@
                cram-plan-knowledge
                alexandria
                suturo_perception_msgs-srv
-               suturo_perception_msgs-msg)
+               suturo_perception_msgs-msg
+               cl-ppcre)
 
   :components
   ((:module "src"
             :components
             ((:file "package")
+             (:file "util" :depends-on ("package"))
              (:file "designators" :depends-on ("package"))
-             (:file "action-handlers" :depends-on ("package" "designators"))
+             (:file "action-handlers" :depends-on ("package" "designators" "util"))
              (:file "suturo-planning-process-module"
               :depends-on ("package" "designators" "action-handlers"))))))
