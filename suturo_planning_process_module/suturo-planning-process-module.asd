@@ -12,10 +12,10 @@
                alexandria
                suturo_perception_msgs-srv
                suturo_perception_msgs-msg
-               json_prolog-srv
                suturo_manipulation_msgs-msg
                suturo-planning-common
-               cl-ppcre)
+               json_prolog-srv
+               cl-ppcre
                actionlib)
 
   :components
