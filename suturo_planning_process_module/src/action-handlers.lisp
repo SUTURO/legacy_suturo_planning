@@ -77,17 +77,39 @@
 (def-action-handler touch (arm obj)
   "Moves the arm to the object"
   (roslisp:with-ros-node ("manipulation_client_planning")
-    (let ((service "/suturo_manipulation_move_action_server"))
-      (if (not (roslisp:wait-for-service service 10))
-          (roslisp:ros-warn nil "Timed out waiting for service suturo_manipulation_move_action_server")
-          (let ((results (roslisp:call-service
-                          service
-                          "suturo_manipulation_msgs/suturo_manipulation_move_action_server"
-                          :p obj
-                          :arm (if (eql arm 'left) 
-                                   "left_arm"
-                                   "right_arm"))))
-            (roslisp:with-fields (answer) results
-              (format t "RESULT ~a" answer))))))
-  (roslisp:ros-info (suturo-pm touch)
-                    "Touched object"))
+                         (call-touch-action arm obj)))
+
+;; Define helper functions for manipulation action
+
+(defvar *touch-action-client* nil)
+
+(defun init-action-client ()
+  (setf *touch-action-client* (actionlib:make-action-client
+                                "actionname"
+                                "suturo_manipulation_msg/action_typeAction"))
+  (roslisp:ros-info (suturo-pm touch-action-client)
+                    "Waiting for action server...")
+  (loop until
+        (actionlib:wait-for-server *touch-action-client*))
+  (roslisp:ros-info (suturo-pm touch-action-client)
+                    "Action client created..."))
+
+(defun get-action-client ()
+  (when (null *touch-action-client*)
+    (init-action-client))
+    *touch-action-client*)
+
+(defun make-touch-action-goal (in-arm in-target)
+  (actionlib:make-action-goal (get-action-client)
+                              arm in-arm
+                              obj in-obj))
+
+(defun call-touch-action (&key arm obj)
+  (multiple-value-bind (result status)
+    (let ((actionlib:*action-server-timeout* 10.0))
+      (action-lib:call-goal
+        (get-action-client)
+        (make-touch-action-goal arm obj)))
+    (roslisp:ros-info (suturo-pm touch-action-client)
+                      "Action finished. Object hopefully touched.")
+    (values result status)))
