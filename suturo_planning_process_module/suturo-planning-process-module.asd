@@ -16,7 +16,8 @@
                cl-ppcre
                suturo_manipulation_msgs-msg
                suturo-planning-common
-               actionlib)
+               actionlib
+               cl-ppcre)
 
   :components
   ((:module "src"
