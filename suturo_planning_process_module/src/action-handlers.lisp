@@ -5,7 +5,7 @@
     `(defmethod call-action ((,action-sym (eql ',name)) &rest ,params)
        (destructuring-bind ,args ,params ,@body))))
 
-(def-action-handler perceive (obj-desig)
+(def-action-handler perceive ()
   "Returns a list of objects perceived on the table"
   (roslisp:with-ros-node ("perception_client_planning")
     (let ((service "/GetClusters"))

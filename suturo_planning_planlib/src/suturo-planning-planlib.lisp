@@ -55,8 +55,7 @@
         ((obj-1 (object ()))
          (act-perceive (action
                         `((desig-props:to
-                           desig-props:perceive)
-                          (desig-props:obj, obj-1)))))      
+                           desig-props:perceive)))))      
       (let ((results (perform act-perceive)))
         (format t "Foo ~a~%" results)
         (roslisp:ros-info (suturo planlib)
