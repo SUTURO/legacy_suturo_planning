@@ -57,20 +57,16 @@
 
 (defun parse-perceived-object-to-string (obj)
 ; uint32 (float64 float64 float64) float32
-  (roslisp:with-fields (c_id c_centroid c_volume) obj 
+  (roslisp:with-fields (c_id c_volume recognition_label_2d shape) obj 
     (concatenate 'string 
                  "["
                  (write-to-string c_id)
                  ", "
-                 (roslisp:with-fields (x y z) c_centroid
-                   (concatenate 'string
-                                "["
-                                (write-to-string x)
-                                ", "
-                                (write-to-string y)
-                                ", "
-                                (write-to-string z)
-                                "]"))
+                 "\""
+                 recognition_label_2d
+                 "\""
                  ", "
                  (write-to-string c_volume)
+                 ", "
+                 (write-to-string shape)
                  "]")))
