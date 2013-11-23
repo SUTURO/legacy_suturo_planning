@@ -74,13 +74,13 @@
                     "Failed to touch the object")
                    (setq arm (switch-arms arm))
                    (setq attempts-to-touch-left (- attempts-to-touch-left 1))
-                   (if (> attempts--to-touch-left 0) (retry))))
+                   (if (> attempts-to-touch-left 0) (retry))))
                  ; Touch edible object with desired arm.
                  (suturo-planning-planlib::touch-object arm edible-object))))))
       (ros-info (suturo-planning-executive) "PLAN SUCCESS")))
 
 (defun switch-arms (arm)
-  "Returns 'suturo-planning-planlib:right' in case 'suturo-planning-planlib:left' has been passed, 'suturo-planning-planlib:left' else"
+  "Returns 'suturo-planning-common:right' in case 'suturo-planning-common:left' has been passed, 'suturo-planning-common:left' else"
   (if (eql arm 'suturo-planning-common:left)
       'suturo-planning-common:right
       'suturo-planning-common:left))
