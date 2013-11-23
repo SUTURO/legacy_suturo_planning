@@ -107,7 +107,7 @@
 (defun call-touch-action (&key arm obj)
   (multiple-value-bind (result status)
     (let ((actionlib:*action-server-timeout* 10.0))
-      (action-lib:call-goal
+      (actionlib:call-goal
         (get-action-client)
         (make-touch-action-goal arm obj)))
     (roslisp:ros-info (suturo-pm touch-action-client)
