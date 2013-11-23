@@ -87,7 +87,7 @@
              ;Condtion is thrown if no edible objects were found.
              (cpl:error 'no-food-found
                         :result edible-objects))
-             ;Condition is thrown if to many (>1) edible objects ware found.
+             ;Condition is thrown if to many (>1) edible objects ware found. 
             (t (cpl:error 'food-overflow
                           :result edible-objects)))
       (roslisp:ros-info (suturo planlib)
