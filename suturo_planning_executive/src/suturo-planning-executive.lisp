@@ -5,7 +5,7 @@
        (suturo-planning-process-module-dummy:suturo-planning-process-module-dummy)
      ,@body))
 
-(def-top-level-cram-function touch-edible ()
+(def-top-level-cram-function touch-edible () 
   "Finds and touches the edible object out of the objects located on the table."
   (with-process-modules
     (with-failure-handling
