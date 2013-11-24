@@ -1,5 +1,8 @@
 (in-package :suturo-planning-executive)
 
+(defvar *attempts-to-find-food-left* 3)
+(defvar *attempts-to-reach-initial-pose* 4)
+
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
        (suturo-planning-process-module:suturo-planning-process-module)
@@ -16,7 +19,8 @@
            (roslisp:ros-error
             (manipulation-failure plan)
             "Failed bring the robot in the initial pose.")
-           (retry)))
+           (if (not (= *attempts-to-reach-initial-pose* 0))
+               (retry))))
       ; Take initial position.
       (suturo-planning-planlib::reach-position 'suturo-planning-planlib:initial))
     (with-failure-handling
@@ -35,7 +39,8 @@
            (roslisp:ros-error
             (manipulation-failure plan)
             "Still failed to touch object after serveral attempts.")
-           (retry)))
+           (if (not (= *attempts-to-find-food-left* 0))
+               (retry))))
       ; Find all objects.
       (let ((perceived-objects (suturo-planning-planlib::find-objects))
             (edible-obj-indicator 'suturo-planning-planlib:the))
@@ -64,8 +69,8 @@
                     (manipulation-failure plan)
                     "Failed to touch the object")
                    (setq arm (switch-arms arm))
-                   (setq attempts-left (- attempts-left 1))
-                   (if (> attempts-left 0) (retry))))
+                   (setq attempts-to-touch-left (- attempts-to-touch-left 1))
+                   (if (> attempts--to-touch-left 0) (retry))))
                  ; Touch edible object with desired arm.
                  (suturo-planning-planlib::touch-object arm edible-object))))))
       (ros-info (suturo-planning-executive) "PLAN SUCCESS")))
