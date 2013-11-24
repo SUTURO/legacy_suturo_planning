@@ -27,18 +27,23 @@
 (def-action-handler ground (objs)
   "Looks up matching objects from the knowledge base"
   (roslisp:with-ros-node ("knowledge_client_planning")
-    (let ((service "/simple_query"))
+    (let ((query (concatenate 'string "is_edible(" (parse-perceived-objects-to-string objs) ", answer)"))
+          (service "/json_prolog/simple_query"))
+      (format t "~a~%" query)
       (if (not (roslisp:wait-for-service service 10))
           (roslisp:ros-warn nil "Timed out waiting for simple_query")
           (let ((results (roslisp:call-service
                          service
-                         "json_prolog/simple_query"
+                         "json_prolog/PrologQuery"
                          :mode 0
                          :id ""
-                         :query (parse-perceived-objects-to-string objs))))
+                         :query query)))
             (roslisp:with-fields (ok message) results
-              (filter-objects-by-ids (parse-object-ids-from-string message) 
-                                     objs)))))))
+              (format t "~a~%" message)
+              (format t "~a~%" ok)
+              (if ok
+                (filter-objects-by-ids objs (parse-object-ids-from-string message))
+                #())))))))
 
 (def-action-handler move (pose)
   "Foobar"

@@ -16,8 +16,7 @@
 (defun parse-perceived-object-to-string (obj)
   "Parses the given object of type PerceivedObject to string
   for the use with a json_prolog service"
-; uint32 (float64 float64 float64) float32
-  (roslisp:with-fields (c_id c_volume recognition_label_2d shape) obj 
+  (roslisp:with-fields (c_id c_volume recognition_label_2d c_shape) obj 
     (concatenate 'string 
                  "["
                  (write-to-string c_id)
@@ -28,7 +27,7 @@
                  ", "
                  (write-to-string c_volume)
                  ", "
-                 (write-to-string shape)
+                 (write-to-string c_shape)
                  "]")))
 
 (defun parse-object-ids-from-string (str)
