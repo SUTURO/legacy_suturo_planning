@@ -59,9 +59,9 @@
                (setq edible-obj-indicator 'suturo-planning-planlib:all)
                (retry)))
           ; Find all edible objects.
-          (let ((edible-object (elt (suturo-planning-planlib::get-edible-objects
+          (let ((edible-object (first (suturo-planning-planlib::get-edible-objects
                                        edible-obj-indicator
-                                       perceived-objects) 0))
+                                       perceived-objects)))
                 (arm 'suturo-planning-planlib:right)
                 (attempts-left 4))
             (with-failure-handling

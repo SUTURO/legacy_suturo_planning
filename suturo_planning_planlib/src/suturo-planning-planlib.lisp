@@ -92,7 +92,8 @@
                           :result edible-objects)))
       (roslisp:ros-info (suturo planlib)
                         "FOUND THE EDIBLE OBJECT ~a"
-                        edible-objects)))
+                        edible-objects)
+      edible-objects))
 
 (def-goal (get-edible-objects all ?objs)
     (with-designators
@@ -100,10 +101,10 @@
                       `((desig-props:to
                          desig-props:ground)
                         (desig-props:obj ,?objs)))))      
-      (perform act-ground)
-      (roslisp:ros-info (suturo planlib)
-                        "OBJECTS FILTERED")
-      ?objs))    ;?objs muss spaeter geloescht werden
+        (let ((result (perform act-ground)))
+          (roslisp:ros-info (suturo planlib)
+                            "OBJECTS FILTERED")
+          result)))
 
 (def-goal (touch-object ?arm ?obj)
     (with-designators

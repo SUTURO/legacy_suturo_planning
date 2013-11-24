@@ -27,9 +27,10 @@
 (def-action-handler ground (objs)
   "Looks up matching objects from the knowledge base"
   (roslisp:with-ros-node ("knowledge_client_planning")
-    (let ((query (concatenate 'string "is_edible(" (parse-perceived-objects-to-string objs) ", answer)"))
+    (let ((query (concatenate 'string "is_edible(" (parse-perceived-objects-to-string objs) ", Answer)"))
           (service "/json_prolog/simple_query")
-          (ret-service "/json_prolog/next_solution"))
+          (ret-service "/json_prolog/next_solution")
+          (fin-service "/json_prolog/finish"))
       (format t "~a~%" query)
       (if (not (roslisp:wait-for-service service 10))
           (roslisp:ros-warn nil "Timed out waiting for simple_query")
@@ -50,18 +51,22 @@
                              "json_prolog/PrologNextSolution"
                              :id "")))
                     (roslisp:with-fields (status solution) res
+                      (format t "~a~%" status)
                       (format t "~a~%" solution)
-                      (if (= status 3)
-                        (if (not (roslisp:wait-for-service fin-service 10))
-                          (progn
-                            (roslisp:call-service
+                      (format t "~a~%" (parse-object-ids-from-string solution))
+                      (if (not (roslisp:wait-for-service fin-service 10))
+                        (roslisp:ros-warn nil "Timed out waiting for finish")
+                        (progn
+                          (format t "foo")
+                          (roslisp:call-service
                               fin-service
                               "json_prolog/PrologFinish"
                               :id "")
-                            (filter-objects-by-ids objs (parse-object-ids-from-string solution)))
-                          #())
-                        #()))))
-                #())))))))
+                          (if (= status 3)
+                            (let ((r (filter-objects-by-ids objs (parse-object-ids-from-string solution))))
+                              (format t "~a~%" r)
+                              r)
+                            #())))))))))))))
 
 (def-action-handler move (pose)
   "Foobar"

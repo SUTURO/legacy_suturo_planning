@@ -39,14 +39,15 @@
 
 (defun filter-objects-by-ids (objs ids)
   "Filters a list of objects of type PerceivedObject by a list of given ids"
-  (let ((objs-to-delete nil))
+  (let ((results ()))
+    (format t "~a~%" ids)
     (loop for obj across objs
           do
              (roslisp:with-fields 
                  (c_id) 
-               objs
-               (if (not (find c_id ids))
-                   (push obj objs-to-delete))))
-    (loop for obj in objs-to-delete
-          do
-          (remove obj objs))))
+               obj
+               (format t "~a~%" c_id)
+               (if (find c_id ids)
+                   (push obj results))))
+    (format t "~a~%" results)
+    results))
