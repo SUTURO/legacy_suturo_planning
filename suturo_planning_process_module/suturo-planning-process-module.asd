@@ -11,6 +11,7 @@
                cram-plan-knowledge
                alexandria
                suturo_perception_msgs-srv
+               json_prolog-srv
                suturo_perception_msgs-msg
                json_prolog-srv
                cl-ppcre
