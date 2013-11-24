@@ -52,7 +52,14 @@
                     (roslisp:with-fields (status solution) res
                       (format t "~a~%" solution)
                       (if (= status 3)
-                        (filter-objects-by-ids objs (parse-object-ids-from-string solution))
+                        (if (not (roslisp:wait-for-service fin-service 10))
+                          (progn
+                            (roslisp:call-service
+                              fin-service
+                              "json_prolog/PrologFinish"
+                              :id "")
+                            (filter-objects-by-ids objs (parse-object-ids-from-string solution)))
+                          #())
                         #()))))
                 #())))))))
 
