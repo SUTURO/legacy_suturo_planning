@@ -16,6 +16,7 @@
                suturo-planning-common
                json_prolog-srv
                cl-ppcre
+               suturo-planning-common
                actionlib)
 
   :components
