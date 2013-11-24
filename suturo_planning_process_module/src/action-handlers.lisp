@@ -28,7 +28,8 @@
   "Looks up matching objects from the knowledge base"
   (roslisp:with-ros-node ("knowledge_client_planning")
     (let ((query (concatenate 'string "is_edible(" (parse-perceived-objects-to-string objs) ", answer)"))
-          (service "/json_prolog/simple_query"))
+          (service "/json_prolog/simple_query")
+          (ret-service "/json_prolog/next_solution"))
       (format t "~a~%" query)
       (if (not (roslisp:wait-for-service service 10))
           (roslisp:ros-warn nil "Timed out waiting for simple_query")
@@ -42,7 +43,17 @@
               (format t "~a~%" message)
               (format t "~a~%" ok)
               (if ok
-                (filter-objects-by-ids objs (parse-object-ids-from-string message))
+                (if (not (roslisp:wait-for-service ret-service 10))
+                  (roslisp:ros-warn nil "Timed out waiting for next_solution")
+                  (let ((res (roslisp:call-service
+                             ret-service
+                             "json_prolog/PrologNextSolution"
+                             :id "")))
+                    (roslisp:with-fields (status solution) res
+                      (format t "~a~%" solution)
+                      (if (= status 3)
+                        (filter-objects-by-ids objs (parse-object-ids-from-string solution))
+                        #()))))
                 #())))))))
 
 (def-action-handler move (pose)
