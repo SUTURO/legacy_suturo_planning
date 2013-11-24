@@ -5,7 +5,7 @@
     `(defmethod call-action ((,action-sym (eql ',name)) &rest ,params)
        (destructuring-bind ,args ,params ,@body))))
 
-(def-action-handler perceive (obj)
+(def-action-handler perceive ()
   "Returns a list of objects perceived on the table"
   (vector 1 2 3))
 
@@ -13,7 +13,7 @@
   "Gets a "
   (roslisp:ros-info (suturo-pm ground)
                     "Grounding object.")
-  (vector 1))
+  (list 1))
 
 (def-action-handler move (pose)
   "Foobar"

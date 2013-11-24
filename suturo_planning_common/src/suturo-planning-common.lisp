@@ -15,3 +15,7 @@
 (define-condition pose-not-reached (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "pose-not-reached"))
+
+(define-condition no-object-perceived (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "no-object-perceived"))
