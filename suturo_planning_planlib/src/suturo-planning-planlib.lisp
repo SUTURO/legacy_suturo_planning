@@ -29,12 +29,12 @@
     (roslisp:ros-info (suturo planlib)
                       "TEST1 COMPLETED"))
 
-(def-goal (reach-position initial)
+(def-goal (reach-position suturo-planning-common:initial)
     (with-designators
         ((act-pose (action
                     `((desig-props:to
                        desig-props:move)
-                      (desig-props:pose, 'initial)))))
+                      (desig-props:pose, 'suturo-planning-common:initial)))))
       (perform act-pose)
       (roslisp:ros-info (suturo planlib)
                         "REACHED INITIAL-POSITION")))

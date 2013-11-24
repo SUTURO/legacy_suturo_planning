@@ -148,9 +148,9 @@
     (let ((actionlib:*action-server-timeout* 10.0))
       (actionlib:call-goal
         (get-initial-action-client)
-        ((if (eql arm 'suturo-planning-planlib:left)
+        (if (eql arm 'suturo-planning-common:left)
           (make-initial-action-goal "left_arm")
-          (make-initial-action-goal "right_arm")))))
+          (make-initial-action-goal "right_arm"))))
     (roslisp:ros-info (suturo-pm initial-action-client)
-                      "Action finished. Object hopefully touched.")
+                      "Action finished. Initial position hopefully reached.")
     (values result status)))

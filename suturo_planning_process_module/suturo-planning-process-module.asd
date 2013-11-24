@@ -14,6 +14,8 @@
                suturo_perception_msgs-msg
                json_prolog-srv
                cl-ppcre
+               suturo_manipulation_msgs-msg
+               suturo-planning-common
                actionlib)
 
   :components

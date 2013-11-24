@@ -6,7 +6,7 @@
         #:cram-plan-knowledge #:cram-plan-library #:cpl
     	  #:cram-plan-failures)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
-  (:export initial right left)
+  (:export initial right left all the)
   (:desig-properties #:to #:perceive #:obj #:ground #:touch
                      #:type #:box #:bowl #:cutlery #:arm
                      #:color #:red #:white #:blue #:green
