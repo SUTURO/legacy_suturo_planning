@@ -1,25 +1,5 @@
 (in-package :suturo-planning-planlib)
 
-(define-condition food-overflow (simple-plan-failure)
-  ;Condition is thrown if to many edible objects found.
-  ((result :initarg :result :reader result :initform nil))
-  (:default-initargs :format-control "food-overflow"))
-
-(define-condition no-food-found (simple-plan-failure)
-  ;Condition is thrown if no edible objects found.
-  ((result :initarg :result :reader result :initform nil))
-  (:default-initargs :format-control "no-food-found"))
-
-(define-condition touch-failed (simple-plan-failure)
-  ;Condition is thrown if the robot failed to touch the edible object.
-  ((result :initarg :result :reader result :initform nil))
-  (:default-initargs :format-control "touch-failed"))
-
-(define-condition pose-not-reached (simple-plan-failure)
-  ;Condition is thrown if the selected pose could not be reached by the robot.
-  ((result :initarg :result :reader result :initform nil))
-  (:default-initargs :format-control "pose-not-reached"))
-
 (declare-goal test-plan (indicator)
   ;Testrun for top-level plan.
   (roslisp:ros-info (suturo planlib)

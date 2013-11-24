@@ -1,4 +1,4 @@
-(defsystem suturo-planning-planlib
+(defsystem suturo-planning-common
   :author "SUTURO Planning <suturo-planning@cs.uni-bremen.de>"
   
   :depends-on (roslisp
@@ -9,11 +9,9 @@
                cram-plan-knowledge
                alexandria
       	       cram-plan-failures
-               cram-language
-               suturo-planning-common
-               suturo-planning-process-module)
+               cram-language)
   :components
   ((:module "src"
     :components
     ((:file "package")
-     (:file "suturo-planning-planlib" :depends-on ("package"))))))
+     (:file "suturo-planning-common" :depends-on ("package"))))))

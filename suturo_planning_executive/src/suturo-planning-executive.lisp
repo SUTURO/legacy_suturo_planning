@@ -13,7 +13,7 @@
   (with-process-modules
     (with-failure-handling
         ; Initial position not reached.
-        ((suturo-planning-planlib::pose-not-reached
+        ((suturo-planning-common::pose-not-reached
            (f)
            (declare (ignore f))
            (roslisp:ros-error
@@ -27,7 +27,7 @@
       (suturo-planning-planlib::reach-position 'suturo-planning-planlib:initial))
     (with-failure-handling
         ; No edible object found
-        ((suturo-planning-planlib::no-food-found 
+        ((suturo-planning-common::no-food-found 
            (f)
            (declare (ignore f))
            (roslisp:ros-error
@@ -35,7 +35,7 @@
             "No edible object found.")
            (retry))
          ; Still could not touch object.
-         (suturo-planning-planlib::touch-failed
+         (suturo-planning-common::touch-failed
            (f)
            (declare (ignore f))
            (roslisp:ros-error
@@ -50,7 +50,7 @@
             (edible-obj-indicator 'suturo-planning-planlib:the))
         (with-failure-handling
             ; Found too many (>1) edible objects.
-            ((suturo-planning-planlib::food-overflow 
+            ((suturo-planning-common::food-overflow 
                (f)
                (declare (ignore f))
                (roslisp:ros-error
@@ -66,7 +66,7 @@
                 (attempts-left 4))
             (with-failure-handling
                 ; Could not touch object for first time.
-                ((suturo-planning-planlib::touch-failed
+                ((suturo-planning-common::touch-failed
                    (f)
                    (declare (ignore f))
                    (roslisp:ros-error
@@ -82,5 +82,5 @@
 (defun switch-arms (arm)
   "Returns 'suturo-planning-planlib:right' in case 'suturo-planning-planlib:left' has been passed, 'suturo-planning-planlib:left' else"
   (if (eql arm 'suturo-planning-planlib:left)
-      'suturo-planning-planlib:right
-      'suturo-planning-planlib:left))
+      'suturo-planning-common:right
+      'suturo-planning-common:left))
