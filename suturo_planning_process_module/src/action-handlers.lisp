@@ -69,10 +69,15 @@
                             #())))))))))))))
 
 (def-action-handler move (pose)
-  "Foobar"
-  (roslisp:ros-info (suturo-pm move)
-                    "Reached pose ~a."
-                    pose))
+  "Moves thr robot to the specified pose."
+  (format t "POSE: ~a" pose)
+  (roslisp:with-ros-node ("manipulation_client_planning")
+                         (call-initial-action 'left)))
+  ;(roslisp:ros-info (suturo-pm move)
+  ;                  "Reached pose ~a."
+  ;                  pose)
+  
+;;;;;;;;;
 
 (def-action-handler touch (arm obj)
   "Moves the arm to the object"
@@ -138,12 +143,14 @@
   (actionlib:make-action-goal (get-initial-action-client)
                               arm in-arm))
 
-(defun call-initial-action (&key arm)
+(defun call-initial-action (arm)
   (multiple-value-bind (result status)
     (let ((actionlib:*action-server-timeout* 10.0))
       (actionlib:call-goal
         (get-initial-action-client)
-        (make-initial-action-goal arm)))
+        ((if (eql arm 'suturo-planning-planlib:left)
+          (make-initial-action-goal "left_arm")
+          (make-initial-action-goal "right_arm")))))
     (roslisp:ros-info (suturo-pm initial-action-client)
                       "Action finished. Object hopefully touched.")
     (values result status)))
