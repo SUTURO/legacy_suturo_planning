@@ -72,7 +72,8 @@
   "Moves thr robot to the specified pose."
   (format t "POSE: ~a" pose)
   (roslisp:with-ros-node ("manipulation_client_planning")
-                         (call-initial-action 'left)))
+                         (call-initial-action 'suturo-planning-common:left)
+                         (call-initial-action 'suturo-planning-common:right)))
   ;(roslisp:ros-info (suturo-pm move)
   ;                  "Reached pose ~a."
   ;                  pose)
@@ -107,7 +108,7 @@
 (defun make-touch-action-goal (in-arm in-target)
   (actionlib:make-action-goal (get-action-client)
                               arm in-arm
-                              obj in-obj))
+                              obj in-target))
 
 (defun call-touch-action (&key arm obj)
   (multiple-value-bind (result status)
@@ -128,9 +129,9 @@
                                 "home_action_server"
                                 "suturo_manipulation_msgs/suturo_manipulation_homeAction"))
   (roslisp:ros-info (suturo-pm initial-action-client)
-                    "Waiting for action server...")
+                    "Waiting for action server (inital pose)...")
   (loop until
-        (actionlib:wait-for-server *initial-action-client*))
+        (actionlib:wait-for-server *initial-action-client* 10))
   (roslisp:ros-info (suturo-pm initial-action-client)
                     "Action client created..."))
 
