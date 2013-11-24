@@ -19,6 +19,8 @@
            (roslisp:ros-error
             (manipulation-failure plan)
             "Failed bring the robot in the initial pose.")
+           (setq *attempts-to-reach-initial-pose*
+                 (- *attempts-to-reach-initial-pose* 1))
            (if (not (= *attempts-to-reach-initial-pose* 0))
                (retry))))
       ; Take initial position.
@@ -39,6 +41,8 @@
            (roslisp:ros-error
             (manipulation-failure plan)
             "Still failed to touch object after serveral attempts.")
+           (setq *attempts-to-find-food-left* 
+                 (- *attempts-to-find-food-left* 1))
            (if (not (= *attempts-to-find-food-left* 0))
                (retry))))
       ; Find all objects.
