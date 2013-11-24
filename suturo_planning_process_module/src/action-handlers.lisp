@@ -106,16 +106,19 @@
     *touch-action-client*)
 
 (defun make-touch-action-goal (in-arm in-target)
+  (format t "creating goal touch: arm ~a, target ~a" in-arm in-target)
   (actionlib:make-action-goal (get-action-client)
                               arm in-arm
-                              obj in-target))
+                              p in-target))
 
-(defun call-touch-action (&key arm obj)
+(defun call-touch-action (arm obj)
   (multiple-value-bind (result status)
     (let ((actionlib:*action-server-timeout* 10.0))
       (actionlib:call-goal
         (get-action-client)
-        (make-touch-action-goal arm obj)))
+        (if (eql arm 'suturo-planning-common:left)
+          (make-touch-action-goal "left_arm" obj)
+          (make-touch-action-goal "right_arm" obj))))
     (roslisp:ros-info (suturo-pm touch-action-client)
                       "Action finished. Object hopefully touched.")
     (values result status)))

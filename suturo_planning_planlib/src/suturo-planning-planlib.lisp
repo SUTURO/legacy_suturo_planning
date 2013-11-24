@@ -82,6 +82,7 @@
           result)))
 
 (def-goal (touch-object ?arm ?obj)
+    (format t "try to move arm ~a to touch object ~a" ?arm ?obj)
     (with-designators
         ((act-touch (action
                      `((desig-props:to
