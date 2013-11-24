@@ -7,7 +7,7 @@
                alexandria
                cram-language
                suturo-planning-process-module
-               suturo-planning-process-module-dummy
+;               suturo-planning-process-module-dummy
                suturo-planning-planlib
                suturo-planning-common)
   :components
