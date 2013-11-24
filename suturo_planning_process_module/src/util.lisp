@@ -21,12 +21,12 @@
                  "["
                  (write-to-string c_id)
                  ", "
-                 "\""
+                 "'"
                  recognition_label_2d
-                 "\""
-                 ", "
+                 "'"
+                 ", '"
                  (write-to-string c_volume)
-                 ", "
+                 "', "
                  (write-to-string c_shape)
                  "]")))
 
