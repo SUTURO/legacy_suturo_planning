@@ -13,16 +13,12 @@
 (declare-goal get-edible-objects (indicator designators)
   ;Knowledge Representation returns edible object(s)
   (roslisp:ros-info (suturo planlib)
-                    "GET-EDIBLE-OBJECTS ~a ~a" indicator designators))
+                    "GET-EDIBLE-OBJECTS ~a" indicator))
 
 (declare-goal touch-object (indicator designator)
   ;Manipulation moves arm to object
   (roslisp:ros-info (suturo planlib)
-                    "TOUCH-OBJECT ~a" designator))              
-
-(def-goal (test-plan test1)
-    (roslisp:ros-info (suturo planlib)
-                      "TEST1 COMPLETED"))
+                    "TOUCH-OBJECT"))              
 
 (def-goal (reach-position suturo-planning-common:initial)
     (with-designators
@@ -41,18 +37,11 @@
                         `((desig-props:to
                            desig-props:perceive)))))      
       (let ((results (perform act-perceive)))
-        (format t "Foo ~a~%" results)
         (roslisp:ros-info (suturo planlib)
                           "OBJECTS FOUND")
-        results)))
-;      (list (make-designator
-;             'cram-designators:object
-;             `((desig-props:type desig-props:box)
-;               (desig-props:color desig-props:blue)))
-;            (make-designator
-;             'cram-designators:object
-;             `((desig-props:type desig-props:box)
-;               (desig-props:color desig-props:red))))))
+        (if results
+            results
+            (cpl:error 'suturo-planning-common::no-object-perceived)))))
 
 (def-goal (get-edible-objects the ?objs)
     (let ((edible-objects (get-edible-objects 'all ?objs)))
@@ -60,10 +49,10 @@
              edible-objects)
             ((= (length edible-objects) 0)
              ;Condtion is thrown if no edible objects were found.
-             (cpl:error 'no-food-found
+             (cpl:error 'suturo-planning-common::no-food-found
                         :result edible-objects))
              ;Condition is thrown if to many (>1) edible objects ware found.
-            (t (cpl:error 'food-overflow
+            (t (cpl:error 'suturo-planning-common::food-overflow
                           :result edible-objects)))
       (roslisp:ros-info (suturo planlib)
                         "FOUND THE EDIBLE OBJECT ~a"

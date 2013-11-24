@@ -1,7 +1,9 @@
 (in-package :suturo-planning-executive)
 
-(defvar *attempts-to-find-food-left* 3)
-(defvar *attempts-to-reach-initial-pose* 4)
+(defvar *attempts-to-find-food* 3)
+(defvar *attempts-to-reach-initial-pose* 3)
+(defvar *attempts-to-perceive-objects* 3)
+(defvar *attempts-to-recognize-and-touch-object* 2)
 
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
@@ -33,7 +35,21 @@
            (roslisp:ros-error
             (perceive-failure plan)
             "No edible object found.")
-           (retry))
+           (setq *attempts-to-find-food* 
+                 (- *attempts-to-find-food* 1))
+           (if (not (= *attempts-to-find-food* 0))
+               (retry)))
+         ; Perception didn't find any objects
+         (suturo-planning-common::no-object-perceived
+             (f)
+           (declare (ignore f))
+           (roslisp:ros-error
+            (perceive-failure plan)
+            "No objects perceived.")
+           (setq *attempts-to-perceive-objects* 
+                 (- *attempts-to-perceive-objects* 1))
+           (if (not (= *attempts-to-perceive-objects* 0))
+               (retry)))
          ; Still could not touch object.
          (suturo-planning-common::touch-failed
            (f)
@@ -41,9 +57,9 @@
            (roslisp:ros-error
             (manipulation-failure plan)
             "Still failed to touch object after serveral attempts.")
-           (setq *attempts-to-find-food-left* 
-                 (- *attempts-to-find-food-left* 1))
-           (if (not (= *attempts-to-find-food-left* 0))
+           (setq *attempts-to-recognize-and-touch-object* 
+                 (- *attempts-to-recognize-and-touch-object* 1))
+           (if (not (= *attempts-to-recognize-and-touch-object* 0))
                (retry))))
       ; Find all objects.
       (let ((perceived-objects (suturo-planning-planlib::find-objects))
@@ -63,7 +79,7 @@
                                        edible-obj-indicator
                                        perceived-objects)))
                 (arm 'suturo-planning-common:right)
-                (attempts-left 4))
+                (attempts-to-touch-left 4))
             (with-failure-handling
                 ; Could not touch object for first time.
                 ((suturo-planning-common::touch-failed
