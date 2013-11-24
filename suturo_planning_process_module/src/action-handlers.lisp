@@ -114,11 +114,19 @@
 (defun call-touch-action (arm obj)
   (multiple-value-bind (result status)
     (let ((actionlib:*action-server-timeout* 10.0))
-      (actionlib:call-goal
-        (get-action-client)
-        (if (eql arm 'suturo-planning-common:left)
-          (make-touch-action-goal "left_arm" obj)
-          (make-touch-action-goal "right_arm" obj))))
+      (let ((actionresult
+            (actionlib:call-goal
+             (get-action-client)
+             (if (eql arm 'suturo-planning-common:left)
+                 (make-touch-action-goal "left_arm" obj)
+                 (make-touch-action-goal "right_arm" obj)))))
+      (format t "Result from call-goal touch: ~a" actionresult)
+      (roslisp:with-fields (succ) actionresult
+        (roslisp:with-fields (type) succ
+          (format t "result type: ~a" type)
+          (cond
+            ((eql type 1)   )
+            (t          (cpl:error 'suturo-planning-common::touch-failed)))))))
     (roslisp:ros-info (suturo-pm touch-action-client)
                       "Action finished. Object hopefully touched.")
     (values result status)))
@@ -150,11 +158,13 @@
 (defun call-initial-action (arm)
   (multiple-value-bind (result status)
     (let ((actionlib:*action-server-timeout* 10.0))
-      (actionlib:call-goal
-        (get-initial-action-client)
-        (if (eql arm 'suturo-planning-common:left)
-          (make-initial-action-goal "left_arm")
-          (make-initial-action-goal "right_arm"))))
+      (let ((result
+            (actionlib:call-goal
+              (get-initial-action-client)
+              (if (eql arm 'suturo-planning-common:left)
+                  (make-initial-action-goal "left_arm")
+                  (make-initial-action-goal "right_arm")))))
+        (format t "Result from call-goal initial position: ~a" result)))
     (roslisp:ros-info (suturo-pm initial-action-client)
                       "Action finished. Initial position hopefully reached.")
     (values result status)))
