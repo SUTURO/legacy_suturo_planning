@@ -85,7 +85,7 @@
 
 (defun init-action-client ()
   (setf *touch-action-client* (actionlib:make-action-client
-                                "suturo_manipulation_move_server"
+                                "move_action_server"
                                 "suturo_manipulation_msgs/suturo_manipulation_moveAction"))
   (roslisp:ros-info (suturo-pm touch-action-client)
                     "Waiting for action server...")
@@ -120,7 +120,7 @@
 
 (defun init-initial-action-client ()
   (setf *initial-action-client* (actionlib:make-action-client
-                                "suturo_manipulation_move_server"
+                                "home_action_server"
                                 "suturo_manipulation_msgs/suturo_manipulation_homeAction"))
   (roslisp:ros-info (suturo-pm initial-action-client)
                     "Waiting for action server...")
