@@ -165,7 +165,7 @@
               (format t "result type: ~a" type)
               (cond
                 ((eql type 1))
-                (t (cpl:error 'suturo-planning-common::touch-failed)))))))
+                (t (cpl:error 'suturo-planning-common::pose-not-reached)))))))
     (roslisp:ros-info (suturo-pm initial-action-client)
                       "Action finished. Initial position hopefully reached.")
     (values result status)))
