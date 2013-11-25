@@ -1,9 +1,9 @@
 (in-package :suturo-planning-executive)
 
-(defvar *attempts-to-find-food* 3)
-(defvar *attempts-to-reach-initial-pose* 3)
-(defvar *attempts-to-perceive-objects* 3)
-(defvar *attempts-to-recognize-and-touch-object* 2)
+(defvar *attempts-to-find-food* 0)
+(defvar *attempts-to-reach-initial-pose* 0)
+(defvar *attempts-to-perceive-objects* 0)
+(defvar *attempts-to-recognize-and-touch-object* 0)
 
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
@@ -12,6 +12,8 @@
 
 (def-top-level-cram-function touch-edible ()
   "Finds and touches the edible object out of the objects located on the table."
+  ; Initialise all counters/variables.
+  (init-plan)
   (with-process-modules
     (with-failure-handling
         ; Initial position not reached.
@@ -100,3 +102,9 @@
   (if (eql arm 'suturo-planning-common:left)
       'suturo-planning-common:right
       'suturo-planning-common:left))
+
+(defun init-plan ()
+  (setq *attempts-to-find-food* 3)
+  (setq *attempts-to-reach-initial-pose* 3)
+  (setq *attempts-to-perceive-objects* 3)
+  (setq *attempts-to-recognize-and-touch-object* 2))
