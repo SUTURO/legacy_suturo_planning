@@ -1,0 +1,15 @@
+<launch>
+  <include file="$(find suturo_manipulation_gazebo)/gazebo_pr2_test_simulation.launch">
+    <arg name="world" value="pr2_table_three_beer.world" />
+  </include>
+
+  <include file="$(find suturo_manipulation_action)/launch/move_action_server.launch" />
+
+  <include file="$(find suturo_perception_rosnode)/run_gazebo.launch" />
+
+  <include file="$(find suturo_knowledge_foodreasoner)/launch/suturo_knowledge_foodreasoner.launch" />
+
+  <node name="repl" pkg="roslisp_repl" type="roslisp_repl" />
+  
+  <node name="head_mover" pkg="suturo_manipulation_action" type="head_mover" args="0 0.8" />
+</launch>
