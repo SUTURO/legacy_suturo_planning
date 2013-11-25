@@ -159,7 +159,13 @@
                  (if (eql arm 'suturo-planning-common:left)
                      (make-initial-action-goal "left_arm")
                      (make-initial-action-goal "right_arm")))))
-          (format t "Result from call-goal initial position: ~a" result)))
+          (format t "Result from call-goal initial position: ~a" result)
+          (roslisp:with-fields (succ) result
+            (roslisp:with-fields (type) succ
+              (format t "result type: ~a" type)
+              (cond
+                ((eql type 1))
+                (t (cpl:error 'suturo-planning-common::touch-failed)))))))
     (roslisp:ros-info (suturo-pm initial-action-client)
                       "Action finished. Initial position hopefully reached.")
     (values result status)))
