@@ -10,6 +10,4 @@
   <include file="$(find suturo_knowledge_foodreasoner)/launch/suturo_knowledge_foodreasoner.launch" />
 
   <node name="repl" pkg="roslisp_repl" type="roslisp_repl" />
-  
-  <node name="head_mover" pkg="suturo_manipulation_action" type="head_mover" args="0 0.8" />
 </launch>
