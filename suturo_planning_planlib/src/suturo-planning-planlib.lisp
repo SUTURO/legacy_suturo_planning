@@ -32,16 +32,14 @@
 
 (def-goal (find-objects)
     (with-designators
-        ((obj-1 (object ()))
-         (act-perceive (action
+        ((act-perceive (action
                         `((desig-props:to
                            desig-props:perceive)))))      
       (let ((results (perform act-perceive)))
-        (roslisp:ros-info (suturo planlib)
-                          "OBJECTS FOUND")
         (if results
             results
-            (cpl:error 'suturo-planning-common::no-object-perceived)))))
+            (cpl:error 'suturo-planning-common::no-object-perceived))
+        (roslisp:ros-info (suturo planlib) "OBJECTS FOUND"))))
 
 (def-goal (get-edible-objects the ?objs)
     (let ((edible-objects (get-edible-objects 'all ?objs)))
@@ -71,7 +69,6 @@
           result)))
 
 (def-goal (touch-object ?arm ?obj)
-    (format t "try to move arm ~a to touch object ~a" ?arm ?obj)
     (with-designators
         ((act-touch (action
                      `((desig-props:to

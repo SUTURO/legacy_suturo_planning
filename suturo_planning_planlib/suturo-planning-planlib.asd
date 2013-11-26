@@ -10,8 +10,7 @@
                alexandria
       	       cram-plan-failures
                cram-language
-               suturo-planning-common
-               suturo-planning-process-module)
+               suturo-planning-common)
   :components
   ((:module "src"
     :components

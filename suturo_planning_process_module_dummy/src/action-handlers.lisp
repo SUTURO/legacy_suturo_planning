@@ -1,27 +1,43 @@
 (in-package :suturo-planning-process-module-dummy)
 
+(defvar *perceive-fails* 0)
+(defvar *ground-fails* 0)
+(defvar *move-fails* 0)
+(defvar *touch-fails* 0)
+
 (defmacro def-action-handler (name args &body body)
   (alexandria:with-gensyms (action-sym params)
     `(defmethod call-action ((,action-sym (eql ',name)) &rest ,params)
        (destructuring-bind ,args ,params ,@body))))
 
 (def-action-handler perceive ()
-  "Returns a list of objects perceived on the table"
-  (vector 1 2 3))
+  (if (= *perceive-fails* 1)
+      (progn
+        (setq *perceive-fails* 0)
+        (vector 1 2 3))
+      (progn
+        (setq *perceive-fails* (+ *perceive-fails* 1))
+        NIL)))
 
 (def-action-handler ground (objs)
-  "Gets a "
-  (roslisp:ros-info (suturo-pm ground)
-                    "Grounding object.")
-  (list 1))
+   (if (= *ground-fails* 1)
+      (progn
+        (setq *ground-fails* 0)
+        (list 1 2))
+      (progn
+        (setq *ground-fails* (+ *ground-fails* 1))
+        (list))))
 
 (def-action-handler move (pose)
-  "Foobar"
-  (roslisp:ros-info (suturo-pm move)
-                    "Reached pose ~a."
-                    pose))
+   (if (= *move-fails* 1)
+       (setq *move-fails* 0)
+      (progn
+        (setq *move-fails* (+ *move-fails* 1))
+        (cpl:error 'suturo-planning-common::pose-not-reached :result pose))))
 
 (def-action-handler touch (arm obj)
-  "Moves the arm to the object"
-  (roslisp:ros-info (suturo-pm touch)
-                    "Touched object"))
+   (if (= *touch-fails* 3)
+       (setq *touch-fails* 0)
+      (progn
+        (setq *touch-fails* (+ *touch-fails* 1))
+        (cpl:error 'suturo-planning-common::touch-failed :result obj))))

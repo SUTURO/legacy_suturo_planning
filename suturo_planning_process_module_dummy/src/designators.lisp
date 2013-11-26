@@ -2,9 +2,8 @@
 
 (def-fact-group suturo-manipulation-designators (action-desig)
   
-  (<- (action-desig ?desig (perceive ?obj))
-    (desig-prop ?desig (to perceive))
-    (desig-prop ?desig (obj ?obj)))
+  (<- (action-desig ?desig (perceive))
+    (desig-prop ?desig (to perceive)))
   
   (<- (action-desig ?desig (ground ?obj))
     (desig-prop ?desig (to ground))

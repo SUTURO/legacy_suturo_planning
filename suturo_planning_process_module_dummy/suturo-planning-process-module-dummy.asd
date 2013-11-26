@@ -9,7 +9,8 @@
                cram-projection
                cram-plan-failures
                cram-plan-knowledge
-               alexandria)
+               alexandria
+               suturo-planning-common)
 
   :components
   ((:module "src"

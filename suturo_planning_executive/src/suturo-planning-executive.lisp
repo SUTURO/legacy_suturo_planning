@@ -4,6 +4,7 @@
 (defvar *attempts-to-reach-initial-pose* 0)
 (defvar *attempts-to-perceive-objects* 0)
 (defvar *attempts-to-recognize-and-touch-object* 0)
+(defvar *attempts-to-touch* 0)
 
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
@@ -81,7 +82,7 @@
                                        edible-obj-indicator
                                        perceived-objects)))
                 (arm 'suturo-planning-common:right)
-                (attempts-to-touch-left 4))
+                (attempts-to-touch-left *attempts-to-touch*))
             (with-failure-handling
                 ; Could not touch object for first time.
                 ((suturo-planning-common::touch-failed
@@ -104,7 +105,9 @@
       'suturo-planning-common:left))
 
 (defun init-plan ()
-  (setq *attempts-to-find-food* 3)
-  (setq *attempts-to-reach-initial-pose* 3)
-  (setq *attempts-to-perceive-objects* 3)
-  (setq *attempts-to-recognize-and-touch-object* 2))
+  "Sets the amount of attempts for th diffe"
+  (setq *attempts-to-find-food* 4)
+  (setq *attempts-to-reach-initial-pose* 4)
+  (setq *attempts-to-perceive-objects* 4)
+  (setq *attempts-to-recognize-and-touch-object* 3)
+  (setq *attempts-to-touch* 4))
