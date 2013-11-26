@@ -15,12 +15,6 @@
                         "suturo_perception_msgs/GetClusters"
                         :s "get")))
           (roslisp:with-fields (perceivedobjs) results
-                                        ;              (loop for i from 0 below (length perceivedobjs)
-                                        ;                    for obj = (elt perceivedobjs i)
-                                        ;                    do 
-                                        ;                       (roslisp:with-fields (c_id c_centroid c_volume) obj
-                                        ;                         (format t "~a~%" c_centroid)
-                                        ;                         (format t "~a~%" c_volume)))
             perceivedobjs)))))
 
 (def-action-handler ground (objs)
@@ -67,12 +61,8 @@
 
 (def-action-handler move (pose)
   "Moves thr robot to the specified pose."
-  (format t "POSE: ~a" pose)
   (call-initial-action 'suturo-planning-common:left)
   (call-initial-action 'suturo-planning-common:right))
-                                        ;(roslisp:ros-info (suturo-pm move)
-                                        ;                  "Reached pose ~a."
-                                        ;                  pose)
 
 ;;;;;;;;;
 
@@ -101,7 +91,9 @@
   *touch-action-client*)
 
 (defun make-touch-action-goal (in-arm in-target)
-  (format t "creating goal touch: arm ~a, target ~a" in-arm in-target)
+  (roslisp:ros-info (suturo-pm touch-action-client)
+                    "Creating goal 'touch' for ~a arm" 
+                    in-arm)
   (actionlib:make-action-goal (get-action-client)
     arm in-arm
     p in-target))
@@ -159,13 +151,14 @@
                  (if (eql arm 'suturo-planning-common:left)
                      (make-initial-action-goal "left_arm")
                      (make-initial-action-goal "right_arm")))))
-          (format t "Result from call-goal initial position: ~a" result)
+          (roslisp:ros-info (sutur-pm initial-action-client)
+                            "Result from call-goal initial position ~a"
+                            result)
           (roslisp:with-fields (succ) result
             (roslisp:with-fields (type) succ
-              (format t "result type: ~a" type)
               (cond
                 ((eql type 1))
                 (t (cpl:error 'suturo-planning-common::pose-not-reached)))))))
     (roslisp:ros-info (suturo-pm initial-action-client)
-                      "Action finished. Initial position hopefully reached.")
+                      "Action finished. Initial position reached.")
     (values result status)))
