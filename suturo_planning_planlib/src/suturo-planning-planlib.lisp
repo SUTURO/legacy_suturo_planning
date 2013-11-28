@@ -37,9 +37,10 @@
                            desig-props:perceive)))))      
       (let ((results (perform act-perceive)))
         (if results
-            results
-            (cpl:error 'suturo-planning-common::no-object-perceived))
-        (roslisp:ros-info (suturo planlib) "OBJECTS FOUND"))))
+            (progn
+              (roslisp:ros-info (suturo planlib) "OBJECTS FOUND ~a" results)
+              results)
+            (cpl:error 'suturo-planning-common::no-object-perceived)))))
 
 (def-goal (get-edible-objects the ?objs)
     (let ((edible-objects (get-edible-objects 'all ?objs)))

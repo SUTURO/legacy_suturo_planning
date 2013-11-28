@@ -36,7 +36,7 @@
         (cpl:error 'suturo-planning-common::pose-not-reached :result pose))))
 
 (def-action-handler touch (arm obj)
-   (if (= *touch-fails* 3)
+   (if (= *touch-fails* 4)
        (setq *touch-fails* 0)
       (progn
         (setq *touch-fails* (+ *touch-fails* 1))
