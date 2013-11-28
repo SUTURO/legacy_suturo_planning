@@ -1,22 +1,22 @@
 (in-package :suturo-planning-planlib)
 
 (declare-goal reach-position (indicator)
-  ;Manipulation moves arms into position
+  ;Moves arms into position
   (roslisp:ros-info (suturo planlib)
                     "INITIAL-POSITION ~a" indicator))
 
 (declare-goal find-objects ()
-  ;Perception perceives objects
+  ;Perceives objects
   (roslisp:ros-info (suturo planlib)
                     "FIND-OBJECTS"))
 
 (declare-goal get-edible-objects (indicator designators)
-  ;Knowledge Representation returns edible object(s)
+  ;Returns edible object(s)
   (roslisp:ros-info (suturo planlib)
                     "GET-EDIBLE-OBJECTS ~a" indicator))
 
 (declare-goal touch-object (indicator designator)
-  ;Manipulation moves arm to object
+  ;Moves arm to object
   (roslisp:ros-info (suturo planlib)
                     "TOUCH-OBJECT"))              
 
@@ -49,7 +49,7 @@
              ;Condtion is thrown if no edible objects were found.
              (cpl:error 'suturo-planning-common::no-food-found
                         :result edible-objects))
-             ;Condition is thrown if to many (>1) edible objects ware found.
+             ;Condition is thrown if to many (>1) edible objects were found.
             (t (cpl:error 'suturo-planning-common::food-overflow
                           :result edible-objects)))
       (roslisp:ros-info (suturo planlib)
