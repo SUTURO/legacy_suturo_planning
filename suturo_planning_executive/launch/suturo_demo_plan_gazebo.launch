@@ -1,8 +1,11 @@
 <launch>
+ <include file="$(find suturo_manipulation_gazebo)/gazebo_pr2_test_simulation.launch">
+    <arg name="world" value="pr2_table_beer_brick.world" />
+  </include> 
 
   <include file="$(find suturo_manipulation_action)/launch/move_action_server.launch" />
 
-  <include file="$(find suturo_perception_rosnode)/run_pr2.launch" />
+  <include file="$(find suturo_perception_rosnode)/run_gazebo.launch" />
 
   <include file="$(find suturo_knowledge_foodreasoner)/launch/suturo_knowledge_foodreasoner.launch" />
 
