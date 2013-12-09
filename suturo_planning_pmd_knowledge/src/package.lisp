@@ -1,18 +1,17 @@
 (in-package :cl-user)
 
-(desig-props:def-desig-package suturo-planning-planlib
-  (:use #:roslisp
-        #:cram-utilities
+(desig-props:def-desig-package suturo-planning-pmd-knowledge
+  (:nicknames :suturo-pmd-knowledge)
+  (:use #:common-lisp
+        #:crs
+        #:cut
+        #:desig
         #:designators-ros
         #:cram-roslisp-common
-        #:cram-designators
-        #:cram-plan-knowledge
-        #:cpl
+        #:cram-process-modules
         #:cram-plan-failures
-        #:cram-plan-library
-        #:suturo-planning-common)
-  (:import-from #:cram-reasoning #:<- #:def-fact-group)
-  (:export)
+        #:cram-plan-knowledge)
+  (:export suturo-planning-pmd-knowledge)
   (:desig-properties #:to #:perceive #:obj #:ground #:touch
                      #:type #:box #:bowl #:cutlery #:arm
                      #:color #:red #:white #:blue #:green

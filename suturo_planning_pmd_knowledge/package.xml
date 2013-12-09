@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>suturo_planning_common</name>
+  <name>suturo_planning_pmd_knowledge</name>
   <version>0.0.0</version>
-  <description>The suturo_planning_common package</description>
+  <description>The suturo_planning_pmd_knowledge package</description>
 
   <maintainer email="tgehrke@tzi.de">Tom Gehrke</maintainer>
   <maintainer email="aromero@tzi.de">Andreas Romero Früh</maintainer>
@@ -39,9 +39,8 @@
   <!--   <run_depend>message_runtime</run_depend> -->
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
+
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>sound_play</build_depend>
-  <run_depend>sound_play</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(suturo_planning_planlib)
+project(suturo_planning_pmd_knowledge)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -77,7 +77,7 @@ find_package(catkin REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES suturo_planning_planlib
+#  LIBRARIES suturo_planning_process_module
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
