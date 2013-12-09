@@ -13,13 +13,13 @@
 
 (def-top-level-cram-function touch-edible ()
   "Finds and touches the edible object out of the objects located on the table."
-  ; Initialise all counters/variables.
+  ;; Initialise all counters/variables.
   (init-plan)
   (with-process-modules
     (with-failure-handling
-        ; Initial position not reached.
+        ;; Initial position not reached.
         ((suturo-planning-common::pose-not-reached
-           (f)
+             (f)
            (declare (ignore f))
            (roslisp:ros-error
             (manipulation-failure plan)
@@ -28,12 +28,12 @@
                  (- *attempts-to-reach-initial-pose* 1))
            (if (not (= *attempts-to-reach-initial-pose* 0))
                (retry))))
-      ; Take initial position.
-      (suturo-planning-planlib::reach-position 'suturo-planning-common:initial))
+      ;; Take initial position.
+      (suturo-planning-planlib::reach-pose 'initial))
     (with-failure-handling
-        ; No edible object found
+        ;; No edible object found
         ((suturo-planning-common::no-food-found 
-           (f)
+             (f)
            (declare (ignore f))
            (roslisp:ros-error
             (perceive-failure plan)
@@ -42,7 +42,7 @@
                  (- *attempts-to-find-food* 1))
            (if (not (= *attempts-to-find-food* 0))
                (retry)))
-         ; Perception didn't find any objects
+         ;; Perception didn't find any objects
          (suturo-planning-common::no-object-perceived
              (f)
            (declare (ignore f))
@@ -53,9 +53,9 @@
                  (- *attempts-to-perceive-objects* 1))
            (if (not (= *attempts-to-perceive-objects* 0))
                (retry)))
-         ; Still could not touch object.
+         ;; Still could not touch object.
          (suturo-planning-common::touch-failed
-           (f)
+             (f)
            (declare (ignore f))
            (roslisp:ros-error
             (manipulation-failure plan)
@@ -64,29 +64,29 @@
                  (- *attempts-to-recognize-and-touch-object* 1))
            (if (not (= *attempts-to-recognize-and-touch-object* 0))
                (retry))))
-      ; Find all objects.
+      ;; Find all objects.
       (let ((perceived-objects (suturo-planning-planlib::find-objects))
-            (edible-obj-indicator 'suturo-planning-common:the))
+            (edible-obj-indicator 'the))
         (with-failure-handling
-            ; Found too many (>1) edible objects.
+                                        ; Found too many (>1) edible objects.
             ((suturo-planning-common::food-overflow 
-               (f)
+                 (f)
                (declare (ignore f))
                (roslisp:ros-error
                 (perceive-failure plan)
                 "More than one edible object.")
-               (setq edible-obj-indicator 'suturo-planning-common:all)
+               (setq edible-obj-indicator 'all)
                (retry)))
-          ; Find all edible objects.
+          ;; Find all edible objects.
           (let ((edible-object (first (suturo-planning-planlib::get-edible-objects
                                        edible-obj-indicator
                                        perceived-objects)))
-                (arm 'suturo-planning-common:right)
+                (arm 'right)
                 (attempts-to-touch-left *attempts-to-touch*))
             (with-failure-handling
-                ; Could not touch object for first time.
+                ;; Could not touch object for first time.
                 ((suturo-planning-common::touch-failed
-                   (f)
+                     (f)
                    (declare (ignore f))
                    (roslisp:ros-error
                     (manipulation-failure plan)
@@ -94,15 +94,15 @@
                    (setq arm (switch-arms arm))
                    (setq attempts-to-touch-left (- attempts-to-touch-left 1))
                    (if (> attempts-to-touch-left 0) (retry))))
-                 ; Touch edible object with desired arm.
-                 (suturo-planning-planlib::touch-object arm edible-object))))))
-      (ros-info (suturo-planning-executive) "PLAN SUCCESS")))
+              ;; Touch edible object with desired arm.
+              (suturo-planning-planlib::touch-object arm edible-object))))))
+    (ros-info (suturo-planning-executive) "PLAN SUCCESS")))
 
 (defun switch-arms (arm)
-  "Returns 'suturo-planning-common:right' in case 'suturo-planning-common:left' has been passed, 'suturo-planning-common:left' else"
-  (if (eql arm 'suturo-planning-common:left)
-      'suturo-planning-common:right
-      'suturo-planning-common:left))
+  "Returns 'right' in case 'left' has been passed, 'left' else"
+  (if (eql arm 'left)
+      'right
+      'left))
 
 (defun init-plan ()
   "Sets the amount of attempts for th diffe"

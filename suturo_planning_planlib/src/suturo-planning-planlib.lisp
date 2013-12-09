@@ -1,36 +1,45 @@
 (in-package :suturo-planning-planlib)
 
-(declare-goal reach-position (indicator)
-  ;Moves arms into position
+(declare-goal initial-pose ()
+  "Moves arms into position"
   (roslisp:ros-info (suturo planlib)
-                    "INITIAL-POSITION ~a" indicator))
+                    "INITIAL-POSE"))
 
-(declare-goal find-objects ()
-  ;Perceives objects
+(declare-goal reach-pose (indicator)
+  "Takes the given pose"
   (roslisp:ros-info (suturo planlib)
-                    "FIND-OBJECTS"))
+                    "REACH-POSITION ~a" indicator))
+
+(declare-goal perceive-objects ()
+  "Perceives objects"
+  (roslisp:ros-info (suturo planlib)
+                    "PERCEIVE-OBJECTS"))
 
 (declare-goal get-edible-objects (indicator designators)
-  ;Returns edible object(s)
+  "Returns edible object(s)"
   (roslisp:ros-info (suturo planlib)
                     "GET-EDIBLE-OBJECTS ~a" indicator))
 
-(declare-goal touch-object (indicator designator)
-  ;Moves arm to object
+(declare-goal touch-object (arm designator)
+  "Moves arm to object"
   (roslisp:ros-info (suturo planlib)
-                    "TOUCH-OBJECT"))              
+                    "TOUCH-OBJECT"))  
 
-(def-goal (reach-position suturo-planning-common:initial)
+(def-goal (initial-pose)
+  (format t "sdfsdf2")
+  (reach-pose 'initial))
+
+(def-goal (reach-pose initial)
     (with-designators
         ((act-pose (action
                     `((desig-props:to
                        desig-props:move)
-                      (desig-props:pose, 'suturo-planning-common:initial)))))
+                      (desig-props:pose, 'initial)))))
       (perform act-pose)
       (roslisp:ros-info (suturo planlib)
                         "REACHED INITIAL-POSITION")))
 
-(def-goal (find-objects)
+(def-goal (perceive-objects)
     (with-designators
         ((act-perceive (action
                         `((desig-props:to
@@ -47,10 +56,10 @@
       (cond ((= (length edible-objects) 1)
              edible-objects)
             ((= (length edible-objects) 0)
-             ;Condtion is thrown if no edible objects were found.
+             ;;Condtion is thrown if no edible objects were found.
              (cpl:error 'suturo-planning-common::no-food-found
                         :result edible-objects))
-             ;Condition is thrown if to many (>1) edible objects were found.
+            ;;Condition is thrown if to many (>1) edible objects were found.
             (t (cpl:error 'suturo-planning-common::food-overflow
                           :result edible-objects)))
       (roslisp:ros-info (suturo planlib)

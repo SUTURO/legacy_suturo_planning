@@ -7,9 +7,10 @@
         #:cram-roslisp-common
         #:cram-designators
         #:cram-plan-knowledge
-        #:cram-plan-library
         #:cpl
-    	  #:cram-plan-failures)
+        #:cram-plan-failures
+        #:cram-plan-library
+        #:suturo-planning-common)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
   (:export)
   (:desig-properties #:to #:perceive #:obj #:ground #:touch
@@ -17,4 +18,4 @@
                      #:color #:red #:white #:blue #:green
                      #:move #:at #:loc
                      #:name #:container #:category #:owner #:cornflakes
-                     #:pose #:all #:a #:the #:edible #:left #:right))
+                     #:pose #:edible))
