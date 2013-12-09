@@ -11,5 +11,8 @@
     (speak msg)))
 
 (defun speak (msg)
+  (speak-with-voice msg "voice_kal_diphone"))
+
+(defun speak-with-voice (msg voice)
   (let ((pub (advertise "robotsound" "sound_play/SoundRequest")))
-    (publish-msg pub :sound -3 :command 1 :arg msg :arg2 "voice_kal_diphone")))
+    (publish-msg pub :sound -3 :command 1 :arg msg :arg2 voice)))
