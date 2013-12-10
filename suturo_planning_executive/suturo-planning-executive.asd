@@ -7,7 +7,10 @@
                alexandria
                cram-language
                ;suturo-planning-process-module
-               suturo-planning-process-module-dummy
+               ;suturo-planning-process-module-dummy
+               suturo-planning-pmd-perception
+               suturo-planning-pmd-manipulation
+               suturo-planning-pmd-knowledge
                suturo-planning-planlib
                suturo-planning-common)
   :components

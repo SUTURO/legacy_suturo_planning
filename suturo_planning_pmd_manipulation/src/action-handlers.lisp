@@ -5,6 +5,7 @@
 (defvar *take-fails* 0)
 (defvar *box-move-fails* 0)
 (defvar *move-closer-fails* 0)
+(defvar *touch-fails* 0)
 
 (defmacro def-action-handler (name args &body body)
   (alexandria:with-gensyms (action-sym params)
@@ -17,6 +18,13 @@
       (progn 
         (setq *move-fails* (+ *move-fails* 1))
         (cpl:error 'suturo-planning-common::pose-not-reached :result pose))))
+
+(def-action-handler touch(arm obj)
+  (if (= *touch-fails* 1)
+      (setq *touch-fails* 0)
+      (progn 
+        (setq *touch-fails* (+ *touch-fails* 1))
+        (cpl:error 'suturo-planning-common::touch-failed :result obj))))
 
 (def-action-handler move-head(direction)
   (if (= *move-head-fails* 1)

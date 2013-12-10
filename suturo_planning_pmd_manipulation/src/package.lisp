@@ -15,7 +15,7 @@
   (:export suturo-planning-pmd-manipulation)
   (:desig-properties #:to #:move #:obj #:move-head #:take-object #:move-arm-over-box
                      #:type #:box #:bowl #:cutlery #:arm #:move-closer-to-other-arm
-                     #:color #:red #:white #:blue #:green
+                     #:color #:red #:white #:blue #:green #:touch
                      #:move #:at #:loc
                      #:name #:container #:category #:owner #:cornflakes
                      #:pose #:edible))

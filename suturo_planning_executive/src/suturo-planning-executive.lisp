@@ -8,7 +8,9 @@
 
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
-       (suturo-planning-process-module-dummy:suturo-planning-process-module-dummy)
+     (suturo-planning-pmd-manipulation:suturo-planning-pmd-manipulation
+     suturo-planning-pmd-perception:suturo-planning-pmd-perception
+     suturo-planning-pmd-knowledge:suturo-planning-pmd-knowledge)
      ,@body))
 
 (def-top-level-cram-function touch-edible ()
@@ -65,7 +67,7 @@
            (if (not (= *attempts-to-recognize-and-touch-object* 0))
                (retry))))
       ;; Find all objects.
-      (let ((perceived-objects (suturo-planning-planlib::find-objects))
+      (let ((perceived-objects (suturo-planning-planlib::perceive-objects))
             (edible-obj-indicator 'the))
         (with-failure-handling
                                         ; Found too many (>1) edible objects.

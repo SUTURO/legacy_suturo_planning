@@ -7,11 +7,11 @@
     (desig-prop ?desig (to move))
     (desig-prop ?desig (pose ?pose)))
 
- ; (<- (action-desig ?desig (touch ?arm ?obj))
+  (<- (action-desig ?desig (touch ?arm ?obj))
       ;Action designator for action to touch an object with the specified arm.
-   ; (desig-prop ?desig (to touch))
-   ; (desig-prop ?desig (arm ?arm))
-   ; (desig-prop ?desig (obj ?obj)))
+    (desig-prop ?desig (to touch))
+    (desig-prop ?desig (arm ?arm))
+    (desig-prop ?desig (obj ?obj)))
 
   (<- (action-desig ?desig (move-head ?direction))
       ;Action designator for action to move the head of the robot in a specific direction.
