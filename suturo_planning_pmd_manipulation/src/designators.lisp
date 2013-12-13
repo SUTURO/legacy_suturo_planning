@@ -36,7 +36,7 @@
     (desig-prop ?desig (arm ?arm))
     (desig-prop ?desig (obj ?obj)))
   
-  (<_ (action-desig ?desig (drop-object ?obj))
+  (<- (action-desig ?desig (drop-object ?obj))
        ;Action designator for action to drop the specified object.
       (desig-prop ?desig (to drop-obj))
       (desig-prop ?desig (obj ?obj))))
