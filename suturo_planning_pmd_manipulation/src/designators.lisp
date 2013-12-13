@@ -34,7 +34,12 @@
       ;Action designator for action to move the specified object with one specified arm closer to the other arm. 
     (desig-prop ?desig (to move-closer-to-other-arm))
     (desig-prop ?desig (arm ?arm))
-    (desig-prop ?desig (obj ?obj))))
+    (desig-prop ?desig (obj ?obj)))
+  
+  (<_ (action-desig ?desig (drop-object ?obj))
+       ;Action designator for action to drop the specified object.
+      (desig-prop ?desig (to drop-obj))
+      (desig-prop ?desig (obj ?obj))))
 
 
 (def-fact-group suturo-planning-pmd-manipulation (matching-process-module
@@ -42,11 +47,12 @@
 
   (<- (matching-process-module ?designator suturo-planning-pmd-manipulation)
     (or (desig-prop ?designator (to move))
-        ;desig-prop ?designator (to touch))
+        (desig-prop ?designator (to touch))
         (desig-prop ?designator (to move-head))
         (desig-prop ?designator (to take-object))
         (desig-prop ?designator (to move-arm-over-box))
-        (desig-prop ?designator (to move-closer-to-other-arm))))
+        (desig-prop ?designator (to move-closer-to-other-arm))
+        (desig-prop ?designator (to drop-obj))))
   
   (<- (available-process-module suturo-planning-pmd-manipulation)
     (symbol-value cram-projection:*projection-environment* nil)))

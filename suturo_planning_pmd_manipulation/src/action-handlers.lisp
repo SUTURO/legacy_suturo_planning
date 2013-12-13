@@ -6,6 +6,7 @@
 (defvar *box-move-fails* 0)
 (defvar *move-closer-fails* 0)
 (defvar *touch-fails* 0)
+(defvar *drop-fails* 0)
 
 (defmacro def-action-handler (name args &body body)
   (alexandria:with-gensyms (action-sym params)
@@ -63,3 +64,10 @@
       (progn
         (setq *move-closer-fails* (+ *move-closer-fails* 1))
         (cpl:error 'suturo-planning-common::pose-not-reached :result obj)))) ;cannot-move-obj
+
+(def-action-handler drop-object(obj)
+  (if (= *drop-fails* 1)
+      (setq *drop-fails* 0)
+      (progn
+        (setq *drop-fails* (+ *drop-fails* 1))
+        (cpl:error 'suturo-planning-common::pose-not-reached :result obj)))) ;drop-failed
