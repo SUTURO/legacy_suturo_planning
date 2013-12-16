@@ -1,14 +1,18 @@
 (in-package :suturo-planning-common)
 
-(defun error-out (msg)
-  (seq
-    (roslisp:ros-error (suturo planning) msg msg) ; pass it twice to match some lambda list
-    (speak msg)))
+(defun error-out (msg &rest arg)
+  (let
+      ((str (apply #'format nil msg arg)))
+    (seq
+      (roslisp:ros-error (suturo planning) str str) ; pass it twice to match some lambda list
+      (speak str))))
 
-(defun info-out (msg)
-  (seq
-    (roslisp:ros-info (suturo planning) msg msg) ; pass it twice to match some lambda list
-    (speak msg)))
+(defun info-out (msg &rest arg)
+  (let
+      ((str (apply #'format nil msg arg)))
+    (seq
+      (roslisp:ros-info (suturo planning) str str) ; pass it twice to match some lambda list
+      (speak str))))
 
 (defun speak (msg)
   (speak-with-voice msg "voice_kal_diphone"))
