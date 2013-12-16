@@ -1,5 +1,13 @@
 (in-package :suturo-planning-planlib)
 
+(def-goal (achieve (initial-pose))
+  (with-designators 
+      ((reach-initial-pose (action
+                            '((desig-props:to desig-props:move)
+                              (desig-props:pose desig-props:initial)))))
+    (perform reach-initial-pose)
+    (format t "Initial pose reached")))
+
 (def-goal (achieve (object-in-hand ?obj))
   (format t "~a in hand" ?obj))
 
@@ -12,5 +20,3 @@
 (def-goal (achieve (objects-perceived))
   (format t "Objects perceived"))
 
-(def-goal (achieve (initial-pose))
-  (format t "Initial pose reached"))
