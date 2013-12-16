@@ -15,4 +15,5 @@
   ((:module "src"
     :components
     ((:file "package")
-     (:file "suturo-planning-planlib" :depends-on ("package"))))))
+     (:file "suturo-planning-planlib" :depends-on ("package"))
+     (:file "goals" :depends-on ("package" "suturo-planning-planlib"))))))

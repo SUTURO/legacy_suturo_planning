@@ -1,29 +1,22 @@
 (in-package :suturo-planning-planlib)
 
-(declare-goal initial-pose ()
-  "Moves arms into position"
-  (roslisp:ros-info (suturo planlib)
-                    "INITIAL-POSE"))
+(defvar *perceived-objects* nil)
 
-(declare-goal reach-pose (indicator)
-  "Takes the given pose"
-  (roslisp:ros-info (suturo planlib)
-                    "REACH-POSITION ~a" indicator))
+(declare-goal achieve (occasion)
+  "Achieves `occasion' if it is not yet achieved."
+  (when (holds occasion)
+    (format t "Occasion '~a' already achieved." occasion)
+    (return nil)))
 
-(declare-goal perceive-objects ()
-  "Perceives objects"
-  (roslisp:ros-info (suturo planlib)
-                    "PERCEIVE-OBJECTS"))
+(defun holds (?occ) nil)
 
-(declare-goal get-edible-objects (indicator designators)
-  "Returns edible object(s)"
-  (roslisp:ros-info (suturo planlib)
-                    "GET-EDIBLE-OBJECTS ~a" indicator))
 
-(declare-goal touch-object (arm designator)
-  "Moves arm to object"
-  (roslisp:ros-info (suturo planlib)
-                    "TOUCH-OBJECT"))  
+
+
+
+
+
+ 
 
 (def-goal (initial-pose)
   (format t "sdfsdf2")

@@ -113,3 +113,34 @@
   (setq *attempts-to-perceive-objects* 4)
   (setq *attempts-to-recognize-and-touch-object* 3)
   (setq *attempts-to-touch* 4))
+
+(def-top-level-cram-function test-desig ()
+  (with-designators ((loc-1 (location 
+                             `((on table)))) 
+                     (loc-2 (location 
+                             `((on cupboard))))) 
+    (with-designators ((obj-1 (object 
+                               `((type cup) (at ,loc-1))))
+                       (obj-2 (object
+                               `((type box) (at ,loc-2)))))
+      (equate obj-1 obj-2) 
+      (format t "first-desig: ~a ~% current-desig: ~a" (first-desig obj-1) (current-desig obj-1))
+      (desig-prop-value loc-1 'on))))
+
+(defun asd ()
+  (top-level
+    (par 
+      (loop do
+        (format t "a"))
+      (loop do
+        (format t "b")))))
+
+(defun qwe ()
+  (top-level
+    (achieve '(right 1))))
+
+(def-goal (achieve (left ?int))
+  (format t "hi~a" ?int))
+
+(def-goal (achieve (right ?int))
+  (format t "moin~a" ?int))

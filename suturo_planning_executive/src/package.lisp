@@ -9,4 +9,5 @@
         #:cram-plan-library 
         #:cpl
         #:cram-plan-failures
-        #:suturo-planning-common))
+        #:suturo-planning-common
+	#:suturo-planning-planlib))
