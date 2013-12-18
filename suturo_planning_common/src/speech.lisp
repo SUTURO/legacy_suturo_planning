@@ -1,17 +1,17 @@
 (in-package :suturo-planning-common)
 
-(defun error-out (msg &rest arg)
+(defmacro error-out (domain msg &rest arg)
   (let
       ((str (apply #'format nil msg arg)))
     (seq
-      (roslisp:ros-error (suturo planning) str str) ; pass it twice to match some lambda list
+      (eval `(roslisp:ros-error ,domain ,str)) ; pass it twice to match some lambda list
       (speak str))))
 
-(defun info-out (msg &rest arg)
+(defmacro info-out (domain msg &rest arg)
   (let
       ((str (apply #'format nil msg arg)))
     (seq
-      (roslisp:ros-info (suturo planning) str str) ; pass it twice to match some lambda list
+      (eval `(roslisp:ros-info ,domain ,str)) ; pass it twice to match some lambda list
       (speak str))))
 
 (defun speak (msg)
