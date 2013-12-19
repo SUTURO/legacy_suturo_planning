@@ -1,13 +1,13 @@
 (defpackage suturo-planning-executive
   (:nicknames :exec)
-  (:use #:roslisp
+  (:use #:roslisp 
         #:cram-utilities 
         #:designators-ros
         #:cram-roslisp-common 
         #:cram-designators
         #:cram-plan-knowledge 
-        #:cram-plan-library 
         #:cpl
-        #:cram-plan-failures
+    	  #:cram-plan-failures
+        #:cram-plan-library
         #:suturo-planning-common
-	#:suturo-planning-planlib))
+        #:suturo-planning-planlib))

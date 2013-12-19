@@ -11,10 +11,9 @@
     	  #:cram-plan-failures
         #:cram-plan-library)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
-  (:export #:initial #:right #:left); #:all #:the)
   (:desig-properties #:to #:perceive #:obj #:ground #:touch
                      #:type #:box #:bowl #:cutlery #:arm
                      #:color #:red #:white #:blue #:green
                      #:move #:at #:loc
                      #:name #:container #:category #:owner #:cornflakes
-                     #:pose #:edible))
+                     #:pose #:edible #:initial #:on))
