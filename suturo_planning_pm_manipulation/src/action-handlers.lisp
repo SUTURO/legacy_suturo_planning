@@ -19,7 +19,7 @@
 
 (defun make-move-head-goal (direction)
   (actionlib:make-action-goal (get-action-client "suturo_man_move_head_server"
-                                                 "suturo_manipulation_msgs/suturo_manipulation_move_headAction")
+                                                 "suturo_manipulation_msgs/suturo_manipulation_move_head_serverAction")
                               p direction))
 
 (defun call-move-head-action (direction)
@@ -28,7 +28,7 @@
         (let ((result 
                 (actionlib:call-goal
                  (get-action-client "suturo_man_move_head_server"
-                                                 "suturo_manipulation_msgs/suturo_manipulation_move_headAction")
+                                    "suturo_manipulation_msgs/suturo_manipulation_move_head_serverAction")
                  (make-move-head-goal direction)))
               (roslisp:ros-info (suturo-pm-manipulation call-move-head-action)
                                 "Result from call-goal move head ~a"
@@ -45,7 +45,7 @@
 
 ; initial-position
 (defun make-initial-action-goal (in-arm)
-  (actionlib:make-action-goal (get-action-client "home_action_server" 
+  (actionlib:make-action-goal (get-action-client "suturo_man_move_home_server" 
                                                  "suturo_manipulation_msgs/suturo_manipulation_homeAction" )
                               arm in-arm))
 
@@ -54,8 +54,8 @@
       (let ((actionlib:*action-server-timeout* 10.0))
         (let ((result 
                 (actionlib:call-goal
-                 (get-action-client "home_action_server" 
-                                                 "suturo_manipulation_msgs/suturo_manipulation_homeAction" )
+                 (get-action-client "suturo_man_move_home_server" 
+                                    "suturo_manipulation_msgs/suturo_manipulation_homeAction" )
                  (if (eql arm 'desig-props:left)
                      (make-initial-action-goal "left_arm")
                      (make-initial-action-goal "right_arm"))))
