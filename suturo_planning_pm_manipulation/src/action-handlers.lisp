@@ -5,16 +5,44 @@
     `(defmethod call-action ((,action-sym (eql ',name)) &rest ,params)
        (destructuring-bind ,args ,params ,@body))))
 
-(def-action-handler move (pose)
-  "Moves thr robot to the specified pose."
-  (call-initial-action 'suturo-planning-common:left)
-  (call-initial-action 'suturo-planning-common:right))
+(def-action-handler take-pose (pose)
+  "Moves the robot to the specified pose."
+  (call-initial-action 'desig-props:left)
+  (call-initial-action 'desig-props:right))
 
-(def-action-handler touch (arm obj)
-  "Moves the arm to the object"
-  (call-touch-action arm obj))
+(def-action-handler move-head (direction)
+  "Moves the head to look in a specified direction." 
+  (call-move-head-action direction))
 
 ; make-goal- and call-action-functions
+; move-head
+
+(defun make-move-head-goal (direction)
+  (actionlib:make-action-goal (get-action-client "suturo_man_move_head_server"
+                                                 "suturo_manipulation_msgs/suturo_manipulation_move_headAction")
+                              p direction))
+
+(defun call-move-head-action (direction)
+  (multiple-value-bind (result status)
+      (let ((actionlib:*action-server-timeout* 10.0))
+        (let ((result 
+                (actionlib:call-goal
+                 (get-action-client "suturo_man_move_head_server"
+                                                 "suturo_manipulation_msgs/suturo_manipulation_move_headAction")
+                 (make-move-head-goal direction)))
+              (roslisp:ros-info (suturo-pm-manipulation call-move-head-action)
+                                "Result from call-goal move head ~a"
+                                result)
+              (roslisp:with-fields (succ) result
+                (roslisp:with-field (type) succ
+                  (cond ((eql type 1))
+                        (t (cpl:error 'suturo-planning-common::pose-not-reached)))))))) ; move-head-fails
+    (roslisp:ros-info(suturo-pm-manipulation call-move-head-action)
+                     "Action finished. Head is looking at direction.")
+    (values result status)))
+                        
+  
+
 ; initial-position
 (defun make-initial-action-goal (in-arm)
   (actionlib:make-action-goal (get-action-client "home_action_server" 
@@ -28,7 +56,7 @@
                 (actionlib:call-goal
                  (get-action-client "home_action_server" 
                                                  "suturo_manipulation_msgs/suturo_manipulation_homeAction" )
-                 (if (eql arm 'suturo-planning-common:left)
+                 (if (eql arm 'desig-props:left)
                      (make-initial-action-goal "left_arm")
                      (make-initial-action-goal "right_arm"))))
               (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
@@ -41,38 +69,6 @@
         (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
                           "Action finished. Initial position reached.")
         (values result status)))
-
-;touch-object
-(defun make-touch-action-goal (in-arm in-target)
-  (roslisp:ros-info (suturo-pm-manipulation touch-action-goal)
-                    "Creating goal 'touch' for ~a arm" in-arm)
-  (actionlib:make-action-goal (get-action-client "move_action_server"
-                                                 "suturo_manipulation_msgs/suturo_manipulation_moveAction")
-                              arm in-arm
-                              p in-target))
-
-(defun call-touch-action (arm obj)
-  (multiple-value-bind (result status)
-      (let ((actionlib:*action-server-timeout* 10.0))
-        (let ((actionresult 
-                (actionlib:call-goal
-                 (get-action-client "move_action_server"
-                                    "suturo_manipulation_msgs/suturo_manipulation_moveAction")
-                 (if (eql arm 'suturo-planning-common:left)
-                     (make-touch-action-goal "left_arm" obj)
-                     (make-touch-action-goal "right_arm" obj)))))
-          (format t "Result from call-goal touch: ~a" actionresult)
-          (roslisp:with-fields (succ) actionresult
-            (roslisp:with-fields (type) succ
-              (format t "result type: ~a" type)
-              (cond 
-                ((eql type 1))
-                (t (cpl:error 'suturo-planning-common::touch-failed)))))))
-    (roslisp:ros-info (sututro-pm-manipulation call-touch-action)
-                      "Action finished. Object touched.")
-    (values result status)))
-                
-                 
 
 ; Helper functions for actions
 

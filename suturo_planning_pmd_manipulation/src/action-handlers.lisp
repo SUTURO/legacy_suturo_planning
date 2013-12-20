@@ -2,30 +2,21 @@
 
 (defvar *move-fails* 0)
 (defvar *move-head-fails* 0)
-(defvar *take-fails* 0)
-(defvar *box-move-fails* 0)
-(defvar *move-closer-fails* 0)
-(defvar *touch-fails* 0)
-(defvar *drop-fails* 0)
+(defvar *move-arm-fails* 0)
+(defvar *grasp-fails* 0)
+(defvar *open-fails* 0)
 
 (defmacro def-action-handler (name args &body body)
   (alexandria:with-gensyms (action-sym params)
     `(defmethod call-action ((,action-sym (eql ',name)) &rest ,params)
        (destructuring-bind ,args ,params ,@body))))
 
-(def-action-handler move(pose)
+(def-action-handler take-pose(pose)
   (if (= *move-fails* 1) 
       (setq *move-fails* 0) 
       (progn 
         (setq *move-fails* (+ *move-fails* 1))
         (cpl:error 'suturo-planning-common::pose-not-reached :result pose))))
-
-(def-action-handler touch(arm obj)
-  (if (= *touch-fails* 1)
-      (setq *touch-fails* 0)
-      (progn 
-        (setq *touch-fails* (+ *touch-fails* 1))
-        (cpl:error 'suturo-planning-common::touch-failed :result obj))))
 
 (def-action-handler move-head(direction)
   (if (= *move-head-fails* 1)
@@ -34,40 +25,33 @@
         (setq *move-head-fails* (+ *move-head-fails* 1))
         (cpl:error 'suturo-planning-common::pose-not-reached :result direction)))) ;head-already-in-position
 
-(def-action-handler take-object(arm obj)
-  (if (= *take-fails* 0)
+(def-action-handler grasp(obj arm)
+  (if (= *grasp-fails* 0)
       (progn
-        (setq *take-fails* (+ *take-fails* 1))
+        (setq *grasp-fails* (+ *grasp-fails* 1))
         (cpl:error 'suturo-planning-common::pose-not-reached :result obj))) ;cannot-reach-object  
-  (if (= *take-fails* 1)
+  (if (= *grasp-fails* 1)
       (progn 
-        (setq *take-fails* (+ *take-fails* 1))
+        (setq *grasp-fails* (+ *grasp-fails* 1))
         (cpl:error 'suturo-planning-common::pose-not-reached :result obj))) ;take-failed
-  (if (= *take-fails* 2)
-      (setq *take-fails* 0))) 
+  (if (= *grasp-fails* 2)
+      (setq *grasp-fails* 0))) 
 
-(def-action-handler move-arm-over-box(arm box)
-  (if (= *box-move-fails* 0)
+(def-action-handler open-hand(arm)
+  (if (= *open-fails* 1)
+      (setq *open-fails* 0)
       (progn
-        (setq *box-move-fails* (+ *box-move-fails* 1))
-        (cpl:error 'suturo-planning-common::pose-not-reached :result box))) ;cannot-reach-box
-  (if (= *box-move-fails* 1)
+        (setq *open-fails* (+ *open-fails* 1))
+        (cpl:error 'suturo-planning-common::pose-not-reached :result arm)))) ;drop-failed
+
+(def-action-handler move-arm(location arm)
+  (if (= *move-arm-fails* 0)
+      (progn
+        (setq *move-arm-fails* (+ *move-arm-fails* 1))
+        (cpl:error 'suturo-planning-common::pose-not-reached :result arm))) ;cannot-reach-box
+  (if (= *move-arm-fails* 1)
       (progn 
-        (setq *box-move-fails* (+ *box-move-fails* 1))
-        (cpl:error 'suturo-planning-common::pose-not-reached :result box))) ;cannot-move-over-box
-  (if (= *box-move-fails* 2)
-        (setq *box-move-fails* 0)))
-
-(def-action-handler move-closer-to-other-arm(arm obj)
-  (if (= *move-closer-fails* 1)
-      (setq *move-closer-fails* 0)
-      (progn
-        (setq *move-closer-fails* (+ *move-closer-fails* 1))
-        (cpl:error 'suturo-planning-common::pose-not-reached :result obj)))) ;cannot-move-obj
-
-(def-action-handler drop-object(obj)
-  (if (= *drop-fails* 1)
-      (setq *drop-fails* 0)
-      (progn
-        (setq *drop-fails* (+ *drop-fails* 1))
-        (cpl:error 'suturo-planning-common::pose-not-reached :result obj)))) ;drop-failed
+        (setq *move-arm-fails* (+ *move-arm-fails* 1))
+        (cpl:error 'suturo-planning-common::pose-not-reached :result arm))) ;cannot-move-over-box
+  (if (= *move-arm-fails* 2)
+        (setq *move-arm-fails* 0)))
