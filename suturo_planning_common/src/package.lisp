@@ -11,9 +11,41 @@
     	  #:cram-plan-failures
         #:cram-plan-library)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
-  (:desig-properties #:to #:perceive #:obj #:ground #:touch
-                     #:type #:box #:bowl #:cutlery #:arm
-                     #:color #:red #:white #:blue #:green
-                     #:move #:at #:loc
-                     #:name #:container #:category #:owner #:cornflakes
-                     #:pose #:edible #:initial #:on))
+  (:desig-properties 
+   ;; Actions
+   #:to  
+   #:ground 
+   #:take-pose
+   #:move-head
+   #:move-arm
+   #:grasp
+   #:open-hand
+   ;; Action - pose
+   #:pose
+   #:initial
+   ;; Actions - attributes
+   #:arm
+   #:left
+   #:right
+   ;; Objects
+   #:obj
+   #:table
+   #:box
+   ;; Objects - type
+   #:type
+   #:container
+   ;; Objects - use
+   #:use
+   #:storage-for-food
+   #:storage-for-stuff
+   ;; Objects - attributes
+   #:at
+   #:edible
+   #:owner
+   #:name
+   #:color
+   ;; Locations
+   #:loc
+   #:on
+   #:over
+   #:between))

@@ -8,10 +8,33 @@
 
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
+     (suturo-planning-pm-manipulation:suturo-planning-pm-manipulation
+     suturo-planning-pm-knowledge:suturo-planning-pm-knowledge)
+     ,@body))
+
+(defmacro with-dummy-process-modules (&body body)
+  `(cpm:with-process-modules-running
      (suturo-planning-pmd-manipulation:suturo-planning-pmd-manipulation
-     suturo-planning-pmd-perception:suturo-planning-pmd-perception
      suturo-planning-pmd-knowledge:suturo-planning-pmd-knowledge)
      ,@body))
+
+(def-top-level-cram-function clean-table ()
+  (with-process-modules
+    clean-table-plan))
+
+(def-top-level-cram-function clean-table-dummy ()
+  (with-dummy-process-modules
+    clean-table-plan))
+
+(def-cram-function clean-table-plan ()
+  (format t "This is a plan"))
+
+
+
+
+
+
+;;; old stuff
 
 (def-top-level-cram-function touch-edible ()
   "Finds and touches the edible object out of the objects located on the table."

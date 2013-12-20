@@ -3,8 +3,8 @@
 (def-goal (achieve (initial-pose))
   (with-designators 
       ((reach-initial-pose (action
-                            '((desig-props:to desig-props:move)
-                              (desig-props:pose desig-props:initial)))))
+                            '((to move)
+                              (pose initial)))))
     (perform reach-initial-pose)
     (format t "Initial pose reached")))
 
