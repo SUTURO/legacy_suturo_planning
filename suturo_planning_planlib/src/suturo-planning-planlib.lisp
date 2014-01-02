@@ -5,7 +5,7 @@
 (declare-goal achieve (occasion)
   "Achieves `occasion' if it is not yet achieved."
   (when (holds occasion)
-    (format t "Occasion '~a' already achieved." occasion)
+    (info-out planlib "Occasion '~a' already achieved." occasion)
     (return nil)))
 
 (defun holds (?occ) nil)

@@ -9,7 +9,8 @@
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
      (suturo-planning-pm-manipulation:suturo-planning-pm-manipulation
-     suturo-planning-pm-knowledge:suturo-planning-pm-knowledge)
+     ;suturo-planning-pm-knowledge:suturo-planning-pm-knowledge
+     )
      ,@body))
 
 (defmacro with-dummy-process-modules (&body body)
@@ -20,11 +21,11 @@
 
 (def-top-level-cram-function clean-table ()
   (with-process-modules
-    clean-table-plan))
+    (clean-table-plan)))
 
 (def-top-level-cram-function clean-table-dummy ()
   (with-dummy-process-modules
-    clean-table-plan))
+    (clean-table-plan)))
 
 (def-cram-function clean-table-plan ()
   (format t "This is a plan"))
