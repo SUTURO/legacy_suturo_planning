@@ -29,18 +29,17 @@
                 (actionlib:call-goal
                  (get-action-client "suturo_man_move_head_server"
                                     "suturo_manipulation_msgs/suturo_manipulation_move_head_serverAction")
-                 (make-move-head-goal direction)))
-              (roslisp:ros-info (suturo-pm-manipulation call-move-head-action)
-                                "Result from call-goal move head ~a"
-                                result)
-              (roslisp:with-fields (succ) result
-                (roslisp:with-field (type) succ
-                  (cond ((eql type 1))
-                        (t (cpl:error 'suturo-planning-common::pose-not-reached)))))))) ; move-head-fails
-    (roslisp:ros-info(suturo-pm-manipulation call-move-head-action)
-                     "Action finished. Head is looking at direction.")
-    (values result status)))
-                        
+                 (make-move-head-goal direction))))
+          (roslisp:ros-info (suturo-pm-manipulation call-move-head-action)
+                            "Result from call-goal move head ~a"
+                            result)
+          (roslisp:with-fields (succ) result
+            (roslisp:with-fields (type) succ
+              (cond ((eql type 1))
+                    (t (cpl:error 'suturo-planning-common::pose-not-reached))))) ; move-head-fails
+          (roslisp:ros-info(suturo-pm-manipulation call-move-head-action)
+                           "Action finished. Head is looking at direction.")
+          (values result status)))))
   
 
 ; initial-position
@@ -58,17 +57,17 @@
                                     "suturo_manipulation_msgs/suturo_manipulation_homeAction" )
                  (if (eql arm 'desig-props:left)
                      (make-initial-action-goal "left_arm")
-                     (make-initial-action-goal "right_arm"))))
-              (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
-                                "Result from call-goal initial position ~a"
-                                result)
-              (roslisp:with-fields (succ) result
-                (roslisp:with-fields (type) succ
-                  (cond ((eql type 1))
-                        (t (cpl:error 'suturo-planning-common::pose-not-reached))))))))
-        (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
-                          "Action finished. Initial position reached.")
-        (values result status)))
+                     (make-initial-action-goal "right_arm")))))
+          (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
+                            "Result from call-goal initial position ~a"
+                            result)
+          (roslisp:with-fields (succ) result
+            (roslisp:with-fields (type) succ
+              (cond ((eql type 1))
+                    (t (cpl:error 'suturo-planning-common::pose-not-reached)))))
+          (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
+                            "Action finished. Initial position reached.")
+          (values result status)))))
 
 ; Helper functions for actions
 
@@ -81,7 +80,7 @@
   (setf *action-client* (actionlib:make-action-client
                          server
                          goal))
-  (roslisp: ros-info (suturo-pm-manipulation action-client)
+  (roslisp:ros-info (suturo-pm-manipulation action-client)
             "Waiting for action server ~a  ..." server)
   (loop until
         (actionlib:wait-for-server *action-client*))
