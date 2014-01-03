@@ -168,3 +168,8 @@
 
 (def-goal (achieve (right ?int))
   (format t "moin~a" ?int))
+
+(defun cv ()
+  (top-level
+    (with-designators ((loc-1 (location `((on table)))))
+      (format t "Hier ~a sdf" (desig-prop-value loc-1 'at)))))

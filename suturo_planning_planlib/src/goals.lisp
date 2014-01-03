@@ -1,17 +1,50 @@
 (in-package :suturo-planning-planlib)
 
-(def-goal (achieve (initial-pose))
+(def-goal (achieve (home-pose))
   (with-designators 
-      ((reach-initial-pose (action
-                            '((to move)
-                              (pose initial)))))
-    (perform reach-initial-pose)
+      ((take-home-pose (action '((to take-pose)
+                                 (pose home)))))
+    (perform take-home-pose)
     (format t "Initial pose reached")))
 
 (def-goal (achieve (object-in-hand ?obj))
+  "Takes the object in one hand"
+  (let ((arm 'left-arm))
+    (with-designators ((grasp-obj (action `((to grasp)
+                                            (obj ,?obj)
+                                            (arm ,arm)))))
+      (perform grasp-obj)))
   (format t "~a in hand" ?obj))
 
+(def-goal (achieve (hand-over ?obj ?arm))
+  "Moves"
+  (let ((coords (desig-prop-value 
+                 (desig-prop-value ?obj 'at) 
+                 'coords)))
+    (setf coords `(,(nth 0 coords)
+                   ,(nth 1 coords)
+                   ,(+ (nth 2 coords) 10)))
+    (with-designators ((loc-over-obj (location `((coords ,coords)))))
+      (with-designators ((move-hand (action `((to move-arm)
+                                              (arm ,?arm)
+                                              (loc ,loc-over-obj)))))
+        (perform move-hand))))
+  (format t "Hand over ~a" ?obj))
+
+(def-goal (achieve (empty-hand ?arm))
+  "Opens the hand of the given arm"
+  (with-designators ((open-hand (action `((to open-hand)
+                                          (arm ,arm)))))
+    (perform open-hand))
+  (format t "Hand empty"))
+
 (def-goal (achieve (object-in-box ?obj ?box))
+  "The object should be in the box"
+  ;add failure handling
+  (achieve `(object-in-hand ,?obj))
+  (let ((arm (get-holding-hand (current-desig ?obj))))
+    (achieve `(hand-over ,?box ,arm))
+    (achieve `(empty-hand ,arm)))
   (format t "~a in box ~a" ?obj ?box))
 
 (def-goal (achieve (objects-in-appropriate-boxes ?objs ?boxes))
@@ -37,7 +70,7 @@
            (achieve `(object-in-box ,obj ,box)))))
   (format t "~a in boxes ~a" ?objs ?boxes))
 
-(def-goal (achieve (objects-perceived))
+(def-goal (perceive-objects)
   (format t "Objects perceived"))
 
 (defun get-box (boxes side)
@@ -52,3 +85,15 @@
             (second boxes)
             (first boxes)))))
 
+(defun get-holding-hand (obj)
+  "Returns the arm which holds the object"
+  (let* ((loc (desig-prop-value (current-desig obj) 'at))
+         (pos (desig-prop-value loc 'in)))
+    (if (not pos)
+        (format t "ERROR2")
+        (seq 
+          (if (eql pos 'left-gripper) 
+              'left-arm
+              (if (eql pos 'right-gripper)
+                  'right-arm))))))
+              
