@@ -9,18 +9,25 @@
 
 (def-goal (achieve (object-in-hand ?obj))
   "Takes the object in one hand"
-  (let ((arm 'left-arm))
-    (with-designators ((grasp-obj (action `((to grasp)
-                                            (obj ,?obj)
-                                            (arm ,arm)))))
-      (perform grasp-obj)))
+  (let ((arm (get-best-arm ?obj))
+        (fails 0))
+    (with-failure-handling 
+        ((grasping-failed (f)
+           (declare (ignore f))
+           (incf fails)
+           (if (< fails 4)
+               (seq
+                 (setf arm (switch-arms arm))
+                 (retry)))))
+      (with-designators ((grasp-obj (action `((to grasp)
+                                              (obj ,?obj)
+                                              (arm ,arm)))))
+        (perform grasp-obj))))
   (format t "~a in hand" ?obj))
 
 (def-goal (achieve (hand-over ?obj ?arm))
-  "Moves"
-  (let ((coords (desig-prop-value 
-                 (desig-prop-value ?obj 'at) 
-                 'coords)))
+  "Moves the selected hand over the object"
+  (let ((coords (get-coords ?obj)))
     (setf coords `(,(nth 0 coords)
                    ,(nth 1 coords)
                    ,(+ (nth 2 coords) 10)))
@@ -34,7 +41,7 @@
 (def-goal (achieve (empty-hand ?arm))
   "Opens the hand of the given arm"
   (with-designators ((open-hand (action `((to open-hand)
-                                          (arm ,arm)))))
+                                          (arm ,?arm)))))
     (perform open-hand))
   (format t "Hand empty"))
 
@@ -87,8 +94,9 @@
 
 (defun get-holding-hand (obj)
   "Returns the arm which holds the object"
-  (let* ((loc (desig-prop-value (current-desig obj) 'at))
-         (pos (desig-prop-value loc 'in)))
+  (let ((pos (desig-prop-value 
+              (desig-prop-value (current-desig obj) 'at) 
+              'in)))
     (if (not pos)
         (format t "ERROR2")
         (seq 
@@ -96,4 +104,14 @@
               'left-arm
               (if (eql pos 'right-gripper)
                   'right-arm))))))
-              
+
+(defun get-best-arm (obj)
+  "Returns the arm closest to the object"
+  (let ((coords (get-coords obj)))
+    (if (< (first coords) 0)
+        'left-arm
+        'right-arm)))
+
+(defun get-coords (obj)
+  "Returns the coordinates of the object"
+  (desig-prop-value (desig-prop-value obj 'at) 'coords))
