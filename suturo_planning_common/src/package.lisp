@@ -11,6 +11,8 @@
     	  #:cram-plan-failures
         #:cram-plan-library)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
+  (:export info-out
+           error-out)
   (:desig-properties 
    ;; Actions
    #:to  
@@ -25,8 +27,8 @@
    #:initial
    ;; Actions - attributes
    #:arm
-   #:left
-   #:right
+   #:left-arm
+   #:right-arm
    ;; Objects
    #:obj
    #:table
@@ -47,5 +49,8 @@
    ;; Locations
    #:loc
    #:on
+   #:in
    #:over
-   #:between))
+   #:between
+   #:left-gripper
+   #:right-gripper))
