@@ -1,9 +1,9 @@
 (in-package :suturo-planning-planlib)
 
 (def-goal (achieve (home-pose))
-  (with-designators 
-      ((take-home-pose (action '((to take-pose)
-                                 (pose home)))))
+  (with-designators ((take-home-pose (action 
+                                      '((to take-pose)
+                                        (pose home)))))
     (perform take-home-pose)
     (format t "Initial pose reached")))
 
@@ -70,15 +70,27 @@
                  (append obj ?objs)
                  (retry)))))
       (loop while ?objs
-        do (setf obj (pop ?objs))
-           (if (desig-prop-value obj 'edible)
-               (setf box left-box)
-               (setf box right-box))
-           (achieve `(object-in-box ,obj ,box)))))
+            do (setf obj (pop ?objs))
+               (if (desig-prop-value obj 'edible)
+                   (setf box left-box)
+                   (setf box right-box))
+               (achieve `(object-in-box ,obj ,box)))))
   (format t "~a in boxes ~a" ?objs ?boxes))
 
-(def-goal (perceive-objects)
-  (format t "Objects perceived"))
+(def-goal (achieve (objects-and-boxes-perceived ?nr-objs ?nr-boxes))
+  (let ((objs nil)
+        (boxes nil))
+    (loop while (and (< (length objs) ?nr-objs) (< (length boxes) ?nr-boxes))
+          do (with-designators ((update-semantic-map 
+                                (action '((to update-sematic-map))))
+                               (get-containers 
+                                (action '((to get-container-objects))))
+                               (get-objects
+                                (action '((to get-graspable-objects)))))
+               (perform update-semantic-map)
+               (setf objs (perform get-objects))
+               (setf boxes (perform get-containers))))
+  (format t "Objects perceived")))
 
 (defun get-box (boxes side)
   "Returns the box that is on the given side of the other box"
