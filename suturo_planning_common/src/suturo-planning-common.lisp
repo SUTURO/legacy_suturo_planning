@@ -40,3 +40,21 @@
     (concatenate 'string "[" 
                  (subseq result 0 (- (length result) 1)) 
                  "]")))
+
+;; TODO: Currently includes only edible and centroid
+ (defun string->designators (str)
+   "Converts a return string with format
+    '[[edible,[centroid_x, centroid_y, centroid_z],volume,frame_id,[origin_x,origin_y,origin_z],width,height],[...]]'
+   to an object designator"
+   (let ((result '())
+         (regex "\\\[(true|false),\\\[([\\d.]+),([\\d.]+),([\\d.]+)\\\],([\\d.]+),'(\\w+)',\\\[([\\d.]+),([\\d.]+),([\\d.]+)\\\],([\\d.]+),([\\d.]+)\\\],?"))
+     (ppcre:do-register-groups (edible centroid_x centroid_y centroid_z
+                                volume frame_id origin_x origin_y origin_z
+                                width height)
+                               (regex str nil :start 0 :end (length str) :sharedp t)
+                               (push (make-designator 'object `((desig-props:edible ,(string-equal edible "true")) 
+                                                                (at (make-designator 'location ((desig-props:loc (,(read-from-string centroid_x) 
+                                                                                                                  ,(read-from-string centroid_y) 
+                                                                                                                  ,(read-from-string centroid_z)))))))) 
+                                     result))
+     result))
