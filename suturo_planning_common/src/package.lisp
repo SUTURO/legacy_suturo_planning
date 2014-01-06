@@ -31,6 +31,7 @@
    #:right-arm
    ;; Objects
    #:obj
+   #:frame
    #:table
    #:box
    ;; Objects - type
@@ -52,5 +53,6 @@
    #:in
    #:over
    #:between
+   #:coords
    #:left-gripper
    #:right-gripper))

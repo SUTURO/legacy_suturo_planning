@@ -12,8 +12,9 @@
         #:cram-plan-library
         #:suturo-planning-common)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
-  (:export object-in-hand
-           object-in-box
-           objects-in-appropriate-boxes
-           objects-perceived
-           initial-pose))
+  (:export #:achieve
+           #:object-in-hand
+           #:object-in-box
+           #:objects-in-appropriate-boxes
+           #:objects-perceived
+           #:initial-pose))
