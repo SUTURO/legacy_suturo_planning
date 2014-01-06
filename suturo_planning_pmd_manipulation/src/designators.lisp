@@ -30,15 +30,15 @@
       (desig-prop ?desig (loc ?location))))
 
 
-(def-fact-group suturo-planning-pm-manipulation (matching-process-module
+(def-fact-group suturo-planning-pmd-manipulation (matching-process-module
                                        available-process-module)
 
-  (<- (matching-process-module ?designator suturo-planning-pm-manipulation)
+  (<- (matching-process-module ?designator suturo-planning-pmd-manipulation)
     (or (desig-prop ?designator (to move))
         (desig-prop ?designator (to move-head))
         (desig-prop ?designator (to grasp))
         (desig-prop ?designator (to open-hand))
         (desig-prop ?designator (to move-arm))))
   
-  (<- (available-process-module suturo-planning-pm-manipulation)
+  (<- (available-process-module suturo-planning-pmd-manipulation)
     (symbol-value cram-projection:*projection-environment* nil)))

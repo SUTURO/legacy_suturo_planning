@@ -17,6 +17,9 @@
    ;; Actions
    #:to  
    #:ground 
+   #:update-semantic-map
+   #:get-container-objects
+   #:get-graspable-objects
    #:take-pose
    #:move-head
    #:move-arm
