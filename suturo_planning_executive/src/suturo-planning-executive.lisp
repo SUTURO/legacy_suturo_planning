@@ -173,3 +173,10 @@
   (top-level
     (with-designators ((loc-1 (location `((on table)))))
       (format t "Hier ~a sdf" (desig-prop-value loc-1 'at)))))
+
+(defvar *test-loc1* (make-designator 'location '((desig-props:frame 1) (desig-props:coords (1 1 1)))))
+
+(defvar *test-obj1* (make-designator 'object `((desig-props:name test-obj) (desig-props:type graspable-object) (desig-props:at ,*test-loc1*))))
+
+(def-top-level-cram-function test-goals ()
+  (suturo-planning-planlib::achieve `(suturo-planning-planlib:object-in-hand ,*test-obj1*)))
