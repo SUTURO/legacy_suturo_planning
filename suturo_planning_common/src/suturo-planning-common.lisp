@@ -29,7 +29,11 @@
   "Returns a string representation of the given parameter. If a list is given, the list is converted to a string."
   (if (listp e)
     (list->string e)
-    (write-to-string e)))
+    (if (not (eq (member (type-of e) '(LOCATION-DESIGNATOR OBJECT-DESIGNATOR)) '())) 
+      (designator->string e)
+      (if (eq e T)
+        "true"
+        (write-to-string e)))))
 
 (defun list->string (l)
   "Converts a given list to a string with a format of [a,b,c,...]"
@@ -52,9 +56,9 @@
                                 volume frame_id origin_x origin_y origin_z
                                 width height)
                                (regex str nil :start 0 :end (length str) :sharedp t)
-                               (push (make-designator 'object `((desig-props:edible ,(string-equal edible "true")) 
-                                                                (at (make-designator 'location ((desig-props:loc (,(read-from-string centroid_x) 
-                                                                                                                  ,(read-from-string centroid_y) 
-                                                                                                                  ,(read-from-string centroid_z)))))))) 
-                                     result))
+                               (let ((loc (make-designator 'location `(desig-props:loc (,(read-from-string centroid_x) 
+                                                                                         ,(read-from-string centroid_y) 
+                                                                                         ,(read-from-string centroid_z))))))
+                                 (push (make-designator 'object `((desig-props:edible ,(string-equal edible "true"))
+                                                            (desig-props:at ,loc))) result)))
      result))
