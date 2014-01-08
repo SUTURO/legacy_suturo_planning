@@ -12,7 +12,9 @@
         #:cram-plan-library)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
   (:export info-out
-           error-out)
+           error-out
+           designator->string
+           string->designators)
   (:desig-properties 
    ;; Actions
    #:to  
