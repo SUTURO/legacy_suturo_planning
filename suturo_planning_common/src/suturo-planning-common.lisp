@@ -29,7 +29,7 @@
   "Returns a string representation of the given parameter. If a list is given, the list is converted to a string."
   (if (listp e)
     (list->string e)
-    (if (not (eq (member (type-of e) '(LOCATION-DESIGNATOR OBJECT-DESIGNATOR)) '())) 
+    (if (member (type-of e) '(LOCATION-DESIGNATOR OBJECT-DESIGNATOR))
       (designator->string e)
       (if (eq e T)
         "true"
