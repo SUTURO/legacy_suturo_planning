@@ -20,6 +20,22 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "no-object-perceived"))
 
+(define-condition move-head-failed (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "move-head-failed"))
+
+(define-condition grasp-failed (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "grasp-failed"))
+
+(define-condition drop-failed (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "drop-failed"))
+
+(define-condition location-not-reached (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "location-not-reached"))
+
 (defun designator->string (desig)
   "Returns a string containing the properties of the given designator"
   (let ((des (description desig)))

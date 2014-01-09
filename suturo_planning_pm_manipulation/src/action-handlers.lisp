@@ -14,6 +14,14 @@
   "Moves the head to look in a specified direction." 
   (call-move-head-action direction))
 
+(def-action-handler grasp (obj arm)
+  "Moves arm to the object and grasp it."
+  (call-grasp-action obj arm))
+
+(def-action-handler open-hand (arm)
+  "Opens the hand and drops the object."
+  (call-open-hand-action arm))
+
 ; make-goal- and call-action-functions
 ; move-head
 
@@ -36,7 +44,7 @@
           (roslisp:with-fields (succ) result
             (roslisp:with-fields (type) succ
               (cond ((eql type 1))
-                    (t (cpl:error 'suturo-planning-common::pose-not-reached))))) ; move-head-fails
+                    (t (cpl:error 'suturo-planning-common::move-head-fails))))) 
           (roslisp:ros-info(suturo-pm-manipulation call-move-head-action)
                            "Action finished. Head is looking at direction.")
           (values result status)))))
@@ -68,6 +76,65 @@
           (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
                             "Action finished. Initial position reached.")
           (values result status)))))
+
+; grasp
+(defun make-grasp-action-goal (obj in-arm)
+  (actionlib:make-action-goal (get-action-client "suturo_man_grasping_server"
+                                                 "suturo_manipulation_graspingAction")
+                              header (desig-prop-value (desig-prop-value obj 'at)  'frame)
+                              objectName (desig-prop-value obj 'name)
+                              grasp t
+                              arm in-arm))
+
+(defun call-grasp-action (obj arm) 
+  (multiple-value-bind (result status)
+      (let ((actionlib:*action-server-timeout* 10.0))
+        (let ((result
+                (actionlib:call-goal
+                 (get-action-client "suturo_man_grasping_server"
+                                    "suturo_manipulation_graspingAction")
+                 (make-grasp-action-goal obj arm))))
+          (roslisp:ros-info (suturo-pm-manipulation call-grasp-action)
+                            "Result from call-goal grasp object ~a"
+                            result)
+          (roslisp:with-fields (succ) result
+            (roslisp:with-fields (type) succ
+              (cond ((eql type 1))
+                    (t (cpl:error 'suturo-planning-common::grasp-failed)))))
+          (roslisp:ros-info(suturo-pm-manipulation call-grasp-action)
+                           "Action finished. Object grasped.")
+          (values result status)))))
+
+; open-hand
+(defun make-open-hand-goal (in-arm)
+  (actionlib:make-action-goal (get-action-client "suturo_man_grasping_server"
+                                                 "suturo_manipulation_graspingAction")
+                              header nil
+                              objectName nil
+                              grasp nil
+                              arm in-arm))
+
+(defun call-open-hand-action (arm)
+  (multiple-value-bind (result status)
+      (let ((actionlib:*action-server-timeout* 10.0))
+        (let ((result
+                (actionlib:call-goal
+                 (get-action-client "suturo_man_grasping_server"
+                                    "suturo_manipulation_graspingAction")
+                 (make-open-hand-goal arm))))
+          (roslisp:ros-info (suturo-pm-manipulation call-open-hand-action)
+                            "Result from call-goal open hand ~a"
+                            result)
+          (roslisp:with-fields (succ) result 
+            (roslisp:with-fields (type) succ
+              (cond ((eql type 1))
+                    (t (cpl:error 'suturo-planning-common::drop-failed)))))
+          (roslisp:ros-info(suturo-pm-manipulation call-open-hand-action)
+                           "Action finisehd. Object droped.")
+          (value result status)))))
+
+; move-arm
+
 
 ; Helper functions for actions
 
