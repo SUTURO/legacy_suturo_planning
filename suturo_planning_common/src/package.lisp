@@ -16,6 +16,8 @@
            designator->string
            string->designators)
   (:desig-properties 
+   #:left
+   #:right
    ;; Actions
    #:to  
    #:ground 
