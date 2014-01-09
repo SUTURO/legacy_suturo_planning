@@ -36,12 +36,3 @@
       (progn
         (setq *get-objects-fails* (+ *get-objects-fails* 1))
         NIL)))
-
-(def-action-handler determine-box-for-object ()
-  (if (= *determine-box-for-object-fails* 1)
-      (progn
-        (setq *determine-box-for-object-fails* 0)
-        (vector 1 2 3))
-      (progn
-        (setq *determine-box-for-object-fails* (+ *determine-box-for-object-fails* 1))
-        NIL)))
