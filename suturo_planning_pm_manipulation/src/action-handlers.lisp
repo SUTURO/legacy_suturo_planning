@@ -44,10 +44,10 @@
           (roslisp:with-fields (succ) result
             (roslisp:with-fields (type) succ
               (cond ((eql type 1))
-                    (t (cpl:error 'suturo-planning-common::move-head-fails))))) 
+                    (t (cpl:error 'suturo-planning-common::move-head-fails))))))) 
           (roslisp:ros-info(suturo-pm-manipulation call-move-head-action)
                            "Action finished. Head is looking at direction.")
-          (values result status)))))
+          (values result status)))
   
 
 ; initial-position
@@ -72,10 +72,10 @@
           (roslisp:with-fields (succ) result
             (roslisp:with-fields (type) succ
               (cond ((eql type 1))
-                    (t (cpl:error 'suturo-planning-common::pose-not-reached)))))
+                    (t (cpl:error 'suturo-planning-common::pose-not-reached)))))))
           (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
                             "Action finished. Initial position reached.")
-          (values result status)))))
+          (values result status)))
 
 ; grasp
 (defun make-grasp-action-goal (obj in-arm)
@@ -100,10 +100,10 @@
           (roslisp:with-fields (succ) result
             (roslisp:with-fields (type) succ
               (cond ((eql type 1))
-                    (t (cpl:error 'suturo-planning-common::grasp-failed)))))
+                    (t (cpl:error 'suturo-planning-common::grasp-failed)))))))
           (roslisp:ros-info(suturo-pm-manipulation call-grasp-action)
                            "Action finished. Object grasped.")
-          (values result status)))))
+          (values result status)))
 
 ; open-hand
 (defun make-open-hand-goal (in-arm)
@@ -128,10 +128,10 @@
           (roslisp:with-fields (succ) result 
             (roslisp:with-fields (type) succ
               (cond ((eql type 1))
-                    (t (cpl:error 'suturo-planning-common::drop-failed)))))
+                    (t (cpl:error 'suturo-planning-common::drop-failed)))))))
           (roslisp:ros-info(suturo-pm-manipulation call-open-hand-action)
                            "Action finisehd. Object droped.")
-          (value result status)))))
+          (values result status)))
 
 ; move-arm
 
@@ -156,8 +156,8 @@
 
 (defun get-action-client (server goal)
   ; Returns an action-client for the specified aserver and goal
-  (if (or (and (!= *action-server* server) 
-               (!= *action-goal* goal))
+  (if (or (and (not (eq *action-server* server)) 
+               (not (eq *action-goal* goal)))
           (null *action-client*))
       (progn 
         (setq *action-server* server)
