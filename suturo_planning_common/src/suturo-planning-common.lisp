@@ -45,10 +45,12 @@
   "Returns a string representation of the given parameter. If a list is given, the list is converted to a string."
   (if (listp e)
     (list->string e)
-    (if (member (type-of e) '(LOCATION-DESIGNATOR OBJECT-DESIGNATOR))
+    (if (member (type-of e) '(LOCATION-DESIGNATOR OBJECT-DESIGNATOR ACTION-DESIGNATOR))
       (designator->string e)
-      (if (eq e T)
-        "true"
+      (if (or (eq (type-of e) 'BOOLEAN) (eq (type-of e) 'NULL))
+        (if (eq e T)
+          "true"
+          "false")
         (write-to-string e)))))
 
 (defun list->string (l)
@@ -67,14 +69,16 @@
     '[[edible,[centroid_x, centroid_y, centroid_z],volume,frame_id,[origin_x,origin_y,origin_z],width,height],[...]]'
    to an object designator"
    (let ((result '())
-         (regex "\\\[(true|false),\\\[([\\d.]+),([\\d.]+),([\\d.]+)\\\],([\\d.]+),'(\\w+)',\\\[([\\d.]+),([\\d.]+),([\\d.]+)\\\],([\\d.]+),([\\d.]+)\\\],?"))
-     (ppcre:do-register-groups (edible centroid_x centroid_y centroid_z
+         (regex "\\\[(true|false),'(\\w+)',\\\[([\\d.]+),([\\d.]+),([\\d.]+)\\\],([\\d.]+),'(\\w+)',\\\[([\\d.]+),([\\d.]+),([\\d.]+)\\\],([\\d.]+),([\\d.]+)\\\],?"))
+     (ppcre:do-register-groups (edible name centroid_x centroid_y centroid_z
                                 volume frame_id origin_x origin_y origin_z
                                 width height)
                                (regex str nil :start 0 :end (length str) :sharedp t)
-                               (let ((loc (make-designator 'location `(desig-props:loc (,(read-from-string centroid_x) 
+                               (let ((loc (make-designator 'location `((desig-props:loc (,(read-from-string centroid_x) 
                                                                                          ,(read-from-string centroid_y) 
-                                                                                         ,(read-from-string centroid_z))))))
+                                                                                         ,(read-from-string centroid_z)))
+                                                                       (desig-props:frame ,frame_id)))))
                                  (push (make-designator 'object `((desig-props:edible ,(string-equal edible "true"))
+                                                            (desig-props:name ,name)
                                                             (desig-props:at ,loc))) result)))
      result))
