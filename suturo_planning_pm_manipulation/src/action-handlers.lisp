@@ -22,6 +22,10 @@
   "Opens the hand and drops the object."
   (call-open-hand-action arm))
 
+(def-action-handler move-arm (location arm)
+  "Moves the specified arm to the location."
+  (call-move-head-action location arm))
+
 ; make-goal- and call-action-functions
 ; move-head
 
@@ -44,7 +48,7 @@
           (roslisp:with-fields (succ) result
             (roslisp:with-fields (type) succ
               (cond ((eql type 1))
-                    (t (cpl:error 'suturo-planning-common::move-head-fails))))))) 
+                    (t (cpl:error 'suturo-planning-common::move-head-failed))))))) 
           (roslisp:ros-info(suturo-pm-manipulation call-move-head-action)
                            "Action finished. Head is looking at direction.")
           (values result status)))
@@ -134,7 +138,30 @@
           (values result status)))
 
 ; move-arm
+(defun make-move-arm-goal (location in-arm)
+  (actionlib:make-action-goal (get-action-client "suturo_man_move_arm_server"
+                                                 "suturo_manipulation_move_armAction")
+                              header (desig-prop-value location 'frame)
+                              arm in-arm))
 
+(defun call-move-arm-action (location arm)
+  (multiple-value-bind (result status)
+      (let ((actionlib:*action-server-timeout* 10.0))
+        (let ((result 
+                (actionlib:call-goal
+                 (get-action-client "suturo_man_move_arm_server"
+                                    "suturo_manipulation_move_armAction")
+                 (make-move-arm-action location arm))))
+          (roslisp:ros-info (suturo-pm-manipulation call-move-arm-action)
+                            "Result from call-goal move arm ~a"
+                            result)
+          (roslisp:with-fields (succ) result
+            (roslisp:with-fields (type) succ
+              (cond ((eql type 1))
+                    (t (cpl:error 'suturo-planning-common::location-not-reached)))))))
+            (roslisp:ros-info(suturo-pm-manipulation call-move-arm-action)
+                             "Action finished. Location reached.")
+            (values result status)))
 
 ; Helper functions for actions
 
