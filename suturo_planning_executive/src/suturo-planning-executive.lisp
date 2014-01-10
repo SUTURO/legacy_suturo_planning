@@ -65,7 +65,7 @@
 (def-top-level-cram-function test-man-pmd ()
   (with-dummy-process-modules
     (with-designators ((grasp-obj (action 
-                                   `((desig-props:to desig-props:grasp) 
+                                   `((desig-props:to grasp) 
                                      (desig-props:arm desig-props:left-arm) 
                                      (desig-props:obj ,*test-obj1*)))))
       (perform grasp-obj))))

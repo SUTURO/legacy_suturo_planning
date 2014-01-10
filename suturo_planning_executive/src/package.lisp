@@ -7,7 +7,8 @@
         #:cram-designators
         #:cram-plan-knowledge 
         #:cpl
-    	  #:cram-plan-failures
+        #:cram-plan-failures
         #:cram-plan-library
         #:suturo-planning-common
-        #:suturo-planning-planlib))
+        #:suturo-planning-planlib
+	#:suturo-planning-pmd-manipulation))

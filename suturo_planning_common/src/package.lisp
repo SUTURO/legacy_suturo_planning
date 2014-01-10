@@ -29,6 +29,7 @@
    #:move-arm
    #:grasp
    #:open-hand
+   #:direction
    ;; Action - pose
    #:pose
    #:initial
@@ -38,7 +39,7 @@
    #:right-arm
    ;; Objects
    #:obj
-   #:frame
+   #:volume
    #:table
    #:box
    ;; Objects - type
@@ -56,6 +57,7 @@
    #:color
    ;; Locations
    #:loc
+   #:frame
    #:on
    #:in
    #:over

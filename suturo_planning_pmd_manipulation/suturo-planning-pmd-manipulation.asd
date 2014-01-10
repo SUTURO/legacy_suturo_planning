@@ -13,7 +13,6 @@
                suturo_perception_msgs-srv
                suturo_perception_msgs-msg
                suturo_manipulation_msgs-msg
-               suturo-planning-common
                json_prolog-srv
                cl-ppcre
                suturo-planning-common
