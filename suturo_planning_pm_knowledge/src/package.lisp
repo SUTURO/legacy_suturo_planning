@@ -11,10 +11,4 @@
         #:cram-process-modules
         #:cram-plan-failures
         #:cram-plan-knowledge)
-  (:export suturo-planning-pm-knowledge)
-  (:desig-properties #:to #:perceive #:obj #:ground #:update-semantic-map
-                     #:type #:box #:bowl #:cutlery #:arm
-                     #:color #:red #:white #:blue #:green
-                     #:move #:at #:loc
-                     #:name #:container #:category #:owner #:cornflakes
-                     #:pose #:edible))
+  (:export suturo-planning-pm-knowledge))
