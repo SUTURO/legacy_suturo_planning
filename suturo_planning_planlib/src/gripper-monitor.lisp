@@ -13,19 +13,23 @@
 
 (defun check-grip (arm state)
   "Checks if the gripper is closed"
-  (let ((left-finger nil) (right-finger nil))
+  (let ((side nil) (left-finger nil) (right-finger nil))
+    (if (eql arm 'left-arm)
+        (setf side "l")
+        (setf side "r"))
     (roslisp:with-fields ((names name) (positions position))
         state
       (map nil (lambda (name position)
-                 (format t "Name: ~a Position: ~a~%" name position)
-                 (if (string= name "l_gripper_l_finger_joint")
-                     (progn
-                       (setf left-finger position)
-                       (format t "Found left-tip position ~a~%" left-finger)))
-                 (if (string= name "l_gripper_r_finger_joint")
-                     (progn
-                       (setf right-finger position)
-                       (format t "Found right-tip position ~a~%" right-finger))))
+                 (if (string= name 
+                              (concatenate 'string
+                                           side
+                                           "_gripper_l_finger_joint"))
+                     (setf left-finger position))
+                 (if (string= name 
+                              (concatenate 'string
+                                           side
+                                           "_gripper_r_finger_joint"))
+                       (setf right-finger position)))
            names positions))
     (if (and (is-closed left-finger) 
              (is-closed right-finger))
@@ -35,13 +39,18 @@
 (defun is-closed (pos)
    (< pos 0.002100000000000000d0))
 
+(defun gripper-is-closed (arm)
+  (monitor-grip arm)
+  (sleep 1)
+  (unsub-joint-state))
 
-;;;zum testen
-
-(defun unsub ()
-  (unsubscribe *joint-state-subscriber*)
+(defun unsub-joint-state ()
+  (if (not *joint-state-subscriber*)
+      (unsubscribe *joint-state-subscriber*))
   (setf *joint-state-subscriber* nil))
-        
+  
+;;;zum testen
+      
 (defun test-sub ()
   (setf (value *gripper-closed*) nil)
   (top-level

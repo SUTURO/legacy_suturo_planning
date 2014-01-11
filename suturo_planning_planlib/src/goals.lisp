@@ -1,5 +1,10 @@
 (in-package :suturo-planning-planlib)
 
+(define-policy dont-drop-object (arm)
+  (:check (monitor-grip arm)
+          (whenever ((pulsed *gripper-closed*))
+            (cpl:fail 'suturo-planning-common::grasp-fail))))
+                     
 (def-goal (achieve (home-pose))
   (with-designators ((take-home-pose (action 
                                       '((to take-pose)
@@ -9,22 +14,22 @@
 
 (def-goal (achieve (object-in-hand ?obj))
   "Takes the object in one hand"
-  (let ((arm (get-best-arm ?obj))
-        (fails 0))
-    (with-failure-handling 
-        ((simple-plan-failure (f)
-           (declare (ignore f))
-           (incf fails)
-           (if (< fails 4)
-               (seq
-                 (setf arm (switch-arms arm))
-                 (retry)))))
-      (with-designators ((grasp-obj (action `((to grasp)
-                                              (obj ,?obj)
-                                              (arm ,arm)))))
-        (perform grasp-obj))))
-  (format t "~a in hand" ?obj))
-
+  (let ((arm (get-best-arm ?obj)))
+    (with-retry-counters ((grasping-retry-counter 4))
+      (with-failure-handling 
+          ((suturo-planning-common::grasp-fail (f)
+             (declare (ignore f))
+             (incf fails)
+             (do-retry grasping-retry-counter
+               (setf arm (switch-arms arm))
+               (retry))))
+        (with-designators ((grasp-obj (action `((to grasp)
+                                                (obj ,?obj)
+                                                (arm ,arm)))))
+          (perform grasp-obj))
+        (if (gripper-is-closed) 
+            (cpl:fail 'suturo-planning-common::grasp-fail))))))
+      
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
   (let ((coords (get-coords ?obj)))
@@ -50,7 +55,8 @@
   ;add failure handling
   (achieve `(object-in-hand ,?obj))
   (let ((arm (get-holding-hand (current-desig ?obj))))
-    (achieve `(hand-over ,?box ,arm))
+    (with-policy 'dont-drop-object (arm)
+      (achieve `(hand-over ,?box ,arm)))
     (achieve `(empty-hand ,arm)))
   (format t "~a in box ~a" ?obj ?box))
 
@@ -115,7 +121,7 @@
               'in)))
     (if (not pos)
         (format t "ERROR2")
-        (seq 
+        (progn
           (if (eql pos 'left-gripper) 
               'left-arm
               (if (eql pos 'right-gripper)
@@ -125,8 +131,8 @@
   "Returns the arm closest to the object"
   (let ((coords (get-coords obj)))
     (if (< (first coords) 0)
-        'desig-props:left-arm
-        'desig-props:right-arm)))
+        'left-arm
+        'right-arm)))
 
 (defun get-coords (obj)
   "Returns the coordinates of the object"
