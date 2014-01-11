@@ -20,7 +20,7 @@
       (desig-prop ?desig (to get-graspable-objects))))
 
 (def-fact-group suturo-planning-pm-knowledge (matching-process-module
-                                       available-process-module)
+                                              available-process-module)
 
   (<- (matching-process-module ?designator suturo-planning-pm-knowledge)
     (or (desig-prop ?designator (to ground))
