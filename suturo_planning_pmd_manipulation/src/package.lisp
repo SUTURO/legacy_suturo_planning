@@ -2,7 +2,8 @@
 
 (desig-props:def-desig-package suturo-planning-pmd-manipulation
   (:nicknames :suturo-planning-pmd-manipulation)
-  (:use #:common-lisp
+  (:use #:roslisp
+        #:common-lisp
         #:crs
         #:cut
         #:desig
@@ -24,4 +25,6 @@
                      #:direction
                      #:open-hand
                      #:move-arm
-                     #:loc))
+                     #:loc
+                     #:keep-object-in-hand
+                     #:gripper-is-closed))

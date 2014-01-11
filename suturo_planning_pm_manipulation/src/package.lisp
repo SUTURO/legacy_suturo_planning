@@ -2,15 +2,18 @@
 
 (desig-props:def-desig-package suturo-planning-pm-manipulation
   (:nicknames :suturo-pm-manipulation)
-  (:use #:common-lisp
-        #:crs
-        #:cut
-        #:desig
+  (:use #:cut
+        #:cpl
         #:designators-ros
+        #:cram-designators
         #:cram-roslisp-common
         #:cram-process-modules
         #:cram-plan-failures
-        #:cram-plan-knowledge)
+        #:cram-plan-knowledge
+        #:cram-plan-library
+        #:cram-utilities
+        #:roslisp
+        #:suturo-planning-common)
   (:import-from alexandria ignore-some-conditions)
   (:export suturo-planning-pm-manipulation)
   (:desig-properties #:to
@@ -23,4 +26,6 @@
                      #:direction
                      #:open-hand
                      #:move-arm
-                     #:loc))
+                     #:loc
+                     #:keep-object-in-hand
+                     #:gripper-is-closed))

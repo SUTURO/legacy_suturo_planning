@@ -55,3 +55,7 @@
         (cpl:error 'suturo-planning-common::location-not-reached :result arm))) 
   (if (= *move-arm-fails* 2)
         (setq *move-arm-fails* 0)))
+
+(def-action-handler keep-object-in-hand (arm))
+
+(def-action-handler gripper-is-closed (arm))

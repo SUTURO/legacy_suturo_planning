@@ -4,6 +4,7 @@
   :depends-on (designators-ros
                process-modules
                roslisp
+               cram-language
                cram-roslisp-common
                cram-reasoning
                cram-projection
@@ -14,15 +15,14 @@
                suturo-planning-common
                json_prolog-srv
                cl-ppcre
-               suturo-planning-common
-               actionlib)
+               actionlib
+               sensor_msgs-msg)
 
   :components
   ((:module "src"
             :components
             ((:file "package")
-             (:file "util" :depends-on ("package"))
              (:file "designators" :depends-on ("package"))
-             (:file "action-handlers" :depends-on ("package" "designators" "util"))
-             (:file "suturo-planning-pm-manipulation"
-              :depends-on ("package" "designators" "action-handlers"))))))
+             (:file "action-handlers" :depends-on ("package" "designators"))
+             (:file "gripper-monitor" :depends-on ("package" "designators" "action-handlers"))
+             (:file "suturo-planning-pm-manipulation" :depends-on ("package" "designators" "action-handlers" "gripper-monitor"))))))

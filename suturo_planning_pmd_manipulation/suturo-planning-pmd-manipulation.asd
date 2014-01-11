@@ -20,8 +20,7 @@
   ((:module "src"
             :components
             ((:file "package")
-             (:file "util" :depends-on ("package"))
              (:file "designators" :depends-on ("package"))
-             (:file "action-handlers" :depends-on ("package" "designators" "util"))
+             (:file "action-handlers" :depends-on ("package" "designators"))
              (:file "suturo-planning-pmd-manipulation"
               :depends-on ("package" "designators" "action-handlers"))))))

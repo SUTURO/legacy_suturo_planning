@@ -35,4 +35,6 @@
                      #:direction
                      #:open-hand
                      #:move-arm
-                     #:loc))
+                     #:loc
+                     #:keep-object-in-hand
+                     #:gripper-is-closed))

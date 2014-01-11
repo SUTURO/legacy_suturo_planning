@@ -17,5 +17,4 @@
     :components
     ((:file "package")
      (:file "suturo-planning-planlib" :depends-on ("package"))
-     (:file "gripper-monitor" :depends-on ("package" "suturo-planning-planlib"))
-     (:file "goals" :depends-on ("package" "suturo-planning-planlib" "gripper-monitor"))))))
+     (:file "goals" :depends-on ("package" "suturo-planning-planlib"))))))

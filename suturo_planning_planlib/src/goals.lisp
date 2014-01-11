@@ -1,9 +1,9 @@
 (in-package :suturo-planning-planlib)
 
 (define-policy dont-drop-object (arm)
-  (:check (monitor-grip arm)
-          (whenever ((pulsed *gripper-closed*))
-            (cpl:fail 'suturo-planning-common::grasp-fail))))
+  (:check (with-designators ((keep-obj (action `((to keep-object-in-hand)
+                                                (arm ,arm)))))
+            (perform keep-obj))))
                      
 (def-goal (achieve (home-pose))
   (with-designators ((take-home-pose (action 
@@ -25,10 +25,12 @@
                (retry))))
         (with-designators ((grasp-obj (action `((to grasp)
                                                 (obj ,?obj)
-                                                (arm ,arm)))))
-          (perform grasp-obj))
-        (if (gripper-is-closed) 
-            (cpl:fail 'suturo-planning-common::grasp-fail))))))
+                                                (arm ,arm))))
+                           (gripper-is-closed (action `((to gripper-is-closed)
+                                                        (arm ,arm)))))
+          (perform grasp-obj)
+          (if (perform gripper-is-closed) 
+            (cpl:fail 'suturo-planning-common::grasp-fail)))))))
       
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
