@@ -1,4 +1,6 @@
-(defpackage suturo-planning-executive
+(in-package :cl-user)
+
+(desig-props:def-desig-package suturo-planning-executive
   (:nicknames :exec)
   (:use #:roslisp 
         #:cram-utilities 
@@ -11,4 +13,5 @@
         #:cram-plan-library
         #:suturo-planning-common
         #:suturo-planning-planlib
-	#:suturo-planning-pmd-manipulation))
+        #:suturo-planning-pmd-manipulation)
+  (:desig-properties #:to #:grasp #:arm #:obj #:left-arm))
