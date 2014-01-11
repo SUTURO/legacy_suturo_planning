@@ -93,7 +93,8 @@
                (perform update-semantic-map)
                (setf objs (perform get-objects))
                (setf boxes (perform get-containers))))
-  (format t "Objects perceived")))
+  (format t "Objects perceived")
+  `(,objs ,boxes)))
 
 (defun get-box (boxes side)
   "Returns the box that is on the given side of the other box"
