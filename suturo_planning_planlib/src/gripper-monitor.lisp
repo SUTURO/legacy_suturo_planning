@@ -4,12 +4,14 @@
 
 (defvar *joint-state-subscriber* nil)
 
-(defun monitor-grip ()
+(defun monitor-grip (arm)
   "Subscribes to joint_states an monitors the state of the gripper"
   (setf *joint-state-subscriber* 
-        (subscribe "/joint_states" "sensor_msgs/JointState" #'check-grip)))
+        (subscribe "/joint_states" 
+                   "sensor_msgs/JointState" 
+                   #'(lambda (state) (check-grip arm state)))))
 
-(defun check-grip (state)
+(defun check-grip (arm state)
   "Checks if the gripper is closed"
   (let ((left-finger nil) (right-finger nil))
     (roslisp:with-fields ((names name) (positions position))
@@ -30,11 +32,18 @@
         (setf (value *gripper-closed*) t)
         (setf (value *gripper-closed*) nil))))
 
+(defun is-closed (pos)
+   (< pos 0.002100000000000000d0))
+
+
+;;;zum testen
+
 (defun unsub ()
   (unsubscribe *joint-state-subscriber*)
   (setf *joint-state-subscriber* nil))
         
 (defun test-sub ()
+  (setf (value *gripper-closed*) nil)
   (top-level
     (par
       (whenever ((pulsed *gripper-closed*))
@@ -45,10 +54,7 @@
               (return))))
       (progn
         (sleep 1)
-        (monitor-grip)))))
-
-(defun is-closed (pos)
-  (and (> pos 0.002096000000000000d0) (< pos 0.002098000000000000d0)))
+        (monitor-grip 'left-arm)))))
         
           
           

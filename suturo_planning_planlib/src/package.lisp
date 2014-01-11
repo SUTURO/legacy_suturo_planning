@@ -20,6 +20,13 @@
            #:initial-pose)
   (:desig-properties #:to
                      #:arm 
+                     #:left-arm
+                     #:right-arm
+                     #:on
+                     #:at
+                     #:name
+                     #:frame
+                     #:coords
                      #:obj 
                      #:grasp 
                      #:take-pose
