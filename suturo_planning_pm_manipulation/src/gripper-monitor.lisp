@@ -1,17 +1,33 @@
-(in-package :suturo-planning-planlib)
+(in-package :suturo-planning-pm-manipulation)
 
 (defvar *gripper-closed* (make-fluent :value nil))
 
 (defvar *joint-state-subscriber* nil)
 
-(defun monitor-grip (arm)
+(def-action-handler keep-object-in-hand (arm)
   "Subscribes to joint_states an monitors the state of the gripper"
-  (setf *joint-state-subscriber* 
-        (subscribe "/joint_states" 
-                   "sensor_msgs/JointState" 
-                   #'(lambda (state) (check-grip arm state)))))
+  (subscribe-joint-state arm)
+  (whenever ((pulsed *gripper-closed*))
+    (if (value *gripper-closed*)
+        (progn
+          (unsubscribe-joint-state)
+          (cpl:fail 'suturo-planning-common::grasp-fail)))))
 
-(defun check-grip (arm state)
+(def-action-handler gripper-is-closed (arm)
+  "Checks if the gripper is closed"
+  (subscribe-joint-state arm)
+  (sleep 1)
+  (unsubscribe-joint-state)
+  (value *gripper-closed*))
+
+(defun subscribe-joint-state (arm)
+  (if (not *joint-state-subscriber*)
+      (setf *joint-state-subscriber* 
+            (subscribe "/joint_states" 
+                       "sensor_msgs/JointState" 
+                       #'(lambda (state) (monitor-grip arm state))))))
+
+(defun monitor-grip (arm state)
   "Checks if the gripper is closed"
   (let ((side nil) (left-finger nil) (right-finger nil))
     (if (eql arm 'left-arm)
@@ -39,32 +55,8 @@
 (defun is-closed (pos)
    (< pos 0.002100000000000000d0))
 
-(defun gripper-is-closed (arm)
-  (monitor-grip arm)
-  (sleep 1)
-  (unsub-joint-state))
-
-(defun unsub-joint-state ()
+(defun unsubscribe-joint-state ()
   (if (not *joint-state-subscriber*)
       (unsubscribe *joint-state-subscriber*))
   (setf *joint-state-subscriber* nil))
   
-;;;zum testen
-      
-(defun test-sub ()
-  (setf (value *gripper-closed*) nil)
-  (top-level
-    (par
-      (whenever ((pulsed *gripper-closed*))
-        (format t "OOOOOOOOOO ~a~%" *gripper-closed*)
-        (if *joint-state-subscriber* 
-            (progn
-              (unsub)
-              (return))))
-      (progn
-        (sleep 1)
-        (monitor-grip 'left-arm)))))
-        
-          
-          
-
