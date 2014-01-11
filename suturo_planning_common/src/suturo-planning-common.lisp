@@ -36,37 +36,71 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "location-not-reached"))
 
-(defun designator->string (desig)
-  "Returns a string containing the properties of the given designator"
-  (let ((des (description desig)))
-    (list->string des)))
+(defun list->camel (strings)
+  "Concatenates a list of strings as camelCase; Thanks Jan!"
+  (nstring-downcase (apply #'concatenate 'string (mapcar #'string-capitalize strings)) :end 1))
 
-(defun element->string (e)
-  "Returns a string representation of the given parameter. If a list is given, the list is converted to a string."
-  (if (listp e)
-    (list->string e)
-    (if (member (type-of e) '(LOCATION-DESIGNATOR OBJECT-DESIGNATOR ACTION-DESIGNATOR))
-      (designator->string e)
-      (if (or (eq (type-of e) 'BOOLEAN) (eq (type-of e) 'NULL))
-        (if (eq e T)
-          "true"
-          "false")
-        (write-to-string e)))))
-
-(defun list->string (l)
-  "Converts a given list to a string with a format of [a,b,c,...]"
+(defun list->params (strings)
+  "Concatenates a list of strings to a Prolog parameter list string"
   (let ((result ""))
-    (dolist (e l)
-      (setq result (concatenate 'string result 
+    (dolist (e strings)
+      (setq result (concatenate 'string result
                                 (element->string e) ",")))
-    (concatenate 'string "[" 
-                 (subseq result 0 (- (length result) 1)) 
-                 "]")))
+    (concatenate 'string "("
+                 (subseq result 0 (- (length result) 1))
+                 ")")))
 
-;; TODO: Currently includes only edible and centroid
+(defun designator->string (desig)
+  (if (eq (type-of desig) 'LOCATION-DESIGNATOR)
+    (let ((STRS (location-designator->string desig)))
+      (format nil "~a~a" (list->camel (first STRS)) (list->params (second STRS))))
+    (if (eq (type-of desig) 'OBJECT-DESIGNATOR)
+      (let ((STRS (object-designator->string desig)))
+        (format nil "~a~a" (list->camel (first STRS)) (list->params (second STRS)))))))
+
+(defun object-designator->string (desig)
+  (let* ((TYP (desig-prop-value desig 'TYPE))
+        (LOC (desig-prop-value desig 'LOC))
+        (L (location-designator->string LOC))
+        (FUNCNAME (first L))
+        (PARAMS (second L)))
+    (if (not (null TYP))
+      (push (format nil "~a" TYP) FUNCNAME))
+    `(,FUNCNAME ,PARAMS)))
+
+(defun location-designator->string (desig)
+  (let ((FUNCNAME '())
+        (PARAMS '())
+        (ON (desig-prop-value desig 'ON))
+        (IN (desig-prop-value desig 'IN))
+        (LOC (desig-prop-value desig 'LOC))
+        (BETWEEN (desig-prop-value desig 'BETWEEN)))
+    (if (not (null ON))
+        (push "on" FUNCNAME))
+    (if (eq (type-of ON) 'SYMBOL)
+      (push (format nil "~a" ON) FUNCNAME)
+      (if (eq (type-of ON) 'OBJECT-DESIGNATOR)
+        (let ((TYP (desig-prop-value ON 'TYPE))
+              (NAME (desig-prop-value ON 'NAME)))
+          (push (format nil "~a" NAME) PARAMS))))
+    (if (not (null IN))
+        (push "in" FUNCNAME))
+    (if (eq (type-of IN) 'SYMBOL)
+      (push (format nil "~a" IN) FUNCNAME)
+      (if (eq (type-of IN) 'OBJECT-DESIGNATOR)
+        (let ((TYP (desig-prop-value IN 'TYPE))
+              (NAME (desig-prop-value IN 'NAME)))
+          (push (format nil "~a" TYP) FUNCNAME)
+          (push (format nil "~a" NAME) PARAMS))))
+    (if (not (null LOC))
+      (push "at" FUNCNAME))
+    (if (not (null BETWEEN))
+      (push (format nil "between") FUNCNAME))
+    `(,(reverse FUNCNAME) ,(reverse (push "Obj" PARAMS)))))
+
  (defun string->designators (str)
    "Converts a return string with format
-    '[[edible,[centroid_x, centroid_y, centroid_z],volume,frame_id,[origin_x,origin_y,origin_z],width,height],[...]]'
+    '[[edible,[centroid_x, centroid_y, centroid_z],frame_id],[...]]'
    to an object designator"
    (let ((result '())
          (regex "\\\[(true|false),'(\\w+)',\\\[([\\d.]+),([\\d.]+),([\\d.]+)\\\],([\\d.]+),'(\\w+)',\\\[([\\d.]+),([\\d.]+),([\\d.]+)\\\],([\\d.]+),([\\d.]+)\\\],?"))
