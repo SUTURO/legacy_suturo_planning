@@ -18,4 +18,5 @@
     :components
     ((:file "package")
      (:file "speech" :depends-on ("package"))
+     (:file "designator-parser" :depends-on ("package"))
      (:file "suturo-planning-common" :depends-on ("package" "speech"))))))
