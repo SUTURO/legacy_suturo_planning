@@ -4,17 +4,17 @@
 
 (defmethod call-action ((action-sym t) &rest params)
   (roslisp:ros-info
-    (suturo process-module)
+    (suturo process-module-dummy)
     "Unimplemented operation `~a' with parameters ~a. Doing nothing."
     action-sym params)
     (sleep 0.5))
 
 (defmethod call-action :around (action-sym &rest params)
-  (roslisp:ros-info (suturo process-module)
+  (roslisp:ros-info (suturo process-module-dummy)
                     "Executing action ~a ~a."
                     action-sym params)
   (prog1 (call-next-method)
-    (roslisp:ros-info (suturo process-module)
+    (roslisp:ros-info (suturo process-module-dummy)
                       "Action done.")))
 
 (def-process-module suturo-planning-pmd-manipulation (desig)

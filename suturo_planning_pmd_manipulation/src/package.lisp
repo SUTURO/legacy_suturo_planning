@@ -13,4 +13,15 @@
         #:cram-plan-knowledge
         #:suturo-planning-common)
   (:import-from alexandria ignore-some-conditions)
-  (:export suturo-planning-pmd-manipulation))
+  (:export suturo-planning-pmd-manipulation)
+  (:desig-properties #:to
+                     #:arm 
+                     #:obj 
+                     #:grasp 
+                     #:take-pose
+                     #:pose
+                     #:move-head
+                     #:direction
+                     #:open-hand
+                     #:move-arm
+                     #:loc))

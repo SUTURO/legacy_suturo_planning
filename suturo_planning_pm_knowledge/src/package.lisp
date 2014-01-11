@@ -11,4 +11,10 @@
         #:cram-process-modules
         #:cram-plan-failures
         #:cram-plan-knowledge)
-  (:export suturo-planning-pm-knowledge))
+  (:export suturo-planning-pm-knowledge)
+  (:desig-properties #:to
+                     #:ground
+                     #:obj
+                     #:update-semantic-map
+                     #:get-container-objects
+                     #:get-graspable-objects))

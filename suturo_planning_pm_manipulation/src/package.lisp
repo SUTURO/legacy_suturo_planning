@@ -13,9 +13,14 @@
         #:cram-plan-knowledge)
   (:import-from alexandria ignore-some-conditions)
   (:export suturo-planning-pm-manipulation)
-  (:desig-properties #:to #:move #:obj #:move-head #:take-object #:move-arm-over-box
-                     #:type #:box #:bowl #:cutlery #:arm #:move-closer-to-other-arm
-                     #:color #:red #:white #:blue #:green #:touch #:left #:right
-                     #:move #:at #:loc
-                     #:name #:container #:category #:owner #:cornflakes
-                     #:pose #:edible))
+  (:desig-properties #:to
+                     #:arm 
+                     #:obj 
+                     #:grasp 
+                     #:take-pose
+                     #:pose
+                     #:move-head
+                     #:direction
+                     #:open-hand
+                     #:move-arm
+                     #:loc))

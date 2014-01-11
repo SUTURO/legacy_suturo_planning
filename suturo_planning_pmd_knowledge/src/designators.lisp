@@ -3,25 +3,25 @@
 (def-fact-group suturo-knowledge-designators (action-desig)
   
   (<- (action-desig ?desig (ground ?obj))
-      ;;Action designator for action to get information about objects.
-      (desig-prop ?desig (to ground))
-      (desig-prop ?desig (obj ?obj)))
+    ;;Action designator for action to get information about objects.
+    (desig-prop ?desig (to ground))
+    (desig-prop ?desig (obj ?obj)))
 
   (<- (action-desig ?desig (update-semantic-map))
-      ;;Action designator for action to get information about objects.
-      (desig-prop ?desig (to update-semantic-map)))
-
+    ;;Action designator for action to get information about objects.
+    (desig-prop ?desig (to update-semantic-map)))
+  
   (<- (action-desig ?desig (get-container-objects))
-      ;;Action designator for action to get information about objects.
-      (desig-prop ?desig (to ground)))
-
+    ;;Action designator for action to get information about objects.
+    (desig-prop ?desig (to get-container-objects)))
+  
   (<- (action-desig ?desig (get-graspable-objects))
-      ;;Action designator for action to get information about objects.
-      (desig-prop ?desig (to get-graspable-objects))))
+    ;;Action designator for action to get information about objects.
+    (desig-prop ?desig (to get-graspable-objects))))
 
 (def-fact-group suturo-planning-pmd-knowledge (matching-process-module
-                                       available-process-module)
-
+                                               available-process-module)
+  
   (<- (matching-process-module ?designator suturo-planning-pmd-knowledge)
     (or (desig-prop ?designator (to ground))
         (desig-prop ?designator (to update-semantic-map))

@@ -12,9 +12,9 @@
         #:cram-plan-failures
         #:cram-plan-knowledge)
   (:export suturo-planning-pmd-knowledge)
-  (:desig-properties #:to #:perceive #:obj #:ground #:touch
-                     #:type #:box #:bowl #:cutlery #:arm
-                     #:color #:red #:white #:blue #:green
-                     #:move #:at #:loc
-                     #:name #:container #:category #:owner #:cornflakes
-                     #:pose #:edible))
+  (:desig-properties #:to
+                     #:ground
+                     #:obj
+                     #:update-semantic-map
+                     #:get-container-objects
+                     #:get-graspable-objects))
