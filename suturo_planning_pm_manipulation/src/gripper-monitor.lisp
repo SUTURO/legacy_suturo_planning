@@ -1,24 +1,24 @@
 (in-package :suturo-planning-pm-manipulation)
 
-(defvar *gripper-closed* (make-fluent :value nil))
+(defvar *gripper-closed* nil) ;(make-fluent :value nil))
 
 (defvar *joint-state-subscriber* nil)
 
 (def-action-handler keep-object-in-hand (arm)
   "Subscribes to joint_states an monitors the state of the gripper"
-  (subscribe-joint-state arm)
-  (whenever ((pulsed *gripper-closed*))
-    (if (value *gripper-closed*)
-        (progn
-          (unsubscribe-joint-state)
-          (cpl:fail 'suturo-planning-common::grasp-fail)))))
+  (subscribe-joint-state arm))
+  ;(whenever ((pulsed *gripper-closed*))
+  ;  (if (value *gripper-closed*)
+  ;      (progn
+  ;        (unsubscribe-joint-state)
+  ;        (cpl:fail 'suturo-planning-common::grasp-fail)))))
 
 (def-action-handler gripper-is-closed (arm)
   "Checks if the gripper is closed"
   (subscribe-joint-state arm)
   (sleep 1)
-  (unsubscribe-joint-state)
-  (value *gripper-closed*))
+  (unsubscribe-joint-state))
+  ;(value *gripper-closed*))
 
 (defun subscribe-joint-state (arm)
   (if (not *joint-state-subscriber*)

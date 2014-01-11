@@ -1,19 +1,16 @@
 (in-package :cl-user)
 
 (desig-props:def-desig-package suturo-planning-pm-manipulation
-  (:nicknames :suturo-pm-manipulation)
-  (:use #:cut
-        #:cpl
-        #:designators-ros
-        #:cram-designators
-        #:cram-roslisp-common
-        #:cram-process-modules
-        #:cram-plan-failures
-        #:cram-plan-knowledge
-        #:cram-plan-library
-        #:cram-utilities
-        #:roslisp
-        #:suturo-planning-common)
+ (:nicknames :suturo-pm-manipulation)
+ (:use #:common-lisp
+       #:crs
+       #:cut
+       #:desig
+       #:designators-ros
+       #:cram-roslisp-common
+       #:cram-process-modules
+       #:cram-plan-failures
+       #:cram-plan-knowledge)
   (:import-from alexandria ignore-some-conditions)
   (:export suturo-planning-pm-manipulation)
   (:desig-properties #:to
