@@ -9,7 +9,7 @@
   (let ((result ""))
     (dolist (e strings)
       (setq result (concatenate 'string result
-                                (element->string e) ",")))
+                                (format nil "~a" e) ",")))
     (concatenate 'string "("
                  (subseq result 0 (- (length result) 1))
                  ")")))
