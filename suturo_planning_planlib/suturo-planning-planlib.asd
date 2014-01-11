@@ -10,7 +10,8 @@
                alexandria
       	       cram-plan-failures
                cram-language
-               suturo-planning-common)
+               suturo-planning-common
+               sensor_msgs-msg)
   :components
   ((:module "src"
     :components
