@@ -93,26 +93,28 @@
           (push (format nil "~a" TYP) FUNCNAME)
           (push (format nil "~a" NAME) PARAMS))))
     (if (not (null LOC))
-      (push "at" FUNCNAME))
+      (let ((x (first LOC))
+            (y (second LOC))
+            (z (third LOC)))
+        (push "at" FUNCNAME)
+        (push (format nil "[~a,~a,~a]" x y z) PARAMS)))
     (if (not (null BETWEEN))
       (push (format nil "between") FUNCNAME))
     `(,(reverse FUNCNAME) ,(reverse (push "Obj" PARAMS)))))
 
  (defun string->designators (str)
    "Converts a return string with format
-    '[[edible,[centroid_x, centroid_y, centroid_z],frame_id],[...]]'
+    '[[edible,name,[centroid_x, centroid_y, centroid_z],frame_id],[...]]'
    to an object designator"
    (let ((result '())
-         (regex "\\\[(true|false),'(\\w+)',\\\[([\\d.]+),([\\d.]+),([\\d.]+)\\\],([\\d.]+),'(\\w+)',\\\[([\\d.]+),([\\d.]+),([\\d.]+)\\\],([\\d.]+),([\\d.]+)\\\],?"))
-     (ppcre:do-register-groups (edible name centroid_x centroid_y centroid_z
-                                volume frame_id origin_x origin_y origin_z
-                                width height)
+         (regex "\\\[(true|false),'(\\w+)','(\\w+)',\\\[([\\d.]+),([\\d.]+),([\\d.]+)\\\],'(\\w+)'\\\],?"))
+     (ppcre:do-register-groups (edible name typ centroid_x centroid_y centroid_z frame_id)
                                (regex str nil :start 0 :end (length str) :sharedp t)
                                (let ((loc (make-designator 'location `((desig-props:loc (,(read-from-string centroid_x) 
                                                                                          ,(read-from-string centroid_y) 
                                                                                          ,(read-from-string centroid_z)))
                                                                        (desig-props:frame ,frame_id)))))
-                                 (push (make-designator 'object `((desig-props:edible ,(string-equal edible "true"))
-                                                            (desig-props:name ,name)
-                                                            (desig-props:at ,loc))) result)))
+                                 (push (make-designator 'object `((desig-props:type ,typ)
+                                                                  (desig-props:name ,name)
+                                                                  (desig-props:at ,loc))) result)))
      result))
