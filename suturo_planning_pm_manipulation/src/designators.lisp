@@ -35,6 +35,7 @@
   
   (<- (matching-process-module ?designator suturo-planning-pm-manipulation)
     (or (desig-prop ?designator (to move))
+        (desig-prop ?designator (to take-pose))
         (desig-prop ?designator (to move-head))
         (desig-prop ?designator (to grasp))
         (desig-prop ?designator (to open-hand))
