@@ -7,6 +7,7 @@
                cram-plan-library
                cram-reasoning
                cram-plan-knowledge
+               cl-json-pl-client
                alexandria
       	       cram-plan-failures
                sound_play-msg

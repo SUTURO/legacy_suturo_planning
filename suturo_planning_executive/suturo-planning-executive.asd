@@ -9,7 +9,7 @@
                ;suturo-planning-process-module
                ;suturo-planning-process-module-dummy
                suturo-planning-pm-manipulation
-               ;suturo-planning-pm-knowledge
+               suturo-planning-pm-knowledge
                suturo-planning-pmd-manipulation
                suturo-planning-pmd-knowledge
                suturo-planning-planlib
