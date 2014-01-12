@@ -25,4 +25,9 @@
                      #:move-arm
                      #:loc
                      #:keep-object-in-hand
-                     #:gripper-is-closed))
+                     #:gripper-is-closed
+                     #:name
+                     #:frame
+                     #:left-arm
+                     #:right-arm
+                     #:type))

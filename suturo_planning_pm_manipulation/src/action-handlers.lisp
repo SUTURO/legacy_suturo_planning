@@ -82,22 +82,34 @@
           (values result status)))
 
 ; grasp
-(defun make-grasp-action-goal (obj in-arm)
-  (actionlib:make-action-goal (get-action-client "suturo_man_grasping_server"
-                                                 "suturo_manipulation_graspingAction")
-                              header (desig-prop-value (desig-prop-value obj 'at)  'frame)
-                              objectName (desig-prop-value obj 'name)
-                              grasp t
-                              arm in-arm))
+(defvar *action-client-grasp* nil)
 
-(defun call-grasp-action (obj arm) 
+(defun make-grasp-action-goal (obj in-arm)
+  (format t "make obj: ~a ~%in-arm:~a~%" obj in-arm)
+  (let* ((msg-header (roslisp:make-msg "std_msgs/Header"
+                                    (seq) 4
+                                    (stamp) (roslisp:ros-time)
+                                    (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
+         (msg-goal (roslisp:make-msg "suturo_manipulation_msgs/suturo_manipulation_grasping_goal"
+                                  (header) msg-header 
+                                  (objectName) (desig-prop-value obj 'name)
+                                  (grasp) t
+                                  (arm) in-arm)))
+    (format t "msg: ~a~%" msg-goal)
+    (actionlib:make-action-goal *action-client-grasp*
+      goal msg-goal)))
+
+(defun call-grasp-action (obj arm)
+  (format t "FIert~%")
+  (setf *action-client-grasp*  (get-action-client "suturo_man_grasping_server"
+                                                  "suturo_manipulation_msgs/suturo_manipulation_graspingAction"))
   (multiple-value-bind (result status)
       (let ((actionlib:*action-server-timeout* 10.0))
         (let ((result
                 (actionlib:call-goal
-                 (get-action-client "suturo_man_grasping_server"
-                                    "suturo_manipulation_graspingAction")
-                 (make-grasp-action-goal obj arm))))
+                 *action-client-grasp*
+                 (make-grasp-action-goal obj arm)
+                 :timeout 120.0)))
           (roslisp:ros-info (suturo-pm-manipulation call-grasp-action)
                             "Result from call-goal grasp object ~a"
                             result)
@@ -112,7 +124,7 @@
 ; open-hand
 (defun make-open-hand-goal (in-arm)
   (actionlib:make-action-goal (get-action-client "suturo_man_grasping_server"
-                                                 "suturo_manipulation_graspingAction")
+                                                 "suturo_manipulation_msgs/suturo_manipulation_graspingAction")
                               header nil
                               objectName nil
                               grasp nil
