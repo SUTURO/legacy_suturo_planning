@@ -7,11 +7,11 @@
 (defvar *attempts-to-touch* 0)
 
 (defmacro with-process-modules (&body body)
-  `(cpm:with-process-modules-running
-     (suturo-planning-pm-manipulation:suturo-planning-pm-manipulation
+  ;`(cpm:with-process-modules-running
+     ;(suturo-planning-pm-manipulation:suturo-planning-pm-manipulation
      ;suturo-planning-pm-knowledge:suturo-planning-pm-knowledge
      )
-     ,@body))
+    ; ,@body))
 
 (defmacro with-dummy-process-modules (&body body)
   `(cpm:with-process-modules-running
@@ -105,6 +105,12 @@
 
 (def-top-level-cram-function test-kno-pmd2 ()
   (with-dummy-process-modules
+    (with-designators ((update (action 
+                                     '((to update-semantic-map)))))
+      (perform update))))
+
+(def-top-level-cram-function test-kno-pmd3 ()
+  (with-dummy-process-modules
     (with-designators ((get-objects (action 
-                                     '((to get-graspable-objects)))))
+                                     '((to get-container-objects)))))
       (perform get-objects))))

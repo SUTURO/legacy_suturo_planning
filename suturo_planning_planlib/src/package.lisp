@@ -37,4 +37,8 @@
                      #:move-arm
                      #:loc
                      #:keep-object-in-hand
-                     #:gripper-is-closed))
+                     #:gripper-is-closed
+                     #:update-semantic-map
+                     #:get-container-objects
+                     #:get-graspable-objects
+                     #:ground))

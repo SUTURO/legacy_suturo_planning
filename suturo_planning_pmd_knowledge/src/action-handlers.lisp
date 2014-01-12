@@ -19,7 +19,7 @@
         (setq *update-semantic-map-fails* (+ *update-semantic-map-fails* 1))
         NIL)))
 
-(def-action-handler get-boxes ()
+(def-action-handler get-graspable-objects ()
   (if (= *get-boxes-fails* 1)
       (progn
         (setq *get-boxes-fails* 0)
@@ -28,7 +28,7 @@
         (setq *get-boxes-fails* (+ *get-boxes-fails* 1))
         NIL)))
 
-(def-action-handler get-objects ()
+(def-action-handler get-container-objects ()
   (if (= *get-objects-fails* 1)
       (progn
         (setq *get-objects-fails* 0)

@@ -20,4 +20,6 @@
                      #:arm 
                      #:obj 
                      #:left-arm
-                     #:get-graspable-objects))
+                     #:get-graspable-objects
+                     #:update-semantic-map
+                     #:get-container-objects))
