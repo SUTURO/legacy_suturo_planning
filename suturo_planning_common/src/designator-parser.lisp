@@ -24,7 +24,7 @@
 
 (defun object-designator->string (desig)
   (let* ((TYP (desig-prop-value desig 'TYPE))
-        (LOC (desig-prop-value desig 'LOC))
+        (LOC (desig-prop-value desig 'AT))
         (L (location-designator->string LOC))
         (FUNCNAME (first L))
         (PARAMS (second L)))
@@ -46,7 +46,7 @@
       (if (eq (type-of ON) 'OBJECT-DESIGNATOR)
         (let ((TYP (desig-prop-value ON 'TYPE))
               (NAME (desig-prop-value ON 'NAME)))
-          (push (format nil "~a" NAME) PARAMS))))
+          (push (format nil "'~a'" NAME) PARAMS))))
     (if (not (null IN))
         (push "in" FUNCNAME))
     (if (eq (type-of IN) 'SYMBOL)
@@ -64,7 +64,7 @@
         (push (format nil "[~a,~a,~a]" x y z) PARAMS)))
     (if (not (null BETWEEN))
       (push (format nil "between") FUNCNAME))
-    `(,(reverse FUNCNAME) ,(reverse (push "Obj" PARAMS)))))
+    `(,(reverse FUNCNAME) ,(reverse (push "Out" PARAMS)))))
 
 (defun symbol->string (s)
   (let ((str (symbol-name s)))
@@ -80,5 +80,6 @@
                     (frame-id (fifth obj))
                     (loc (make-designator 'location `((desig-props:loc ,centroid) (desig-props:frame ,(symbol->string frame-id))))))
                 (make-designator 'object `((desig-props:type ,(intern (nstring-upcase (symbol->string typ))))
+                                           (desig-props:edible ,(eq 'TRUE (intern (nstring-upcase (symbol->string edible)))))
                                            (desig-props:name ,(symbol->string name))
                                            (desig-props:at ,loc))))) objs)))

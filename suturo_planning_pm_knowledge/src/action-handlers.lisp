@@ -17,20 +17,18 @@
 
 (def-action-handler get-container-objects ()
   "Receives all containers from Knowledge Representation as a list."
-    (let ((gen (json-prolog:prolog-simple-1 "edibleOnTable(table, OUT)")))
-        (if gen
-            (with-vars-bound
-                (?OUT) gen
-              (format t "~a~%" ?OUT)
-              ?OUT)
-            (roslisp:ros-warn nil "Could not receive container objects."))))
+    (let* ((loc (make-designator 'location `((desig-props:on ,(make-designator 'object `((desig-props:name "insert_my_table_name")))))))
+           (gen (json-prolog:prolog-simple-1 (suturo-planning-common:designator->string (make-designator 'object `((desig-props:type container) 
+                                                                                           (desig-props:at ,loc)))))))
+      (if gen
+        (suturo-planning-common::json-prolog->designators gen)
+        (roslisp:ros-warn nil "Could not receive container objects."))))
 
 (def-action-handler get-graspable-objects ()
   "Receives all graspable objects from Knowledge Representation as a list"
-   (let ((gen (json-prolog:prolog-simple-1 "containerOnTable(table, OUT)")))
-        (if gen
-            (with-vars-bound
-                (?OUT) gen
-              (format t "~a~%" ?OUT)
-              ?OUT)
-            (roslisp:ros-warn nil "Could not receive graspable objects."))))
+    (let* ((loc (make-designator 'location `((desig-props:on ,(make-designator 'object `((desig-props:name "insert_my_table_name")))))))
+           (gen (json-prolog:prolog-simple-1 (suturo-planning-common:designator->string (make-designator 'object `((desig-props:type graspable) 
+                                                                                           (desig-props:at ,loc)))))))
+      (if gen
+        (suturo-planning-common::json-prolog->designators gen)
+        (roslisp:ros-warn nil "Could not receive graspable objects."))))
