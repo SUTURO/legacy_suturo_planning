@@ -122,22 +122,34 @@
           (values result status)))
 
 ; open-hand
-(defun make-open-hand-goal (in-arm)
-  (actionlib:make-action-goal (get-action-client "suturo_man_grasping_server"
-                                                 "suturo_manipulation_msgs/suturo_manipulation_graspingAction")
-                              header nil
-                              objectName nil
-                              grasp nil
-                              arm in-arm))
+(defvar *action-client-open-hand* nil)
+
+(defun make-open-hand-goal (obj)
+  (format t "make-open-hand-goal obj:~a~%" obj)
+  (let* ((msg-header (roslisp:make-msg "std_msgs/Header"
+                                    (seq) 4
+                                    (stamp) (roslisp:ros-time)
+                                    (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
+         (msg-goal (roslisp:make-msg "suturo_manipulation_msgs/suturo_manipulation_grasping_goal"
+                                  (header) msg-header 
+                                  (objectName) (desig-prop-value obj 'name)
+                                  (grasp) nil
+                                  (arm) "")))
+    (format t "msg: ~a~%" msg-goal)
+    (actionlib:make-action-goal *action-client-open-hand*
+      goal msg-goal)))
 
 (defun call-open-hand-action (arm)
+  (format t "call-open-hand-action arm: ~a~%" arm)
+  (setf *action-client-open-hand* (get-action-client "suturo_man_grasping_server"
+                                                     "suturo_manipulation_msgs/suturo_manipulation_graspingAction"))
   (multiple-value-bind (result status)
       (let ((actionlib:*action-server-timeout* 10.0))
         (let ((result
                 (actionlib:call-goal
-                 (get-action-client "suturo_man_grasping_server"
-                                    "suturo_manipulation_graspingAction")
-                 (make-open-hand-goal arm))))
+                 *action-client-open-hand*
+                 (make-open-hand-goal arm)
+                 :timeout 60.0)))
           (roslisp:ros-info (suturo-pm-manipulation call-open-hand-action)
                             "Result from call-goal open hand ~a"
                             result)
