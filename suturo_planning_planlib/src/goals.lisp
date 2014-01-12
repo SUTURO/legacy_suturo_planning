@@ -3,23 +3,30 @@
 (define-policy dont-drop-object (arm)
   (:check (with-designators ((keep-obj (action `((to keep-object-in-hand)
                                                 (arm ,arm)))))
-            (perform keep-obj))))
+            (perform keep-obj)))
+  (:recover (format t "Recovering ~%"))
+  (:clean-up (format t "Cleaning up ~%")))
                      
 (def-goal (achieve (home-pose))
-  (with-designators ((take-home-pose (action 
-                                      '((to take-pose)
-                                        (pose home)))))
-    (perform take-home-pose)
-    (format t "Initial pose reached")))
+  (with-retry-counters ((pose-retry-counter 2))
+    (with-failure-handling 
+        ((suturo-planning-common::pose-not-reached (f)
+           (declare (ignore f))
+           (do-retry pose-retry-counter
+             (retry))))
+      (with-designators ((take-home-pose (action 
+                                          '((to take-pose)
+                                            (pose home)))))
+        (perform take-home-pose))))
+  (format t "Initial pose reached~%"))
 
 (def-goal (achieve (object-in-hand ?obj))
   "Takes the object in one hand"
   (let ((arm (get-best-arm ?obj)))
     (with-retry-counters ((grasping-retry-counter 4))
       (with-failure-handling 
-          ((suturo-planning-common::grasp-fail (f)
+          ((suturo-planning-common::grasping-failed (f)
              (declare (ignore f))
-             (incf fails)
              (do-retry grasping-retry-counter
                (setf arm (switch-arms arm))
                (retry))))
@@ -30,7 +37,7 @@
                                                         (arm ,arm)))))
           (perform grasp-obj)
           (if (perform gripper-is-closed) 
-            (cpl:fail 'suturo-planning-common::grasp-fail)))))))
+            (cpl:fail 'suturo-planning-common::grasping-failed)))))))
       
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
@@ -57,7 +64,7 @@
   ;add failure handling
   (achieve `(object-in-hand ,?obj))
   (let ((arm (get-holding-hand (current-desig ?obj))))
-    (with-policy 'dont-drop-object (arm)
+    (with-named-policy 'dont-drop-object (arm)
       (achieve `(hand-over ,?box ,arm)))
     (achieve `(empty-hand ,arm)))
   (format t "~a in box ~a" ?obj ?box))
@@ -66,48 +73,47 @@
   "Edible Objects in the left box and inedible ones in the right box"
   (let ((left-box (get-box ?boxes 'left)) 
         (right-box (get-box ?boxes 'right))
-        (fails 0)
         (obj nil)
         (box nil))
-    (with-failure-handling
-        ((simple-plan-failure (f)
-           (declare (ignore f))
-           (if (< fails 6)
-               (seq 
-                 (incf fails)
-                 (append obj ?objs)
-                 (retry)))))
-      (loop while ?objs
-            do (setf obj (pop ?objs))
-               (if (desig-prop-value obj 'edible)
-                   (setf box left-box)
-                   (setf box right-box))
-               (achieve `(object-in-box ,obj ,box)))))
-  (format t "~a in boxes ~a" ?objs ?boxes))
+    (with-retry-counters ((plan-retry-counter 6))
+      (with-failure-handling
+          ((simple-plan-failure (f)
+             (declare (ignore f))
+             (do-retry plan-retry-counter
+               (append obj ?objs)
+               (retry))))
+        (loop while ?objs
+              do (setf obj (pop ?objs))
+                 (if (desig-prop-value obj 'edible)
+                     (setf box left-box)
+                     (setf box right-box))
+                 (achieve `(object-in-box ,obj ,box)))))
+    (format t "~a in boxes ~a" ?objs ?boxes)))
 
 (def-goal (achieve (objects-and-boxes-perceived ?nr-objs ?nr-boxes))
   (let ((objs nil)
         (boxes nil))
     (loop while (and (< (length objs) ?nr-objs) (< (length boxes) ?nr-boxes))
-          do (with-designators ((update-semantic-map 
+          do (with-designators ((update-map 
                                 (action 
-                                 '((to update-sematic-map))))
+                                 '((to update-semantic-map))))
                                (get-containers 
                                 (action 
                                  '((to get-container-objects))))
                                (get-objects
                                 (action 
                                  '((to get-graspable-objects)))))
-               (perform update-semantic-map)
+               (perform update-map)
                (setf objs (perform get-objects))
                (setf boxes (perform get-containers))))
-  (format t "Objects perceived")
+  (format t "Objects perceived~%")
   `(,objs ,boxes)))
 
 (defun get-box (boxes side)
   "Returns the box that is on the given side of the other box"
-  (let ((x1 (first (desig-prop-value (first boxes) 'coords)))
-        (x2 (first (desig-prop-value (second boxes) 'coords))))
+  (format t "Get ~a box~%" side)
+  (let ((x1 (first (get-coords (first boxes))))
+        (x2 (first (get-coords (second boxes)))))
     (if (eql side 'left)
         (if (< x1 x2)
             (first boxes)
@@ -121,8 +127,9 @@
   (let ((pos (desig-prop-value 
               (desig-prop-value (current-desig obj) 'at) 
               'in)))
+    (format t "Holding object ~a~%Pos: ~a~%" (current-desig obj) pos)
     (if (not pos)
-        (format t "ERROR2")
+        (format t "ERROR2~%")
         (progn
           (if (eql pos 'left-gripper) 
               'left-arm
@@ -138,7 +145,7 @@
 
 (defun get-coords (obj)
   "Returns the coordinates of the object"
-  (desig-prop-value (desig-prop-value obj 'at) 'coords))
+  (desig-prop-value (desig-prop-value (current-desig obj) 'at) 'coords))
 
 (defun switch-arms (arm)
   (if (eql 'left-arm arm)

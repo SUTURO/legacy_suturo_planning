@@ -3,7 +3,7 @@
 (defvar *move-fails* 0)
 (defvar *move-head-fails* 0)
 (defvar *move-arm-fails* 0)
-(defvar *grasp-fails* 0)
+(defvar *grasp-fails* 2)
 (defvar *open-fails* 0)
 
 (defmacro def-action-handler (name args &body body)
@@ -29,13 +29,23 @@
   (if (= *grasp-fails* 0)
       (progn
         (setq *grasp-fails* (+ *grasp-fails* 1))
-        (cpl:error 'suturo-planning-common::grasp-failed :result obj)))  
+        (cpl:error 'suturo-planning-common::grasping-failed :result obj)))  
   (if (= *grasp-fails* 1)
       (progn 
         (setq *grasp-fails* (+ *grasp-fails* 1))
-        (cpl:error 'suturo-planning-common::grasp-failed :result obj)))
+        (cpl:error 'suturo-planning-common::grasping-failed :result obj)))
   (if (= *grasp-fails* 2)
-      (setq *grasp-fails* 0))) 
+      (progn
+        (setq *grasp-fails* 2)
+        (let* ((loc-des (description (desig-prop-value obj 'at)))
+               (loc (make-designator 'location 
+                                     (update-designator-properties '((in left-gripper))
+                                                                   loc-des)))
+               (new-obj (make-designator 'object
+                                         (update-designator-properties `((at ,loc))
+                                                                       (description obj)))))
+        (equate obj new-obj))
+        (format t "First-desig: ~a~%Current-desig: ~a~%" (first-desig obj) (current-desig obj)))))
 
 (def-action-handler open-hand(arm)
   (if (= *open-fails* 1)

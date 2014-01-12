@@ -15,6 +15,12 @@
   (:desig-properties #:to
                      #:ground
                      #:obj
+                     #:name
+                     #:coords
+                     #:type
+                     #:frame
+                     #:at
+                     #:edible
                      #:update-semantic-map
                      #:get-container-objects
                      #:get-graspable-objects))

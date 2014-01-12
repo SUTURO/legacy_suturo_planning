@@ -10,7 +10,7 @@
 
 (define-condition grasping-failed (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
-  (:default-initargs :format-control "touch-failed"))
+  (:default-initargs :format-control "grasping-failed"))
 
 (define-condition pose-not-reached (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
@@ -23,10 +23,6 @@
 (define-condition move-head-failed (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "move-head-failed"))
-
-(define-condition grasp-failed (simple-plan-failure)
-  ((result :initarg :result :reader result :initform nil))
-  (:default-initargs :format-control "grasp-failed"))
 
 (define-condition drop-failed (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))

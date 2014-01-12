@@ -17,6 +17,11 @@
   (:export suturo-planning-pmd-manipulation)
   (:desig-properties #:to
                      #:arm 
+                     #:in 
+                     #:left-arm
+                     #:right-arm
+                     #:left-gripper
+                     #:right-gripper
                      #:obj 
                      #:grasp 
                      #:take-pose

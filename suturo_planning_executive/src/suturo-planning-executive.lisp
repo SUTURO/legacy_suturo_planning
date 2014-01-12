@@ -47,7 +47,7 @@
       (let ((result (suturo-planning-planlib::achieve
                       '(suturo-planning-planlib::objects-and-boxes-perceived 3 2))))
         (with-failure-handling
-          ((suturo-planning-common::grasp-failed (f)
+          ((suturo-planning-common::grasping-failed (f)
             (declare (ignore f))
             (error-out (planning exec) "Grasping failed.")))
           (suturo-planning-planlib::achieve 
@@ -59,23 +59,23 @@
 
 (def-top-level-cram-function test-desig ()
   (with-designators ((loc-1 (location 
-                             `((on table)))) 
+                             `((in table)))) 
                      (loc-2 (location 
-                             `((on cupboard))))) 
+                             `((in cupboard))))) 
     (with-designators ((obj-1 (object 
-                               `((type cup) (at ,loc-1))))
+                               `((name "obj1") (type cup) (at ,loc-1))))
                        (obj-2 (object
                                `((type box) (at ,loc-2)))))
       (equate obj-1 obj-2) 
       (format t "first-desig: ~a ~% current-desig: ~a" (first-desig obj-1) (current-desig obj-1))
-      (desig-prop-value loc-1 'on))))
+      (desig-prop-value loc-1 'in))))
 
-(defvar *test-loc1* (make-designator 'location '((desig-props:frame 1) 
-                                                 (desig-props:coords (1 1 1)))))
+(defvar *test-loc1* (make-designator 'location '((frame 1) 
+                                                 (coords (1 1 1)))))
 
-(defvar *test-obj1* (make-designator 'object `((desig-props:name test-obj) 
-                                               (desig-props:type graspable-object) 
-                                               (desig-props:at ,*test-loc1*))))
+(defvar *test-obj1* (make-designator 'object `((name test-obj) 
+                                               (type graspable-object) 
+                                               (at ,*test-loc1*))))
 
 (def-top-level-cram-function test-goals ()
   (with-dummy-process-modules
@@ -85,9 +85,9 @@
 (def-top-level-cram-function test-man-pmd ()
   (with-dummy-process-modules
     (with-designators ((grasp-obj (action 
-                                   `((desig-props:to grasp) 
-                                     (desig-props:arm desig-props:left-arm) 
-                                     (desig-props:obj ,*test-obj1*)))))
+                                   `((to grasp) 
+                                     (arm left-arm) 
+                                     (obj ,*test-obj1*)))))
       (perform grasp-obj))))
 
 (def-top-level-cram-function test-man-pmd2 ()

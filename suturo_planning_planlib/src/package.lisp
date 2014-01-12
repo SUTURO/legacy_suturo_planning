@@ -22,12 +22,16 @@
                      #:arm 
                      #:left-arm
                      #:right-arm
+                     #:left-gripper
+                     #:right-gripper
                      #:on
                      #:at
+                     #:in
                      #:name
                      #:frame
                      #:coords
                      #:obj 
+                     #:edible
                      #:grasp 
                      #:take-pose
                      #:pose
