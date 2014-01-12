@@ -13,5 +13,11 @@
         #:cram-plan-library
         #:suturo-planning-common
         #:suturo-planning-planlib
+        #:suturo-planning-pmd-manipulation
         #:suturo-planning-pmd-manipulation)
-  (:desig-properties #:to #:grasp #:arm #:obj #:left-arm))
+  (:desig-properties #:to 
+                     #:grasp 
+                     #:arm 
+                     #:obj 
+                     #:left-arm
+                     #:get-graspable-objects))

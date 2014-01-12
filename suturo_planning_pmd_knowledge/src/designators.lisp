@@ -1,6 +1,6 @@
 (in-package :suturo-planning-pmd-knowledge)
 
-(def-fact-group suturo-knowledge-designators (action-desig)
+(def-fact-group suturo-knowledge-dummy-designators (action-desig)
   
   (<- (action-desig ?desig (ground ?obj))
     ;;Action designator for action to get information about objects.

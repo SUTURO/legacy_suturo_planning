@@ -100,11 +100,11 @@
 (def-top-level-cram-function test-kno-pmd ()
   (with-dummy-process-modules
     (with-designators ((get-objects (action 
-                                     `((desig-props:to desig-props:get-graspable-objects)))))
+                                     '((to get-graspable-objects)))))
       (perform get-objects))))
 
 (def-top-level-cram-function test-kno-pmd2 ()
   (with-dummy-process-modules
     (with-designators ((get-objects (action 
-                                     `((to get-graspable-objects)))))
+                                     '((to get-graspable-objects)))))
       (perform get-objects))))
