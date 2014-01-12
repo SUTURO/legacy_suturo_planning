@@ -1,9 +1,11 @@
 (in-package :suturo-planning-planlib)
 
 (define-policy dont-drop-object (arm)
-  (:check (with-designators ((keep-obj (action `((to keep-object-in-hand)
-                                                (arm ,arm)))))
-            (perform keep-obj)))
+  (:check ;(with-designators ((keep-obj (action `((to keep-object-in-hand)
+           ;                                     (arm ,arm)))))
+            ;(perform keep-obj)))
+           (format t "CHECK~%")
+           (sleep 5))
   (:recover (format t "Recovering ~%"))
   (:clean-up (format t "Cleaning up ~%")))
                      
@@ -50,7 +52,7 @@
                                               (arm ,?arm)
                                               (loc ,loc-over-obj)))))
         (perform move-hand))))
-  (format t "Hand over ~a" ?obj))
+  (format t "Hand over ~a~%" ?obj))
 
 (def-goal (achieve (empty-hand ?arm))
   "Opens the hand of the given arm"
@@ -66,8 +68,9 @@
   (let ((arm (get-holding-hand (current-desig ?obj))))
     (with-named-policy 'dont-drop-object (arm)
       (achieve `(hand-over ,?box ,arm)))
-    (achieve `(empty-hand ,arm)))
-  (format t "~a in box ~a" ?obj ?box))
+    (format t "Hand over finished~%")
+    (sleep 2)
+    (achieve `(empty-hand ,arm))))
 
 (def-goal (achieve (objects-in-appropriate-boxes ?objs ?boxes))
   "Edible Objects in the left box and inedible ones in the right box"
@@ -88,7 +91,7 @@
                      (setf box left-box)
                      (setf box right-box))
                  (achieve `(object-in-box ,obj ,box)))))
-    (format t "~a in boxes ~a" ?objs ?boxes)))
+    (format t "THE END")))
 
 (def-goal (achieve (objects-and-boxes-perceived ?nr-objs ?nr-boxes))
   (let ((objs nil)
