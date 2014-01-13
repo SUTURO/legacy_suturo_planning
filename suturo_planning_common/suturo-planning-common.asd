@@ -11,8 +11,7 @@
                alexandria
       	       cram-plan-failures
                sound_play-msg
-               cram-language
-               cl-ppcre)
+               cram-language)
   :components
   ((:module "src"
     :components

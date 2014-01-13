@@ -78,7 +78,7 @@
                     (typ (third obj))
                     (centroid (fourth obj))
                     (frame-id (fifth obj))
-                    (loc (make-designator 'location `((desig-props:loc ,centroid) (desig-props:frame ,(symbol->string frame-id))))))
+                    (loc (make-designator 'location `((desig-props:coords ,centroid) (desig-props:frame ,(symbol->string frame-id))))))
                 (make-designator 'object `((desig-props:type ,(intern (nstring-upcase (symbol->string typ))))
                                            (desig-props:edible ,(eq 'TRUE (intern (nstring-upcase (symbol->string edible)))))
                                            (desig-props:name ,(symbol->string name))
