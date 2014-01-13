@@ -28,30 +28,51 @@
 
 ; make-goal- and call-action-functions
 ; move-head
+(defvar *action-client-move-head* nil)
 
-(defun make-move-head-goal (direction)
-  (actionlib:make-action-goal (get-action-client "suturo_man_move_head_server"
-                                                 "suturo_manipulation_msgs/suturo_manipulation_move_head_serverAction")
-                              p direction))
+(defun make-move-head-goal (pose-stamped)
+  (format t "make-move-head-goal pose-stamped: ~a~%" pose-stamped)
+  (actionlib:make-action-goal *action-client-move-head* ps pose-stamped))
 
-(defun call-move-head-action (direction)
-  (multiple-value-bind (result status)
-      (let ((actionlib:*action-server-timeout* 10.0))
-        (let ((result 
-                (actionlib:call-goal
-                 (get-action-client "suturo_man_move_head_server"
-                                    "suturo_manipulation_msgs/suturo_manipulation_move_head_serverAction")
-                 (make-move-head-goal direction))))
-          (roslisp:ros-info (suturo-pm-manipulation call-move-head-action)
-                            "Result from call-goal move head ~a"
-                            result)
-          (roslisp:with-fields (succ) result
-            (roslisp:with-fields (type) succ
-              (cond ((eql type 1))
-                    (t (cpl:error 'suturo-planning-common::move-head-failed))))))) 
-          (roslisp:ros-info(suturo-pm-manipulation call-move-head-action)
-                           "Action finished. Head is looking at direction.")
-          (values result status)))
+(defun call-move-head-action (loc)
+  (format t "call-move-head-action loc: ~a~%" loc)
+  (setf *action-client-move-head* (get-action-client "suturo_man_move_head_server"
+                                                     "suturo_manipulation_msgs/suturo_manipulation_headAction"))
+  (let ((frame (desig-prop-value loc 'frame))
+        (coords (desig-prop-value loc 'coords)))
+    (let* ((header-msg (roslisp:make-msg "std_msgs/Header"
+                                          (stamp) (roslisp:ros-time)
+                                          (frame_id) frame))
+           (position-msg (roslisp:make-msg "geometry_msgs/Point"
+                                           (x) (first coords)
+                                           (y) (second coords)
+                                           (z) (third coords)))
+           (orientation-msg (roslisp:make-msg "geometry_msgs/Quaternion"
+                                              (x) 0
+                                              (y) 0
+                                              (z) 0
+                                              (w) 1))
+           (pose-msg (roslisp:make-msg "geometry_msgs/Pose"
+                                       (position) position-msg
+                                       (orientation) orientation-msg))
+           (pose-stamped-msg (roslisp:make-msg "geometry_msgs/PoseStamped"
+                                               (header) header-msg
+                                               (pose) pose-msg)))
+      (multiple-value-bind (result status)
+          (let ((actionlib:*action-server-timeout* 10.0))
+            (let ((result 
+                    (actionlib:call-goal *action-client-move-head*
+                                         (make-move-head-goal pose-stamped-msg))))
+              (roslisp:ros-info (suturo-pm-manipulation call-move-head-action)
+                                "Result from call-goal move head ~a"
+                                result)
+              (roslisp:with-fields (succ) result
+                (roslisp:with-fields (type) succ
+                  (cond ((eql type 1))
+                        (t (cpl:error 'suturo-planning-common::move-head-failed))))))) 
+        (roslisp:ros-info(suturo-pm-manipulation call-move-head-action)
+                         "Action finished. Head is looking at direction.")
+        (values result status)))))
   
 
 ; initial-position
