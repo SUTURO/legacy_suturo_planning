@@ -13,7 +13,12 @@
         #:cram-plan-knowledge)
   (:export suturo-planning-pm-knowledge)
   (:desig-properties #:to
-                     #:ground
+                     #:at
+                     #:on
+                     #:name
+                     #:coords
+                     #:frame
+                     #:edible
                      #:obj
                      #:update-semantic-map
                      #:get-container-objects
