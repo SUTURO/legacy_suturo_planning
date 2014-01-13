@@ -18,9 +18,9 @@
   "Moves arm to the object and grasp it."
   (call-grasp-action obj arm))
 
-(def-action-handler open-hand (arm)
-  "Opens the hand and drops the object."
-  (call-open-hand-action arm))
+(def-action-handler open-hand (obj)
+  "Opens the hand containing the passed object and drops the object."
+  (call-open-hand-action obj))
 
 (def-action-handler move-arm (location arm)
   "Moves the specified arm to the location."
