@@ -6,8 +6,6 @@
                cram-roslisp-common
                alexandria
                cram-language
-               ;suturo-planning-process-module
-               ;suturo-planning-process-module-dummy
                ;suturo-planning-pm-manipulation
                ;suturo-planning-pm-knowledge
                suturo-planning-pmd-manipulation
