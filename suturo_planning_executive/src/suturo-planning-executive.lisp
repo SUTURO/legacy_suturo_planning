@@ -6,12 +6,11 @@
 (defvar *attempts-to-recognize-and-touch-object* 0)
 (defvar *attempts-to-touch* 0)
 
-;(defmacro with-process-modules (&body body)
+(defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
-     ;(suturo-planning-pm-manipulation:suturo-planning-pm-manipulation
-     ;suturo-planning-pm-knowledge:suturo-planning-pm-knowledge
-     )
-    ; ,@body))
+     (suturo-planning-pm-manipulation:suturo-planning-pm-manipulation
+     suturo-planning-pm-knowledge:suturo-planning-pm-knowledge)
+     ,@body))
 
 (defmacro with-dummy-process-modules (&body body)
   `(cpm:with-process-modules-running
@@ -33,7 +32,7 @@
 
 
 (def-top-level-cram-function sort-objs ()
-  (with-dummy-process-modules
+  (with-process-modules
     (with-failure-handling
       ((suturo-planning-common::pose-not-reached (f)
         (declare (ignore f))
