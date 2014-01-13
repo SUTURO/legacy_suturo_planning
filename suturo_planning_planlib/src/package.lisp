@@ -17,7 +17,9 @@
            #:object-in-box
            #:objects-in-appropriate-boxes
            #:objects-perceived
-           #:initial-pose)
+           #:home-pose
+           #:empty-hand
+           #:hand-over)
   (:desig-properties #:to
                      #:arm 
                      #:left-arm
@@ -28,6 +30,7 @@
                      #:at
                      #:in
                      #:name
+                     #:type
                      #:frame
                      #:coords
                      #:obj 

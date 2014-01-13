@@ -24,6 +24,7 @@
 
 (def-goal (achieve (object-in-hand ?obj))
   "Takes the object in one hand"
+  (format t "hi")
   (let ((arm (get-best-arm ?obj)))
     (with-retry-counters ((grasping-retry-counter 4))
       (with-failure-handling 
@@ -37,39 +38,57 @@
                                                 (arm ,arm))))
                            (gripper-is-closed (action `((to gripper-is-closed)
                                                         (arm ,arm)))))
+          (format t "asfdsadfsa243124")
           (perform grasp-obj)
           (if (perform gripper-is-closed) 
             (cpl:fail 'suturo-planning-common::grasping-failed)))))))
       
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
-  (let ((coords (get-coords ?obj)))
-    (setf coords `(,(nth 0 coords)
-                   ,(nth 1 coords)
-                   ,(+ (nth 2 coords) 10)))
-    (with-designators ((loc-over-obj (location `((coords ,coords)))))
-      (with-designators ((move-hand (action `((to move-arm)
-                                              (arm ,?arm)
-                                              (loc ,loc-over-obj)))))
-        (perform move-hand))))
-  (format t "Hand over ~a~%" ?obj))
+  (with-retry-counters ((move-retry-counter 2))
+    (with-failure-handling
+        ((suturo-planning-common::location-not-reached (f)
+           (declare (ignore f))
+           (error-out (planlib) "Failed to move arm")
+           (do-retry move-retry-counter
+             (retry))))
+      (let ((coords (get-coords ?obj)))
+        (setf coords `(,(nth 0 coords)
+                       ,(nth 1 coords)
+                       ,(+ (nth 2 coords) 10)))
+        (with-designators ((loc-over-obj (location `((coords ,coords)))))
+          (with-designators ((move-hand (action `((to move-arm)
+                                                  (arm ,?arm)
+                                                  (loc ,loc-over-obj)))))
+            (perform move-hand))))
+      (format t "Hand over ~a~%" ?obj))))
 
 (def-goal (achieve (empty-hand ?arm))
   "Opens the hand of the given arm"
-  (with-designators ((open-hand (action `((to open-hand)
-                                          (arm ,?arm)))))
-    (perform open-hand))
-  (format t "Hand empty"))
+  (info-out (planlib) "Open hand")
+  (with-retry-counters ((open-retry-counter 2))
+    (with-failure-handling
+        ((suturo-planning-common::drop-failed (f)
+           (declare (ignore f))
+           (error-out (planlib) "Failed to open hand")
+           (do-retry open-retry-counter
+             (retry))))
+      (with-designators ((open-hand (action `((to open-hand)
+                                              (arm ,?arm)))))
+        (perform open-hand))
+      (format t "Hand empty~%"))))
 
 (def-goal (achieve (object-in-box ?obj ?box))
   "The object should be in the box"
-  ;add failure handling
-  (achieve `(object-in-hand ,?obj))
+  (with-failure-handling 
+      ((suturo-planning-common::grasping-failed (f)
+         (declare (ignore f))
+         (error-out (planlib) "Graping failed"))) ;add retry
+    (achieve `(object-in-hand ,?obj)))
   (let ((arm (get-holding-hand (current-desig ?obj))))
     (with-named-policy 'dont-drop-object (arm)
       (achieve `(hand-over ,?box ,arm)))
     (format t "Hand over finished~%")
-    (sleep 2)
     (achieve `(empty-hand ,arm))))
 
 (def-goal (achieve (objects-in-appropriate-boxes ?objs ?boxes))
@@ -82,7 +101,9 @@
       (with-failure-handling
           ((simple-plan-failure (f)
              (declare (ignore f))
+             (error-out (planlib) "Simple-failure")
              (do-retry plan-retry-counter
+               (info-out (planlib) "Trying again")
                (append obj ?objs)
                (retry))))
         (loop while ?objs
@@ -132,7 +153,7 @@
               'in)))
     (format t "Holding object ~a~%Pos: ~a~%" (current-desig obj) pos)
     (if (not pos)
-        (format t "ERROR2~%")
+        (cpl:fail 'simple-plan-failure)
         (progn
           (if (eql pos 'left-gripper) 
               'left-arm
@@ -141,7 +162,9 @@
 
 (defun get-best-arm (obj)
   "Returns the arm closest to the object"
+  (format t "~%~%1~a" obj)
   (let ((coords (get-coords obj)))
+    (format t "2~a" coords)
     (if (< (first coords) 0)
         'left-arm
         'right-arm)))
