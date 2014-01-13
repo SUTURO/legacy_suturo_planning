@@ -3,15 +3,15 @@
 (defmacro error-out (domain msg &rest arg)
   (let
       ((str (apply #'format nil msg arg)))
-    (seq
-      (eval `(roslisp:ros-error ,domain ,str)) ; pass it twice to match some lambda list
+    (progn
+      (eval `(roslisp:ros-error ,domain ,str))
       (speak str))))
 
 (defmacro info-out (domain msg &rest arg)
   (let
       ((str (apply #'format nil msg arg)))
-    (seq
-      (eval `(roslisp:ros-info ,domain ,str)) ; pass it twice to match some lambda list
+    (progn
+      (eval `(roslisp:ros-info ,domain ,str))
       (speak str))))
 
 (defun speak (msg)
