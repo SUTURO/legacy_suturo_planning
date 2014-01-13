@@ -10,9 +10,9 @@
   (call-initial-action 'desig-props:left)
   (call-initial-action 'desig-props:right))
 
-(def-action-handler move-head (direction)
-  "Moves the head to look in a specified direction." 
-  (call-move-head-action direction))
+(def-action-handler move-head (loc)
+  "Moves the head to look at a specified location." 
+  (call-move-head-action loc))
 
 (def-action-handler grasp (obj arm)
   "Moves arm to the object and grasp it."
