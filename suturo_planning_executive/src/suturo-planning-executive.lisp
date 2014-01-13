@@ -6,8 +6,8 @@
 (defvar *attempts-to-recognize-and-touch-object* 0)
 (defvar *attempts-to-touch* 0)
 
-(defmacro with-process-modules (&body body)
-  ;`(cpm:with-process-modules-running
+;(defmacro with-process-modules (&body body)
+  `(cpm:with-process-modules-running
      ;(suturo-planning-pm-manipulation:suturo-planning-pm-manipulation
      ;suturo-planning-pm-knowledge:suturo-planning-pm-knowledge
      )

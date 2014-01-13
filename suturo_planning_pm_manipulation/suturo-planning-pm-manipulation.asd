@@ -13,8 +13,6 @@
                alexandria
                suturo_manipulation_msgs-msg
                suturo-planning-common
-               json_prolog-srv
-               cl-ppcre
                actionlib
                sensor_msgs-msg)
 

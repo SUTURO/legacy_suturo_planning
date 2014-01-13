@@ -11,8 +11,6 @@
                cram-plan-knowledge
                alexandria
                suturo_manipulation_msgs-msg
-               json_prolog-srv
-               cl-ppcre
                suturo-planning-common
                actionlib)
 
