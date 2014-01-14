@@ -116,22 +116,76 @@
 
 (def-goal (achieve (objects-and-boxes-perceived ?nr-objs ?nr-boxes))
   (let ((objs nil)
-        (boxes nil))
+        (boxes nil)
+        (leftest-obj nil)
+        (rightest-obj nil))
     (loop while (and (< (length objs) ?nr-objs) (< (length boxes) ?nr-boxes))
-          do (with-designators ((update-map 
-                                (action 
-                                 '((to update-semantic-map))))
-                               (get-containers 
-                                (action 
-                                 '((to get-container-objects))))
-                               (get-objects
-                                (action 
-                                 '((to get-graspable-objects)))))
-               (perform update-map)
-               (setf objs (perform get-objects))
-               (setf boxes (perform get-containers))))
-  (format t "Objects perceived~%")
-  `(,objs ,boxes)))
+          do (when (> (length objs) 0)
+               (format t "ich war hier~%")
+               (let ((new-leftest-obj (get-object-on-side 'left objs))
+                     (new-rightest-obj (get-object-on-side 'right objs)))
+                 (format t "ich auch~%")
+                 (if (desig-equal leftest-obj new-leftest-obj)
+                     (if (desig-equal rightest-obj new-rightest-obj)
+                         (format t "Guck gerade aus")
+                         (prog2
+                             (achieve `(face-loc (get-unseen-location 'right
+ new-rightest-obj)))
+                             (setf rightest-obj new-rightest-obj)))
+                     (prog2
+                         (achieve `(face-loc (get-unseen-location 'left new-leftest-obj)))
+                         (setf leftest-obj new-leftest-obj)))))              
+               (with-designators ((update-map 
+                                   (action 
+                                    '((to update-semantic-map))))
+                                  (get-containers 
+                                   (action 
+                                    '((to get-container-objects))))
+                                  (get-objects
+                                   (action 
+                                    '((to get-graspable-objects)))))
+                 (perform update-map)
+                 (setf objs (perform get-objects))
+                 (setf boxes (perform get-containers))))
+    (format t "Objects perceived~%")
+    `(,objs ,boxes)))
+
+(def-goal (achieve (face-loc ?loc))
+  (with-retry-counters ((head-retry-counter 3))
+    (with-failure-handling
+        ((simple-plan-failure (f)
+           (declare (ignore f))
+           (do-retry head-retry-counter
+             (retry))))
+      (with-designators ((move-head (action `((to move-head)
+                                              (loc ,?loc)))))
+        (perform move-head)))))
+
+(defun get-unseen-location (side obj)
+  (let ((loc (desig-prop-value obj 'at))
+        (new-coords (get-coords obj))
+        (offset 5))
+    (if (eql side 'left)
+        (setf offset (- offset)))
+    (setf (first new-coords) (+ (first new-coords) offset))
+    (make-designator 'location
+                     (update-designator-properties `((coords ,new-coords))
+                                                   (description loc)))))
+
+(defun get-object-on-side (side objs)
+  (let ((compare-fun nil)
+        (obj-on-side nil))
+    (if (eql side 'left)
+        (setf compare-fun #'<)
+        (setf compare-fun #'>))
+    (loop for obj in objs
+          do (if obj-on-side
+                 (if (funcall compare-fun
+                              (first (get-coords obj))
+                              (first (get-coords obj-on-side)))
+                     (setf obj-on-side obj))
+                 (setf obj-on-side obj)))
+    obj-on-side))
 
 (defun get-box (boxes side)
   "Returns the box that is on the given side of the other box"
@@ -161,10 +215,8 @@
                   'right-arm))))))
 
 (defun get-best-arm (obj)
-  "Returns the arm closest to the object"
-  (format t "~%~%1~a" obj)
+  "Returns the arm closest to the object")
   (let ((coords (get-coords obj)))
-    (format t "2~a" coords)
     (if (< (first coords) 0)
         'left-arm
         'right-arm)))
