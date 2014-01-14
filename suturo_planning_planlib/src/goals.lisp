@@ -25,7 +25,6 @@
 
 (def-goal (achieve (object-in-hand ?obj))
   "Takes the object in one hand"
-  (format t "hi")
   (let ((arm (get-best-arm ?obj)))
     (with-retry-counters ((grasping-retry-counter 4))
       (with-failure-handling 
@@ -39,7 +38,6 @@
                                                 (arm ,arm))))
                            (gripper-is-closed (action `((to gripper-is-closed)
                                                         (arm ,arm)))))
-          (format t "asfdsadfsa243124")
           (perform grasp-obj)
           (if (perform gripper-is-closed) 
             (cpl:fail 'suturo-planning-common::grasping-failed)))))))
