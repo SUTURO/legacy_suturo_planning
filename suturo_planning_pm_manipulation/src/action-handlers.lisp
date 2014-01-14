@@ -204,20 +204,46 @@
           (values result status)))
 
 ; move-arm
-(defun make-move-arm-goal (location in-arm)
-  (actionlib:make-action-goal (get-action-client "suturo_man_move_arm_server"
-                                                 "suturo_manipulation_move_armAction")
-                              header (desig-prop-value location 'frame)
+(defvar *action-client-move-arm* nil)
+
+(defun make-move-arm-goal (pose-stamped in-arm)
+  (format t "make-move-arm-goal pose-stamped: ~a~% arm:~a~%" pose-stamped in-arm)
+  (actionlib:make-action-goal *action-client-move-arm* 
+                              ps pose-stamped
                               arm in-arm))
 
 (defun call-move-arm-action (location arm)
+  (format t "call-move-arm-action arm:~a~%" arm)
+  (setf *action-client-move-arm* (get-action-client "suturo_man_move_arm_server"
+                                                    "suturo_manipulation_move_armAction"))
+
+  (let ((frame (desig-prop-value loc 'frame))
+        (coords (desig-prop-value loc 'coords)))
+    (let* ((header-msg (roslisp:make-msg "std_msgs/Header"
+                                         (stamp) (roslisp:ros-time)
+                                         (frame_id) frame))
+           (position-msg (roslisp:make-msg "geometry_msgs/Point"
+                                           (x) (first coords)
+                                           (y) (second coords)
+                                           (z) (third coords)))
+           (orientation-msg (roslisp:make-msg "geometry_msgs/Quaternion"
+                                              (x) 0
+                                              (y) 0
+                                              (z) 0
+                                              (w) 1))
+           (pose-msg (roslisp:make-msg "geometry_msgs/Pose"
+                                       (position) position-msg
+                                       (orientation) orentation-msg))
+           (pose-stamped-msg (roslisp:make-msg "geometry_msgs/PoseStamped"
+                                               (header) header-msg
+                                               (pose) pose-msg)))
+
   (multiple-value-bind (result status)
       (let ((actionlib:*action-server-timeout* 10.0))
         (let ((result 
                 (actionlib:call-goal
-                 (get-action-client "suturo_man_move_arm_server"
-                                    "suturo_manipulation_move_armAction")
-                 (make-move-arm-action location arm))))
+                 *action-client-move-arm*
+                 (make-move-arm-action pose-stamped-msg arm))))
           (roslisp:ros-info (suturo-pm-manipulation call-move-arm-action)
                             "Result from call-goal move arm ~a"
                             result)
