@@ -26,6 +26,8 @@
                      #:right-arm
                      #:left-gripper
                      #:right-gripper
+                     #:all
+                     #:body-part
                      #:on
                      #:at
                      #:in
