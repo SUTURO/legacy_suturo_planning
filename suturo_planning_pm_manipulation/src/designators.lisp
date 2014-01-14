@@ -2,10 +2,11 @@
 
 (def-fact-group suturo-manipulation-designators (action-desig)
 
-  (<- (action-desig ?desig (take-pose ?pose)) ; bleibt (identifyer home/home-position) 
+  (<- (action-desig ?desig (take-pose ?pose ?body-part)) ; bleibt (identifyer home/home-position) 
     ;;Action designator for action to move the robot to a specified pose.
     (desig-prop ?desig (to take-pose))
-    (desig-prop ?desig (pose ?pose)))
+    (desig-prop ?desig (pose ?pose))
+    (desig-prop ?desig (body-part ?body-part)))
   
   (<- (action-desig ?desig (move-head ?direction)) ; object mit coordinaten (perceive obj)/fake obj für obj suchen  / move head server
     ;;Action designator for action to move the head of the robot to a specific direction.

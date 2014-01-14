@@ -16,6 +16,10 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "pose-not-reached"))
 
+(define-condition unhandled-body-part (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "unhandled-body-part"))
+
 (define-condition no-object-perceived (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "no-object-perceived"))

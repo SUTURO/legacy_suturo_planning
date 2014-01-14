@@ -14,11 +14,15 @@
   (:import-from alexandria ignore-some-conditions)
   (:export suturo-planning-pm-manipulation)
   (:desig-properties #:to
-                     #:arm 
+                     #:arm
+                     #:arms
+                     #:head
                      #:obj 
                      #:grasp 
                      #:take-pose
+                     #:initial
                      #:pose
+                     #:body-part
                      #:move-head
                      #:direction
                      #:open-hand

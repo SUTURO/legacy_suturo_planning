@@ -5,11 +5,12 @@
     `(defmethod call-action ((,action-sym (eql ',name)) &rest ,params)
        (destructuring-bind ,args ,params ,@body))))
 
-(def-action-handler take-pose (pose)
-  "Moves the robot to the specified pose."
-  (call-initial-action 'desig-props:left)
-  (call-initial-action 'desig-props:right))
-
+(def-action-handler take-pose (pose body-part)
+  "Moves the robot's body part to the specified pose."
+  (cond
+    ((eq pose 'initial) (call-initial-action body-part))
+    (t (roslisp:ros-error (suturo-pm-manipulation take-pose) "Unhandled pose ~a" pose))))
+  
 (def-action-handler move-head (loc)
   "Moves the head to look at a specified location." 
   (call-move-head-action loc))
@@ -76,21 +77,41 @@
   
 
 ; initial-position
-(defun make-initial-action-goal (in-arm)
-  (actionlib:make-action-goal (get-action-client "suturo_man_move_home_server" 
-                                                 "suturo_manipulation_msgs/suturo_manipulation_homeAction" )
-                              arm in-arm))
+(defvar *action-client-initial* nil)
 
-(defun call-initial-action (arm)
+(defun make-initial-action-goal (body-part)
+  (format t "make-initial-action-goal body-part: ~a~%" body-part)
+  (actionlib:make-action-goal *action-client-initial* bodypart
+    (roslisp:make-msg "suturo-pm-manipulation-msgs/RobotBodyPart" body-part)))
+
+(defun call-initial-action (body-part)
+  (setf *action-client-initial* (get-action-client "suturo_man_move_home_server" 
+                                                   "suturo_manipulation_msgs/suturo_manipulation_homeAction"))
   (multiple-value-bind (result status)
       (let ((actionlib:*action-server-timeout* 10.0))
         (let ((result 
-                (actionlib:call-goal
-                 (get-action-client "suturo_man_move_home_server" 
-                                    "suturo_manipulation_msgs/suturo_manipulation_homeAction" )
-                 (if (eql arm 'desig-props:left)
-                     (make-initial-action-goal "left_arm")
-                     (make-initial-action-goal "right_arm")))))
+                (actionlib:call-goal *action-client-initial*
+                                     (cond
+                                       ((eq body-part 'left-arm)
+                                        (make-initial-action-goal
+                                         (roslisp-msg-protocol:symbol-code
+                                          'suturo_manipulation_msgs-msg:RobotBodyPart :LEFT_ARM)))
+                                       ((eq body-part 'right-arm)
+                                        (make-initial-action-goal
+                                         (roslisp-msg-protocol:symbol-code
+                                          'suturo_manipulation_msgs-msg:RobotBodyPart :RIGHT_ARM)))
+                                       ((eq body-part 'arms)
+                                        (make-initial-action-goal
+                                         (roslisp-msg-protocol:symbol-code
+                                          'suturo_manipulation_msgs-msg:RobotBodyPart :ARMS)))
+                                       ((eq body-part 'head)
+                                        (make-initial-action-goal
+                                         (roslisp-msg-protocol:symbol-code
+                                          'suturo_manipulation_msgs-msg:RobotBodyPart :HEAD)))
+                                       (t (roslisp:ros-error
+                                           (suturo-pm-manipulation call-initial-action)
+                                           "Unhandled body part: ~a" body-part)
+                                          (cpl:error 'suturo-planning-common::unhandled-body-part))))))
           (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
                             "Result from call-goal initial position ~a"
                             result)
@@ -98,9 +119,9 @@
             (roslisp:with-fields (type) succ
               (cond ((eql type 1))
                     (t (cpl:error 'suturo-planning-common::pose-not-reached)))))))
-          (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
-                            "Action finished. Initial position reached.")
-          (values result status)))
+    (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
+                      "Action finished. Initial position for ~a reached." body-part)
+    (values result status)))
 
 ; grasp
 (defvar *action-client-grasp* nil)
