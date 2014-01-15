@@ -45,8 +45,10 @@
                      #:open-hand
                      #:move-arm
                      #:loc
-                     #:keep-object-in-hand
+                     #:start-monitoring-gripper
+                     #:end-monitoring-gripper
                      #:gripper-is-closed
+                     #:monitor-gripper
                      #:update-semantic-map
                      #:get-container-objects
                      #:get-graspable-objects

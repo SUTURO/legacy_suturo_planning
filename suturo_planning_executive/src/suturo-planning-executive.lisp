@@ -9,7 +9,8 @@
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
      (suturo-planning-pm-manipulation:suturo-planning-pm-manipulation
-     suturo-planning-pm-knowledge:suturo-planning-pm-knowledge)
+     suturo-planning-pm-knowledge:suturo-planning-pm-knowledge
+     suturo-planning-pm-gripper-monitor:suturo-planning-pm-gripper-monitor)
      ,@body))
 
 (defmacro with-dummy-process-modules (&body body)

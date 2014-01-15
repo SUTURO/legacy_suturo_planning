@@ -16,4 +16,8 @@
   (:desig-properties #:to
                      #:arm
                      #:left-arm
-                     #:right-arm))
+                     #:right-arm
+                     #:gripper-is-closed
+                     #:start-monitoring-gripper
+                     #:end-monitoring-gripper
+                     #:monitor-gripper))

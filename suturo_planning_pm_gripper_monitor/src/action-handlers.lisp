@@ -23,6 +23,14 @@
       (cpl:fail 'suturo-planning-common::monitor-not-started))
   *gripper-closed*)
 
+(def-action-handler monitor-gripper (arm)
+  "Checks if the gripper is closed, starts subscriber if necessary"
+  (when (not *joint-state-subscriber*)
+    (call-action 'start-monitoring-gripper arm)
+    (sleep 1)
+    (call-action 'end-monitoring-gripper))
+  *gripper-closed*)
+
 (def-action-handler end-monitoring-gripper ()
   (if *joint-state-subscriber*
       (roslisp:unsubscribe *joint-state-subscriber*))
@@ -43,12 +51,13 @@
                                            "_gripper_joint"))
                      (setf gripper-pos position)))
                  names positions))
+    (format t "Gripper joint: ~a~%" gripper-pos)
     (if (is-closed gripper-pos)
         (setf *gripper-closed* t)
         (setf *gripper-closed* nil))))
 
 (defun is-closed (pos)
-   (< pos 0.000001))
+   (< pos 5.0d-7))
 
 
   

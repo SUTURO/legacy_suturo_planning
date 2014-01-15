@@ -36,10 +36,10 @@
         (with-designators ((grasp-obj (action `((to grasp)
                                                 (obj ,?obj)
                                                 (arm ,arm))))
-                           (gripper-is-closed (action `((to gripper-is-closed)
-                                                        (arm ,arm)))))
+                           (monitor-gripper (action `((to monitor-gripper)
+                                                      (arm ,arm)))))
           (perform grasp-obj)
-          (if (perform gripper-is-closed) 
+          (if (perform monitor-gripper) 
             (cpl:fail 'suturo-planning-common::grasping-failed)))))))
       
 (def-goal (achieve (hand-over ?obj ?arm))
