@@ -1,13 +1,12 @@
 (in-package :suturo-planning-planlib)
 
 (define-policy dont-drop-object (arm)
-  (:check ;(with-designators ((keep-obj (action `((to keep-object-in-hand)
-           ;                                     (arm ,arm)))))
-            ;(perform keep-obj)))
-           (format t "CHECK~%")
-           (sleep 5))
+  (:init (perform (make-designator 'action `((to start-monitioring-gripper)
+                                             (arm ,arm)))))
+  (:check (perform (make-designator 'action '((to gripper-is-closed))))
+          (sleep 0.5))
   (:recover (format t "Recovering ~%"))
-  (:clean-up (format t "Cleaning up ~%")))
+  (:clean-up (perform (make-designator 'action '((to end-monitoring-gripper)))))
                      
 (def-goal (achieve (home-pose))
   (with-retry-counters ((pose-retry-counter 2))
@@ -31,6 +30,7 @@
           ((suturo-planning-common::grasping-failed (f)
              (declare (ignore f))
              (do-retry grasping-retry-counter
+               (achieve '(home-pose))
                (setf arm (switch-arms arm))
                (retry))))
         (with-designators ((grasp-obj (action `((to grasp)
