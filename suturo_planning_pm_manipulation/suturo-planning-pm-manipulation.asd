@@ -22,5 +22,4 @@
             ((:file "package")
              (:file "designators" :depends-on ("package"))
              (:file "action-handlers" :depends-on ("package" "designators"))
-             (:file "gripper-monitor" :depends-on ("package" "designators" "action-handlers"))
-             (:file "suturo-planning-pm-manipulation" :depends-on ("package" "designators" "action-handlers" "gripper-monitor"))))))
+             (:file "suturo-planning-pm-manipulation" :depends-on ("package" "designators" "action-handlers"))))))
