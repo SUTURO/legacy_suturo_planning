@@ -1,16 +1,5 @@
 (in-package :suturo-planning-executive)
 
-(defvar *attempts-to-find-food* 0)
-(defvar *attempts-to-reach-initial-pose* 0)
-(defvar *attempts-to-perceive-objects* 0)
-(defvar *attempts-to-recognize-and-touch-object* 0)
-(defvar *attempts-to-touch* 0)
-
-(defun exec-init ()
-  (cram-roslisp-common:startup-ros))
-
-(cram-roslisp-common:register-ros-init-function exec-init)
-
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
      (suturo-planning-pm-manipulation:suturo-planning-pm-manipulation

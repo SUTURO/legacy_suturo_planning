@@ -3,10 +3,10 @@
 (define-policy dont-drop-object (arm)
   (:init (perform (make-designator 'action `((to start-monitioring-gripper)
                                              (arm ,arm)))))
-  (:check (perform (make-designator 'action '((to gripper-is-closed))))
-          (sleep 0.5))
+  (:check (sleep 0.5)
+          (perform (make-designator 'action '((to gripper-is-closed)))))
   (:recover (format t "Recovering ~%"))
-  (:clean-up (perform (make-designator 'action '((to end-monitoring-gripper)))))
+  (:clean-up (perform (make-designator 'action '((to end-monitoring-gripper))))))
                      
 (def-goal (achieve (home-pose))
   (with-retry-counters ((pose-retry-counter 2))
@@ -216,7 +216,7 @@
                   'right-arm))))))
 
 (defun get-best-arm (obj)
-  "Returns the arm closest to the object")
+  "Returns the arm closest to the object"
   (let ((coords (get-coords obj)))
     (if (< (first coords) 0)
         'left-arm
