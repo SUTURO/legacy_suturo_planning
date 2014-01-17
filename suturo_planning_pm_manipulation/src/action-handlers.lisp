@@ -82,7 +82,7 @@
 (defun make-initial-action-goal (body-part)
   (format t "make-initial-action-goal body-part: ~a~%" body-part)
   (actionlib:make-action-goal *action-client-initial* bodypart
-    (roslisp:make-msg "suturo-pm-manipulation-msgs/RobotBodyPart" body-part)))
+    (roslisp:make-msg "suturo_manipulation_msgs/RobotBodyPart" bodyPart body-part)))
 
 (defun call-initial-action (body-part)
   (setf *action-client-initial* (get-action-client "suturo_man_move_home_server" 
