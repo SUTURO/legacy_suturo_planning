@@ -132,11 +132,13 @@
                                     (seq) 4
                                     (stamp) (roslisp:ros-time)
                                     (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
+         (msg-arm (roslisp:make-msg "suturo_manipulation_msgs/RobotBodyPart"
+                                    (bodyPart) in-arm))
          (msg-goal (roslisp:make-msg "suturo_manipulation_msgs/suturo_manipulation_grasping_goal"
                                   (header) msg-header 
                                   (objectName) (desig-prop-value obj 'name)
                                   (grasp) t
-                                  (arm) in-arm)))
+                                  (bodypart) msg-arm)))
     (format t "msg: ~a~%" msg-goal)
     (actionlib:make-action-goal *action-client-grasp*
       goal msg-goal)))
@@ -150,18 +152,67 @@
         (let ((result
                 (actionlib:call-goal
                  *action-client-grasp*
-                 (make-grasp-action-goal obj arm)
+                 (make-grasp-action-goal obj
+                                         (cond
+                                           ((eq arm 'left-arm)
+                                            (roslisp-msg-protocol:symbol-code
+                                             'suturo_manipulation_msgs-msg:RobotBodyPart :LEFT_ARM))
+                                           ((eq arm 'right-arm)
+                                            (roslisp-msg-protocol:symbol-code
+                                             'suturo_manipulation_msgs-msg:RobotBodyPart :RIGHT_ARM))
+                                           (t (roslisp:ros-error
+                                               (suturo-pm-manipulation call-initial-action)
+                                               "Unhandled body part: ~a" arm)
+                                              (cpl:error 'suturo-planning-common::unhandled-body-part))))
                  :timeout 120.0)))
           (roslisp:ros-info (suturo-pm-manipulation call-grasp-action)
                             "Result from call-goal grasp object ~a"
                             result)
           (roslisp:with-fields (succ) result
-            (roslisp:with-fields (type) succ
-              (cond ((eql type 1))
-                    (t (cpl:error 'suturo-planning-common::grasp-failed)))))))
-          (roslisp:ros-info(suturo-pm-manipulation call-grasp-action)
-                           "Action finished. Object grasped.")
-          (values result status)))
+            (if (eq succ nil)
+                (progn                  
+                  (roslisp:ros-info(suturo-pm-manipulation call-grasp-action)
+                                   "Action finished. Grasping object failed.")
+                  (cpl:error 'suturo-planning-common::grasping-failed))
+                (roslisp:with-fields (type) succ
+                  (cond ((eql
+                          type
+                          (roslisp-msg-protocol:symbol-code
+                           'suturo_manipulation_msgs-msg:ActionAnswer
+                           :SUCCESS))
+                         (roslisp:ros-info(suturo-planning-pm-manipulation call-grasp-action)
+                                          "SUCCESS!"))
+                        ((eql
+                          type
+                          (roslisp-msg-protocol:symbol-code
+                           'suturo_manipulation_msgs-msg:ActionAnswer
+                           :FAIL))
+                         (roslisp:ros-info(suturo-planning-pm-manipulation call-grasp-action)
+                                          "FAIL!")
+                         (cpl:error 'suturo-planning-common::grasping-failed))
+                        ((eql
+                          type
+                          (roslisp-msg-protocol:symbol-code
+                           'suturo_manipulation_msgs-msg:ActionAnswer
+                           :NOPLAN))
+                         (roslisp:ros-info(suturo-planning-pm-manipulation call-grasp-action)
+                                          "No plan found!")
+                         (cpl:error 'suturo-planning-common::no-plan-found))
+                        ((eql
+                          type
+                          (roslisp-msg-protocol:symbol-code
+                           'suturo_manipulation_msgs-msg:ActionAnswer
+                           :UNDEFINED))
+                         (roslisp:ros-info(suturo-planning-pm-manipulation call-grasp-action)
+                                          "Unknown error. Blame manipulation!")
+                         (cpl:error 'suturo-planning-common::grasping-failed))
+                        (t
+                         (roslisp:ros-info(suturo-planning-pm-manipulation call-grasp-action)
+                                          "Unhandled action answer.")
+                         (cpl:error 'suturo-planning-common::unhandled-action-answer)))
+                  (roslisp:ros-info(suturo-pm-manipulation call-grasp-action)
+                                   "Action finished. Object grasped."))))))
+    (values result status)))
 
 ; open-hand
 (defvar *action-client-open-hand* nil)

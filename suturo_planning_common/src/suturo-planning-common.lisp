@@ -12,6 +12,10 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "grasping-failed"))
 
+(define-condition no-plan-found (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "no-plan-found"))
+
 (define-condition pose-not-reached (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "pose-not-reached"))
@@ -19,6 +23,10 @@
 (define-condition unhandled-body-part (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "unhandled-body-part"))
+
+(define-condition unhandled-action-answer (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "unhandled-action-answer"))
 
 (define-condition no-object-perceived (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
