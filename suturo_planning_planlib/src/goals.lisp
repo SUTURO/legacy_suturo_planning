@@ -5,10 +5,11 @@
                                              (arm ,arm)))))
   (:check (sleep 0.5)
           (perform (make-designator 'action '((to gripper-is-closed)))))
-  (:recover (format t "Recovering ~%"))
+  (:recover (cpl:fail 'suturo-planning-common::grasping-failed))
   (:clean-up (perform (make-designator 'action '((to end-monitoring-gripper))))))
                      
 (def-goal (achieve (home-pose))
+  "Move the robot in the initial position"
   (with-retry-counters ((pose-retry-counter 2))
     (with-failure-handling 
         ((suturo-planning-common::pose-not-reached (f)
@@ -19,8 +20,7 @@
                                           '((to take-pose)
                                             (pose home)
                                             (body-part all)))))
-        (perform take-home-pose))))
-  (format t "Initial pose reached~%"))
+        (perform take-home-pose)))))
 
 (def-goal (achieve (object-in-hand ?obj))
   "Takes the object in one hand"
@@ -59,8 +59,7 @@
           (with-designators ((move-hand (action `((to move-arm)
                                                   (arm ,?arm)
                                                   (loc ,loc-over-obj)))))
-            (perform move-hand))))
-      (format t "Hand over ~a~%" ?obj))))
+            (perform move-hand)))))))
 
 (def-goal (achieve (empty-hand ?arm))
   "Opens the hand of the given arm"
@@ -74,8 +73,7 @@
              (retry))))
       (with-designators ((open-hand (action `((to open-hand)
                                               (arm ,?arm)))))
-        (perform open-hand))
-      (format t "Hand empty~%"))))
+        (perform open-hand)))))
 
 (def-goal (achieve (object-in-box ?obj ?box))
   "The object should be in the box"
@@ -87,7 +85,6 @@
   (let ((arm (get-holding-hand (current-desig ?obj))))
     (with-named-policy 'dont-drop-object (arm)
       (achieve `(hand-over ,?box ,arm)))
-    (format t "Hand over finished~%")
     (achieve `(empty-hand ,arm))))
 
 (def-goal (achieve (objects-in-appropriate-boxes ?objs ?boxes))
@@ -110,10 +107,10 @@
                  (if (desig-prop-value obj 'edible)
                      (setf box left-box)
                      (setf box right-box))
-                 (achieve `(object-in-box ,obj ,box)))))
-    (format t "THE END")))
+                 (achieve `(object-in-box ,obj ,box)))))))
 
 (def-goal (achieve (objects-and-boxes-perceived ?nr-objs ?nr-boxes))
+  "Tries to perceive the given number of objectes and boxes"
   (let ((objs nil)
         (boxes nil)
         (leftest-obj nil)
@@ -122,13 +119,10 @@
     (loop while (and (< (length objs) ?nr-objs) (< (length boxes) ?nr-boxes))
           do (setf things (concatenate 'list objs boxes))
              (when (> (length things) 0)
-               (format t "ich war hier~%")
                (let ((new-leftest-obj (get-object-on-side 'left things))
                      (new-rightest-obj (get-object-on-side 'right things)))
-                 (format t "ich auch~%")
                  (if (desig-equal leftest-obj new-leftest-obj)
                      (if (desig-equal rightest-obj new-rightest-obj)
-                         (format t "Guck gerade aus")
                          (prog2
                              (achieve `(face-loc (get-unseen-location 'right
  new-rightest-obj)))
@@ -152,6 +146,7 @@
     `(,objs ,boxes)))
 
 (def-goal (achieve (face-loc ?loc))
+  "Let the Head point to the given Location"
   (with-retry-counters ((head-retry-counter 3))
     (with-failure-handling
         ((simple-plan-failure (f)
@@ -174,6 +169,7 @@
                                                    (description loc)))))
 
 (defun get-object-on-side (side objs)
+  "Returns the object furthest on the given side"
   (let ((compare-fun nil)
         (obj-on-side nil))
     (if (eql side 'left)
@@ -227,6 +223,7 @@
   (desig-prop-value (desig-prop-value (current-desig obj) 'at) 'coords))
 
 (defun switch-arms (arm)
+  "Returns the opposite arm"
   (if (eql 'left-arm arm)
       'left-arm
       'right-arm))
