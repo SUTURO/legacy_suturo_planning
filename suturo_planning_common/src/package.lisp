@@ -42,6 +42,7 @@
    #:volume
    #:table
    #:box
+   #:grip-force
    ;; Objects - type
    #:type
    #:container
