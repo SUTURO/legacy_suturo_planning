@@ -236,7 +236,7 @@
                                        (orientation) orentation-msg))
            (pose-stamped-msg (roslisp:make-msg "geometry_msgs/PoseStamped"
                                                (header) header-msg
-                                               (pose) pose-msg)))
+                                               (pose) pose-msg)))))
 
   (multiple-value-bind (result status)
       (let ((actionlib:*action-server-timeout* 10.0))
