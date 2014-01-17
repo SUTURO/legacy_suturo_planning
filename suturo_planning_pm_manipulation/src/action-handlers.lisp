@@ -25,7 +25,7 @@
 
 (def-action-handler move-arm (location arm)
   "Moves the specified arm to the location."
-  (call-move-head-action location arm))
+  (call-move-arm-action location arm))
 
 ; make-goal- and call-action-functions
 ; move-head
