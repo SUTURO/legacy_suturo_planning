@@ -289,21 +289,51 @@
                                                (header) header-msg
                                                (pose) pose-msg)))
 
-  (multiple-value-bind (result status)
-      (let ((actionlib:*action-server-timeout* 10.0))
-        (let ((result 
-                (actionlib:call-goal
-                 *action-client-move-arm*
-                 (make-move-arm-goal pose-stamped-msg arm))))
-          (roslisp:ros-info (suturo-pm-manipulation call-move-arm-action)
-                            "Result from call-goal move arm ~a"
-                            result)
-          (roslisp:with-fields (succ) result
-            (roslisp:with-fields (type) succ
-              (cond ((eql type 1))
-                    (t (cpl:error 'suturo-planning-common::location-not-reached)))))))
-            (roslisp:ros-info(suturo-pm-manipulation call-move-arm-action)
-                             "Action finished. Location reached.")
+      (multiple-value-bind (result status)
+          (let ((actionlib:*action-server-timeout* 10.0))
+            (let ((result 
+                    (actionlib:call-goal
+                     *action-client-move-arm*
+                     (make-move-arm-goal pose-stamped-msg arm))))
+              (roslisp:ros-info (suturo-pm-manipulation call-move-arm-action)
+                                "Result from call-goal move arm ~a"
+                                result)
+              (roslisp:with-fields (succ) result
+                (if (eq succ nil)
+                    (progn
+                      (roslisp:ros-info(suturo-pm-manipulation call-move-arm-action)
+                                       "Action finished. Move-arm failed.")
+                      (cpl:error 'suturo-planning-common::move-arm-failed))
+                    (roslisp:with-fields (type) succ
+                      (cond ((eql type (roslisp-msg-protocol:symbol-code
+                                        'suturo_manipulation_msgs-msg:ActionAnswer
+                                        :SUCCESS))
+                             (roslisp:ros-info(suturo-planning-pm-manipulation call-move-arm-action)
+                                              "SUCCESS!"))
+                            ((eql type (roslisp-msg-protocol:symbol-code
+                                        'suturo_manipulation_msgs-msg:ActionAnswer
+                                        :FAIL))
+                             (roslisp:ros-info(suturo-planning-pm-manipilation call-move-arm-action)
+                                              "FAIL!")
+                             (cpl:error 'suturo-planning-common::move-arm-failed))
+                            ((eql type (roslisp-msg-protocol:symbol-code
+                                        'suturo_manipulation_msgs-msg:ActionAnswer
+                                        :NOPLAN))
+                             (roslisp:ros-info(suturo-planning-pm-manipilation call-move-arm-action)
+                                              "No Plan!")
+                             (cpl:error 'suturo-planning-common::no-plan-found))
+                            ((eql type (roslisp-msg-protocol:symbol-code
+                                        'suturo_manipulation_msgs-msg:ActionAnswer
+                                        :UNDEFINED))
+                             (roslisp:ros-info(suturo-planning-pm-manipilation call-move-arm-action)
+                                              "Unknown error!")
+                             (cpl:error 'suturo-planning-common::move-arm-failed)) 
+                            (t 
+                             (roslisp:ros-info(suturo-planning-pm-manipulation call-move-arm-action)
+                                              "Unhandled action answer.")
+                             (cpl:error 'suturo-planning-common::unhandled-action-answer)))
+                      (roslisp:ros-info(suturo-pm-manipulation call-move-arm-action)
+                                       "Action finished. Location reached."))))))
             (values result status)))))
 
 ; Helper functions for actions

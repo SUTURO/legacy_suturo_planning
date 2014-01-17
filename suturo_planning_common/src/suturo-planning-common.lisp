@@ -44,6 +44,10 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "location-not-reached"))
 
+(define-condition move-arm-failed (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "move-arm-failed"))
+
 (define-condition monitor-not-started (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "monitor-not-started"))
