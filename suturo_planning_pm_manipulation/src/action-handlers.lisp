@@ -236,7 +236,7 @@
                                        (orientation) orentation-msg))
            (pose-stamped-msg (roslisp:make-msg "geometry_msgs/PoseStamped"
                                                (header) header-msg
-                                               (pose) pose-msg)))))
+                                               (pose) pose-msg)))
 
   (multiple-value-bind (result status)
       (let ((actionlib:*action-server-timeout* 10.0))
@@ -253,7 +253,7 @@
                     (t (cpl:error 'suturo-planning-common::location-not-reached)))))))
             (roslisp:ros-info(suturo-pm-manipulation call-move-arm-action)
                              "Action finished. Location reached.")
-            (values result status)))
+            (values result status)))))
 
 ; Helper functions for actions
 
