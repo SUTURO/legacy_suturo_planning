@@ -217,8 +217,8 @@
   (setf *action-client-move-arm* (get-action-client "suturo_man_move_arm_server"
                                                     "suturo_manipulation_move_armAction"))
 
-  (let ((frame (desig-prop-value loc 'frame))
-        (coords (desig-prop-value loc 'coords)))
+  (let ((frame (desig-prop-value location 'frame))
+        (coords (desig-prop-value location 'coords)))
     (let* ((header-msg (roslisp:make-msg "std_msgs/Header"
                                          (stamp) (roslisp:ros-time)
                                          (frame_id) frame))
@@ -233,7 +233,7 @@
                                               (w) 1))
            (pose-msg (roslisp:make-msg "geometry_msgs/Pose"
                                        (position) position-msg
-                                       (orientation) orentation-msg))
+                                       (orientation) orientation-msg))
            (pose-stamped-msg (roslisp:make-msg "geometry_msgs/PoseStamped"
                                                (header) header-msg
                                                (pose) pose-msg)))
@@ -243,7 +243,7 @@
         (let ((result 
                 (actionlib:call-goal
                  *action-client-move-arm*
-                 (make-move-arm-action pose-stamped-msg arm))))
+                 (make-move-arm-goal pose-stamped-msg arm))))
           (roslisp:ros-info (suturo-pm-manipulation call-move-arm-action)
                             "Result from call-goal move arm ~a"
                             result)
