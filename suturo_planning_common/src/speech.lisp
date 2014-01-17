@@ -9,14 +9,14 @@
 
 (defmacro error-out (domain msg &rest arg)
   `(let
-      ((str (apply #'format nil ,msg ,arg)))
-      (roslisp:ros-error ,domain "~a" str)
+      ((str (format nil ,msg ,@arg)))
+      (roslisp:ros-error ,domain ,msg ,@arg)
       (speak str)))
 
 (defmacro info-out (domain msg &rest arg)
   `(let
-      ((str (apply #'format nil ,msg ,arg)))
-      (roslisp:ros-info ,domain "~a" str)
+      ((str (format nil ,msg ,@arg)))
+      (roslisp:ros-info ,domain ,msg ,@arg)
       (speak str)))
 
 (defun speak (msg)
