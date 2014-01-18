@@ -5,21 +5,17 @@
     `(defmethod call-action ((,action-sym (eql ',name)) &rest ,params)
        (destructuring-bind ,args ,params ,@body))))
 
-(defvar *gripper-closed* nil) ;(make-fluent :value nil))
-
-(defvar *joint-state-subscriber* nil)
-
 (def-action-handler start-monitoring-gripper (arm)
-  (nil))
+  t)
 
 (def-action-handler gripper-is-closed ()
-  (nil))
+  nil)
 
 (def-action-handler monitor-gripper (arm)
-  (nil))
+  nil)
 
 (def-action-handler end-monitoring-gripper ()
-  (nil))
+  t)
 
   
 

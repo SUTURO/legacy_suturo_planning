@@ -31,5 +31,5 @@
                      #:open-hand
                      #:move-arm
                      #:loc
-                     #:keep-object-in-hand
-                     #:gripper-is-closed))
+                     #:body-part
+                     #:all))

@@ -28,31 +28,18 @@
     ;;Action designator for action to move the specified arm with the hand over the specified box.
     (desig-prop ?desig (to move-arm))
     (desig-prop ?desig (arm ?arm))
-    (desig-prop ?desig (loc ?location)))
-  
-  (<- (action-desig ?desig (keep-object-in-hand ?arm)) ; pose arm coorsystem
-    ;;Action designator for action to move the specified arm with the hand over the specified box.
-    (desig-prop ?desig (to keep-object-in-hand))
-    (desig-prop ?desig (arm ?arm)))
-
-  (<- (action-desig ?desig (gripper-is-closed ?arm)) ; pose arm coorsystem
-    ;;Action designator for action to move the specified arm with the hand over the specified box.
-    (desig-prop ?desig (to gripper-is-closed))
-    (desig-prop ?desig (arm ?arm))))
+    (desig-prop ?desig (loc ?location))))
 
   
 (def-fact-group suturo-planning-pm-manipulation (matching-process-module
                                                  available-process-module)
   
   (<- (matching-process-module ?designator suturo-planning-pm-manipulation)
-    (or (desig-prop ?designator (to move))
-        (desig-prop ?designator (to take-pose))
+    (or (desig-prop ?designator (to take-pose))
         (desig-prop ?designator (to move-head))
         (desig-prop ?designator (to grasp))
         (desig-prop ?designator (to open-hand))
-        (desig-prop ?designator (to move-arm))
-        (desig-prop ?designator (to keep-object-in-hand))
-        (desig-prop ?designator (to gripper-is-closed))))
+        (desig-prop ?designator (to move-arm))))
   
   (<- (available-process-module suturo-planning-pm-manipulation)
     (symbol-value cram-projection:*projection-environment* nil)))

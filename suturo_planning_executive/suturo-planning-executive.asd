@@ -11,6 +11,7 @@
                suturo-planning-pm-gripper-monitor
                suturo-planning-pmd-manipulation
                suturo-planning-pmd-knowledge
+               suturo-planning-pmd-gripper-monitor
                suturo-planning-planlib
                suturo-planning-common)
   :components

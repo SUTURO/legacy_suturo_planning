@@ -10,7 +10,8 @@
 (defmacro with-dummy-process-modules (&body body)
   `(cpm:with-process-modules-running
      (suturo-planning-pmd-manipulation:suturo-planning-pmd-manipulation
-     suturo-planning-pmd-knowledge:suturo-planning-pmd-knowledge)
+     suturo-planning-pmd-knowledge:suturo-planning-pmd-knowledge
+     suturo-planning-pmd-gripper-monitor:suturo-planning-pmd-gripper-monitor)
      ,@body))
 
 (def-top-level-cram-function clean-table ()
@@ -27,7 +28,7 @@
 
 
 (def-top-level-cram-function sort-objs ()
-  (with-process-modules
+  (with-dummy-process-modules
     (with-failure-handling
       ((suturo-planning-common::pose-not-reached (f)
         (declare (ignore f))

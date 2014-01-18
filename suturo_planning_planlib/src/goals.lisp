@@ -1,7 +1,7 @@
 (in-package :suturo-planning-planlib)
 
 (define-policy dont-drop-object (arm)
-  (:init (perform (make-designator 'action `((to start-monitioring-gripper)
+  (:init (perform (make-designator 'action `((to start-monitoring-gripper)
                                              (arm ,arm)))))
   (:check (sleep 0.5)
           (perform (make-designator 'action '((to gripper-is-closed)))))
@@ -29,7 +29,9 @@
       (with-failure-handling 
           ((suturo-planning-common::grasping-failed (f)
              (declare (ignore f))
+             (error-out (planlib) "Failed to grasp object")
              (do-retry grasping-retry-counter
+               (info-out (planlib) "Trying again")
                (achieve '(home-pose))
                (setf arm (switch-arms arm))
                (retry))))
@@ -44,6 +46,7 @@
       
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
+  (format t "HERE hand-over~%")
   (with-retry-counters ((move-retry-counter 2))
     (with-failure-handling
         ((suturo-planning-common::location-not-reached (f)
@@ -80,10 +83,12 @@
   (with-failure-handling 
       ((suturo-planning-common::grasping-failed (f)
          (declare (ignore f))
-         (error-out (planlib) "Graping failed"))) ;add retry
+         (error-out (planlib) "Grasping failed"))) ;add retry
     (achieve `(object-in-hand ,?obj)))
   (let ((arm (get-holding-hand (current-desig ?obj))))
+    (format t "start handover123~%")
     (with-named-policy 'dont-drop-object (arm)
+      (format t "start handover~%")
       (achieve `(hand-over ,?box ,arm)))
     (achieve `(empty-hand ,arm))))
 
@@ -95,12 +100,12 @@
         (box nil))
     (with-retry-counters ((plan-retry-counter 6))
       (with-failure-handling
-          ((simple-plan-failure (f)
+          ((suturo-planning-common::grasping-failed (f)
              (declare (ignore f))
              (error-out (planlib) "Simple-failure")
              (do-retry plan-retry-counter
                (info-out (planlib) "Trying again")
-               (append obj ?objs)
+               (append `(,obj) ?objs)
                (retry))))
         (loop while ?objs
               do (setf obj (pop ?objs))
@@ -204,7 +209,9 @@
               'in)))
     (format t "Holding object ~a~%Pos: ~a~%" (current-desig obj) pos)
     (if (not pos)
-        (cpl:fail 'simple-plan-failure)
+        (progn
+          (format t "Failed Here~%")
+          (cpl:fail 'simple-plan-failure))
         (progn
           (if (eql pos 'left-gripper) 
               'left-arm
