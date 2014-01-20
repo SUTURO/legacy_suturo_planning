@@ -13,7 +13,6 @@
                suturo-planning-pmd-gripper-monitor
                suturo-planning-pm-knowledge
                suturo-planning-pmd-knowledge)
-)
 
   :components
   ((:module "src"
