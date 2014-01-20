@@ -137,6 +137,7 @@
          (msg-goal (roslisp:make-msg "suturo_manipulation_msgs/suturo_manipulation_grasping_goal"
                                   (header) msg-header 
                                   (objectName) (desig-prop-value obj 'name)
+                                  (newton) (desig-prop-value obj 'grip-force)
                                   (grasp) t
                                   (bodypart) msg-arm)))
     (format t "msg: ~a~%" msg-goal)
@@ -310,28 +311,30 @@
                                         :SUCCESS))
                              (roslisp:ros-info(suturo-planning-pm-manipulation call-move-arm-action)
                                               "SUCCESS!"))
-                            ((eql type (roslisp-msg-protocol:symbol-code
-                                        'suturo_manipulation_msgs-msg:ActionAnswer
-                                        :FAIL))
-                             (roslisp:ros-info(suturo-planning-pm-manipilation call-move-arm-action)
-                                              "FAIL!")
-                             (cpl:error 'suturo-planning-common::move-arm-failed))
-                            ((eql type (roslisp-msg-protocol:symbol-code
-                                        'suturo_manipulation_msgs-msg:ActionAnswer
-                                        :NOPLAN))
-                             (roslisp:ros-info(suturo-planning-pm-manipilation call-move-arm-action)
-                                              "No Plan!")
-                             (cpl:error 'suturo-planning-common::no-plan-found))
-                            ((eql type (roslisp-msg-protocol:symbol-code
-                                        'suturo_manipulation_msgs-msg:ActionAnswer
-                                        :UNDEFINED))
-                             (roslisp:ros-info(suturo-planning-pm-manipilation call-move-arm-action)
-                                              "Unknown error!")
-                             (cpl:error 'suturo-planning-common::move-arm-failed)) 
                             (t 
-                             (roslisp:ros-info(suturo-planning-pm-manipulation call-move-arm-action)
-                                              "Unhandled action answer.")
-                             (cpl:error 'suturo-planning-common::unhandled-action-answer)))
+                              (handle-action-answer type 'suturo-planning-common::move-arm-failed)))
+                            ;((eql type (roslisp-msg-protocol:symbol-code
+                            ;            'suturo_manipulation_msgs-msg:ActionAnswer
+                            ;            :FAIL))
+                            ; (roslisp:ros-info(suturo-planning-pm-manipilation call-move-arm-action)
+                            ;                  "FAIL!")
+                            ; (cpl:error 'suturo-planning-common::move-arm-failed))
+                            ;((eql type (roslisp-msg-protocol:symbol-code
+                            ;            'suturo_manipulation_msgs-msg:ActionAnswer
+                            ;            :NOPLAN))
+                            ; (roslisp:ros-info(suturo-planning-pm-manipilation call-move-arm-action)
+                            ;                  "No Plan!")
+                            ; (cpl:error 'suturo-planning-common::no-plan-found))
+                            ; ((eql type (roslisp-msg-protocol:symbol-code
+                            ;            'suturo_manipulation_msgs-msg:ActionAnswer
+                            ;            :UNDEFINED))
+                            ; (roslisp:ros-info(suturo-planning-pm-manipilation call-move-arm-action)
+                            ;                  "Unknown error!")
+                            ; (cpl:error 'suturo-planning-common::move-arm-failed)) 
+                            ;(t 
+                            ; (roslisp:ros-info(suturo-planning-pm-manipulation call-move-arm-action)
+                            ;                  "Unhandled action answer.")
+                            ; (cpl:error 'suturo-planning-common::unhandled-action-answer)))
                       (roslisp:ros-info(suturo-pm-manipulation call-move-arm-action)
                                        "Action finished. Location reached."))))))
             (values result status)))))
@@ -368,3 +371,33 @@
    ; if the action-client for the server and goal exists, it will be returned
   *action-client*)
 
+(defun handle-action-answer (type error-to-throw)
+  (cond ((eql
+          type
+          (roslisp-msg-protocol:symbol-code
+           'suturo_manipulation_msgs-msg:ActionAnswer
+           :FAIL))
+         (roslisp:ros-info(suturo-planning-pm-manipulation call-grasp-action)
+                          "FAIL!")
+         (cpl:error error-to-throw))
+        ((eql
+          type
+          (roslisp-msg-protocol:symbol-code
+           'suturo_manipulation_msgs-msg:ActionAnswer
+           :NOPLAN))
+         (roslisp:ros-info(suturo-planning-pm-manipulation call-grasp-action)
+                          "No plan found!")
+         (cpl:error 'suturo-planning-common::no-plan-found))
+        ((eql
+          type
+          (roslisp-msg-protocol:symbol-code
+           'suturo_manipulation_msgs-msg:ActionAnswer
+           :UNDEFINED))
+         (roslisp:ros-info(suturo-planning-pm-manipulation call-grasp-action)
+                          "Unknown error. Blame manipulation!")
+         (cpl:error error-to-throw))
+        (t
+         (roslisp:ros-info(suturo-planning-pm-manipulation call-grasp-action)
+                          "Unhandled action answer.")
+         (cpl:error 'suturo-planning-common::unhandled-action-answer)))
+  )

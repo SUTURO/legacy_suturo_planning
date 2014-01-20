@@ -34,4 +34,5 @@
                      #:frame
                      #:left-arm
                      #:right-arm
-                     #:type))
+                     #:type
+                     #:grip-force))
