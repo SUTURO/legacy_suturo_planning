@@ -1,17 +1,11 @@
 (defsystem suturo-planning-common
   :author "SUTURO Planning <suturo-planning@cs.uni-bremen.de>"
   
-  :depends-on (roslisp
-               designators-ros
-               cram-roslisp-common
+  :depends-on (designators-ros
                cram-plan-library
-               cram-reasoning
+               cram-plan-failures
                cram-plan-knowledge
-               cl-json-pl-client
-               alexandria
-      	       cram-plan-failures
-               sound_play-msg
-               cram-language)
+               sound_play-msg)
   :components
   ((:module "src"
     :components

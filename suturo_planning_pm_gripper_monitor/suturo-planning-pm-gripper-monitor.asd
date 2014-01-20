@@ -1,19 +1,12 @@
 (defsystem suturo-planning-pm-gripper-monitor
   :author "SUTURO Planning <suturo-planning@cs.uni-bremen.de>"
-  
+ 
   :depends-on (designators-ros
                process-modules
-               roslisp
-               cram-language
-               cram-roslisp-common
-               cram-reasoning
-               cram-projection
                cram-plan-failures
                cram-plan-knowledge
-               alexandria
-               suturo-planning-common
-               actionlib
-               sensor_msgs-msg)
+               cram-projection
+               suturo-planning-common)
 
   :components
   ((:module "src"

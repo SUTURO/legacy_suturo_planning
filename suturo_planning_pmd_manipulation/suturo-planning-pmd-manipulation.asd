@@ -1,18 +1,11 @@
 (defsystem suturo-planning-pmd-manipulation
   :author "SUTURO Planning <suturo-planning@cs.uni-bremen.de>"
-  
+ 
   :depends-on (designators-ros
                process-modules
-               roslisp
-               cram-roslisp-common
-               cram-reasoning
-               cram-projection
                cram-plan-failures
                cram-plan-knowledge
-               alexandria
-               suturo_manipulation_msgs-msg
-               suturo-planning-common
-               actionlib)
+               suturo-planning-common)
 
   :components
   ((:module "src"
