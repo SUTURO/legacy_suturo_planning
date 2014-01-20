@@ -51,3 +51,11 @@
 (define-condition monitor-not-started (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "monitor-not-started"))
+
+(define-condition dropped-object (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "dropped object"))
+
+(define-condition not-enough-objects-found (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "not enough objects found"))

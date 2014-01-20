@@ -12,14 +12,13 @@
 
 (def-action-handler update-semantic-map ()
   (if (= *update-semantic-map-fails* 1)
-      (progn
-        (setq *update-semantic-map-fails* 0)
-        (vector 1 2 3))
-      (progn
-        (setq *update-semantic-map-fails* (+ *update-semantic-map-fails* 1))
-        NIL)))
+      (prog1 (vector 1 2 3)
+        (setq *update-semantic-map-fails* 0))
+      (prog1 nil
+        (setq *update-semantic-map-fails* (+ *update-semantic-map-fails* 1)))))
 
 (def-action-handler get-graspable-objects ()
+  (setf *get-boxes-fails* *get-objects-fails*)
   (with-designators ((loc1 (location '((frame "frame1")
                                        (coords (1 2 3)))))
                      (loc2 (location '((frame "frame1")
