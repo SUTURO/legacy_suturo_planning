@@ -10,12 +10,13 @@
        #:cram-roslisp-common
        #:cram-process-modules
        #:cram-plan-failures
-       #:cram-plan-knowledge)
+       #:cram-plan-knowledge
+       #:suturo-planning-common)
   (:import-from alexandria ignore-some-conditions)
   (:export suturo-planning-pm-manipulation)
   (:desig-properties #:to
                      #:arm
-                     #:arms
+                     #:both-arms
                      #:head
                      #:obj 
                      #:grasp 
