@@ -21,6 +21,9 @@
                      #:frame
                      #:at
                      #:edible
+                     #:use
+                     #:storage-for-food
+                     #:storage-for-stuff
                      #:update-semantic-map
                      #:get-container-objects
                      #:get-graspable-objects))

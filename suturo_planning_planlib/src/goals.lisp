@@ -27,7 +27,7 @@
 (def-goal (achieve (object-in-hand ?obj))
   "Takes the object in one hand"
   (let ((arm (get-best-arm ?obj)))
-    (with-retry-counters ((grasping-retry-counter 4))
+    (with-retry-counters ((grasping-retry-counter 1))
       (with-failure-handling 
           ((suturo-planning-common::grasping-failed (f)
              (declare (ignore f))
@@ -67,7 +67,6 @@
 
 (def-goal (achieve (empty-hand ?arm))
   "Opens the hand of the given arm"
-  (info-out (planlib) "Open hand")
   (with-retry-counters ((open-retry-counter 2))
     (with-failure-handling
         ((suturo-planning-common::drop-failed (f)
@@ -97,10 +96,9 @@
 
 (def-goal (achieve (objects-in-appropriate-boxes ?objs ?boxes))
   "Edible Objects in the left box and inedible ones in the right box"
-  (let ((left-box (get-box ?boxes 'left)) 
-        (right-box (get-box ?boxes 'right))
-        (obj nil)
-        (box nil))
+  (let ((box-for-food (get-box ?boxes 'storage-for-food)) 
+        (box-for-stuff (get-box ?boxes 'storage-for-stuff))
+        (obj nil))
     (with-retry-counters ((plan-retry-counter 6))
       (with-failure-handling
           ((suturo-planning-common::dropped-object (f)
@@ -123,9 +121,8 @@
         (loop while ?objs
               do (setf obj (pop ?objs))
                  (if (desig-prop-value obj 'edible)
-                     (setf box left-box)
-                     (setf box right-box))
-                 (achieve `(object-in-box ,obj ,box)))))))
+                     (achieve `(object-in-box ,obj ,box-for-food))
+                     (achieve `(object-in-box ,obj ,box-for-stuff))))))))
 
 (def-goal (achieve (objects-and-boxes-perceived ?nr-objs ?nr-boxes))
   "Tries to perceive the given number of objectes and boxes"
@@ -207,17 +204,13 @@
                  (setf obj-on-side obj)))
     obj-on-side))
 
-(defun get-box (boxes side)
-  "Returns the box that is on the given side of the other box"
-  (let ((x1 (first (get-coords (first boxes))))
-        (x2 (first (get-coords (second boxes)))))
-    (if (eql side 'left)
-        (if (< x1 x2)
-            (first boxes)
-            (second boxes))
-        (if (< x1 x2)
-            (second boxes)
-            (first boxes)))))
+(defun get-box (boxes use)
+  "Returns a box with the given use"
+  (let ((box nil))
+    (loop while boxes
+          do (setf box (pop boxes))
+             (if (eql (desig-prop-value box 'use) use)
+                 (return box)))))
 
 (defun get-holding-hand (obj)
   "Returns the arm which holds the object"
