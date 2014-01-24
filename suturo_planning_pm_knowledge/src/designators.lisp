@@ -6,6 +6,11 @@
       ;;Action designator for action to get information about objects.
       (desig-prop ?desig (to update-semantic-map)))
 
+  (<- (action-desig ?desig (placed-object-in-box ?obj ?container))
+      (desig-prop ?desig (to placed-object-in-box))
+      (desig-prop ?desig (obj ?obj))
+      (desig-prop ?desig (container ?container)))
+
   (<- (action-desig ?desig (get-container-objects))
       ;;Action designator for action to get information about objects.
       (desig-prop ?desig (to get-container-objects)))
@@ -19,6 +24,7 @@
 
   (<- (matching-process-module ?designator suturo-planning-pm-knowledge)
     (or (desig-prop ?designator (to update-semantic-map))
+        (desig-prop ?designator (to placed-object-in-box))
         (desig-prop ?designator (to get-container-objects))
         (desig-prop ?designator (to get-graspable-objects))))
   

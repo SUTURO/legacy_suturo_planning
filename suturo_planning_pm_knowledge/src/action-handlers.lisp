@@ -7,7 +7,7 @@
 
 (def-action-handler update-semantic-map ()
   "Invokes Knowledge Representation's process to update the semantic map."
-  (let ((gen (json-prolog:prolog-simple-1 "edibleOnTable(table, OUT)")))
+  (let ((gen (json-prolog:prolog-simple-1 "updatePerception(Out)")))
         (if gen
             (with-vars-bound
                 (?OUT) gen
@@ -15,6 +15,13 @@
               ?OUT)
             (roslisp:ros-warn nil "Could not update semantic map."))))
 
+; TODO: Error-handling
+(def-action-handler placed-object-in-box (object box)
+  "Invokes Knowledge Representation's process to update a object that has been placed in a box"
+  (let ((gen (json-prolog:prolog-simple-1 (format nil "placedObjectInBox('~a', '~a', Out)"
+                                                      (desig-prop-value object 'name)
+                                                      (desig-prop-value box 'name)))))))
+; TODO: Replace table name
 (def-action-handler get-container-objects ()
   "Receives all containers from Knowledge Representation as a list."
     (let* ((loc (make-designator 'location `((desig-props:on ,(make-designator 'object `((desig-props:name "insert_my_table_name")))))))
@@ -24,6 +31,7 @@
         (suturo-planning-common::json-prolog->designators gen)
         (roslisp:ros-warn nil "Could not receive container objects."))))
 
+; TODO: Replace table name
 (def-action-handler get-graspable-objects ()
   "Receives all graspable objects from Knowledge Representation as a list"
     (let* ((loc (make-designator 'location `((desig-props:on ,(make-designator 'object `((desig-props:name "insert_my_table_name")))))))
