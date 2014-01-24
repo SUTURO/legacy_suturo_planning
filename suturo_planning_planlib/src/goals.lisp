@@ -59,7 +59,7 @@
         (setf coords `(,(nth 0 coords)
                        ,(nth 1 coords)
                        ,(+ (nth 2 coords) 10)))
-        (with-designators ((loc-over-obj (location `((coords ,coords)))))
+        (with-designators ((loc-over-obj (location (update-designator-properties `((coords ,coords)) (description (desig-prop-value ?obj 'at))))))
           (with-designators ((move-hand (action `((to move-arm)
                                                   (arm ,?arm)
                                                   (loc ,loc-over-obj)))))
@@ -92,7 +92,9 @@
   (let ((arm (get-holding-hand (current-desig ?obj))))
     (with-named-policy 'dont-drop-object (arm)
       (achieve `(hand-over ,?box ,arm)))
-    (achieve `(empty-hand ,arm))))
+    (achieve `(empty-hand ,arm)))
+  (with-designators ((placed-object-in-box (action `((to placed-object-in-box) (obj ,?obj) (container ,?box)))))
+    (perform placed-object-in-box)))
 
 (def-goal (achieve (objects-in-appropriate-boxes ?objs ?boxes))
   "Edible Objects in the left box and inedible ones in the right box"
