@@ -136,7 +136,7 @@
         (counter 0))
     (loop while (or (< (length objs) ?nr-objs) (< (length boxes) ?nr-boxes))
           do (if (eql counter 8)
-                 (cpl:fail 'suturo-planning-common::not-enough-food-found))
+                 (cpl:fail 'suturo-planning-common::not-enough-objects-found))
              (incf counter)
              (setf things (concatenate 'list objs boxes))
              (when (> (length things) 0)
