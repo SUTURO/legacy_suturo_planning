@@ -28,6 +28,8 @@
   (call-move-arm-action location arm))
 
 ; make-goal- and call-action-functions
+(defvar *maximum-retry-intents* 5)
+
 ; move-head
 (defvar *action-client-move-head* nil)
 
@@ -280,43 +282,62 @@
            (pose-stamped-msg (roslisp:make-msg "geometry_msgs/PoseStamped"
                                                (header) header-msg
                                                (pose) pose-msg)))
-      (format t "created helper messages.")
-      (multiple-value-bind (result status)
-          (let ((actionlib:*action-server-timeout* 10.0))
-            (let ((result 
-                    (actionlib:call-goal
-                     *action-client-move-arm*
-                     (make-move-arm-goal
-                      pose-stamped-msg
-                      (cond
-                        ((eq arm 'left-arm)
-                         (string-downcase
-                          (symbol-name
-                           (roslisp-msg-protocol:symbol-code
-                            'suturo_manipulation_msgs-msg:RobotBodyPart :LEFT_ARM))))
-                        ((eq arm 'right-arm)
-                         (string-downcase
-                          (symbol-name
-                           (roslisp-msg-protocol:symbol-code
-                            'suturo_manipulation_msgs-msg:RobotBodyPart :RIGHT_ARM))))
-                        (t (roslisp:ros-error
-                            (suturo-pm-manipulation call-initial-action)
-                            "Unhandled body part: ~a" arm)
-                           (cpl:error 'suturo-planning-common::unhandled-body-part)))))))
+      (format t "created helper messages.~%")
+      (let ((intents 0))
+        (loop
+          (block continue
+            (multiple-value-bind (result status)
+                (actionlib:call-goal
+                 *action-client-move-arm*
+                 (make-move-arm-goal
+                  pose-stamped-msg
+                  (cond
+                    ((eq arm 'left-arm)
+                     (string-downcase
+                      (symbol-name
+                       (roslisp-msg-protocol:symbol-code
+                        'suturo_manipulation_msgs-msg:RobotBodyPart :LEFT_ARM))))
+                    ((eq arm 'right-arm)
+                     (string-downcase
+                      (symbol-name
+                       (roslisp-msg-protocol:symbol-code
+                        'suturo_manipulation_msgs-msg:RobotBodyPart :RIGHT_ARM))))
+                    (t (roslisp:ros-error
+                        (suturo-pm-manipulation call-move-arm-action)
+                        "Unhandled body part: ~a" arm)
+                       (cpl:error 'suturo-planning-common::unhandled-body-part))))
+                 :timeout 10)
               (roslisp:ros-info (suturo-pm-manipulation call-move-arm-action)
-                                "Result from call-goal move arm ~a"
-                                result)
-              (roslisp:with-fields (succ) result
-                (if (eq succ nil)
-                    (progn
-                      (roslisp:ros-info(suturo-pm-manipulation call-move-arm-action)
-                                       "Action finished. Move-arm failed.")
-                      (cpl:error 'suturo-planning-common::move-arm-failed))
-                    (roslisp:with-fields (type) succ
-                      (handle-action-answer type 'suturo-planning-common::move-arm-failed)              
-                      (roslisp:ros-info(suturo-pm-manipulation call-move-arm-action)
-                                       "Action finished. Location reached."))))))
-        (values result status)))))
+                                "Result from call-goal move arm ~a" result)
+              (if (eq result nil)
+                  (if (eq status :TIMEOUT)
+                      (progn
+                        (format t "Timeout reached.~%")
+                        (format t "Number intents: ~a~%" intents)
+                        (if (< intents *maximum-retry-intents*)
+                            (progn
+                              (format t "Retrying~%")
+                              (incf intents)
+                              (return-from continue))
+                            (progn
+                              (format t "Maximum number of intents reached.~%")
+                              (cpl:fail 'suturo-planning-common::move-arm-failed)
+                              (return))))
+                      (progn
+                        (format t "Unhandled condition.~%")
+                        (cpl:error 'suturo-planning-common::unhandled-condition)
+                        (return)))                  
+                  (roslisp:with-fields (succ) result
+                    (if (eq succ nil)
+                        (progn
+                          (format t "Unknown problem.")
+                          (cpl:fail 'suturo-planning-common::move-arm-failed)
+                          (return))
+                        (roslisp:with-fields (type) succ
+                          (handle-action-answer type 'suturo-planning-common::move-arm-failed)          
+                          (roslisp:ros-info(suturo-pm-manipulation call-move-arm-action)
+                                           "Action finished. Location reached.")
+                          (return))))))))))))
 
 ; Helper functions for actions
 

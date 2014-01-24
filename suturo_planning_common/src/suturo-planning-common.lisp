@@ -24,6 +24,10 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "unhandled-body-part"))
 
+(define-condition unhandled-condition (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "unhandled-condition"))
+
 (define-condition unhandled-action-answer (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "unhandled-action-answer"))

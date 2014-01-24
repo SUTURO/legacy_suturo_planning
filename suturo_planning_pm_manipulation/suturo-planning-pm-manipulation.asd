@@ -8,6 +8,8 @@
                cram-plan-failures
                cram-plan-knowledge
                cram-projection
+               cram-language
+               cram-plan-library
                suturo-planning-common)
 
   :components
