@@ -36,6 +36,7 @@
                      #:frame
                      #:coords
                      #:obj 
+                     #:container
                      #:use
                      #:edible
                      #:grasp 
@@ -53,5 +54,6 @@
                      #:update-semantic-map
                      #:get-container-objects
                      #:get-graspable-objects
+                     #:placed-object-in-box
                      #:storage-for-food
                      #:storage-for-stuff))

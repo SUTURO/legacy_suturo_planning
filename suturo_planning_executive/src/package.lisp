@@ -19,6 +19,7 @@
                      #:grasp 
                      #:arm 
                      #:obj 
+                     #:container
                      #:left-arm
                      #:use
                      #:get-graspable-objects

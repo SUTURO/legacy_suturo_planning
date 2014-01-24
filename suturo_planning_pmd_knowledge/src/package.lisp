@@ -15,6 +15,7 @@
   (:desig-properties #:to
                      #:ground
                      #:obj
+                     #:container
                      #:name
                      #:coords
                      #:type
@@ -26,4 +27,5 @@
                      #:storage-for-stuff
                      #:update-semantic-map
                      #:get-container-objects
-                     #:get-graspable-objects))
+                     #:get-graspable-objects
+                     #:placed-object-in-box))

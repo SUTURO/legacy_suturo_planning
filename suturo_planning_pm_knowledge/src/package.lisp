@@ -20,6 +20,8 @@
                      #:frame
                      #:edible
                      #:obj
+                     #:container
                      #:update-semantic-map
+                     #:placed-object-in-box
                      #:get-container-objects
                      #:get-graspable-objects))

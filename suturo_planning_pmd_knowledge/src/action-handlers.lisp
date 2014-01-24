@@ -17,6 +17,9 @@
       (prog1 nil
         (setq *update-semantic-map-fails* (+ *update-semantic-map-fails* 1)))))
 
+(def-action-handler placed-object-in-box (object box)
+ t)
+
 (def-action-handler get-graspable-objects ()
   (setf *get-boxes-fails* *get-objects-fails*)
   (with-designators ((loc1 (location '((frame "frame1")
