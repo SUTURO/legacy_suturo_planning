@@ -20,4 +20,5 @@
                      #:gripper-is-closed
                      #:start-monitoring-gripper
                      #:end-monitoring-gripper
-                     #:monitor-gripper))
+                     #:monitor-gripper
+                     #:get-gripper-state))
