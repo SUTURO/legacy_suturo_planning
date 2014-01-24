@@ -7,9 +7,9 @@
     (desig-prop ?desig (to update-semantic-map)))
 
   (<- (action-desig ?desig (placed-object-in-box ?obj ?container))
-      (desig-prop ?desig (to placed-object-in-box))
-      (desig-prop ?desig (obj ?obj))
-      (desig-prop ?desig (container ?container)))
+    (desig-prop ?desig (to placed-object-in-box))
+    (desig-prop ?desig (obj ?obj))
+    (desig-prop ?desig (container ?container)))
   
   (<- (action-desig ?desig (get-container-objects))
     ;;Action designator for action to get information about objects.
