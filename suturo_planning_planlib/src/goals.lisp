@@ -3,7 +3,7 @@
 (define-policy dont-drop-object (arm)
   (:init (perform (make-designator 'action `((to start-monitoring-gripper)
                                              (arm ,arm)))))
-  (:check (sleep 0.5)
+  (:check (sleep* 0.5)
           (perform (make-designator 'action '((to gripper-is-closed)))))
   (:recover (cpl:fail 'suturo-planning-common::dropped-object))
   (:clean-up (perform (make-designator 'action '((to end-monitoring-gripper))))))
@@ -20,7 +20,7 @@
              (retry))))
       (with-designators ((take-home-pose (action 
                                           '((to take-pose)
-                                            (pose home)
+                                            (pose initial)
                                             (body-part all)))))
         (perform take-home-pose)))))
 

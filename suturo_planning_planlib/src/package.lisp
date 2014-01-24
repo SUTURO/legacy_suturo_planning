@@ -47,6 +47,7 @@
                      #:open-hand
                      #:move-arm
                      #:loc
+                     #:initial
                      #:start-monitoring-gripper
                      #:end-monitoring-gripper
                      #:gripper-is-closed
