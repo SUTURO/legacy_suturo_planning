@@ -48,6 +48,7 @@
                      #:move-arm
                      #:loc
                      #:initial
+                     #:grip-force
                      #:start-monitoring-gripper
                      #:end-monitoring-gripper
                      #:gripper-is-closed

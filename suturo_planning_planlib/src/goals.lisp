@@ -21,7 +21,7 @@
       (with-designators ((take-home-pose (action 
                                           '((to take-pose)
                                             (pose initial)
-                                            (body-part all)))))
+                                            (body-part right-arm)))))
         (perform take-home-pose)))))
 
 (def-goal (achieve (object-in-hand ?obj))
@@ -58,7 +58,7 @@
       (let ((coords (get-coords ?obj)))
         (setf coords `(,(nth 0 coords)
                        ,(nth 1 coords)
-                       ,(+ (nth 2 coords) 10)))
+                       ,(+ (nth 2 coords) 0.10)))
         (with-designators ((loc-over-obj (location (update-designator-properties `((coords ,coords)) (description (desig-prop-value ?obj 'at))))))
           (with-designators ((move-hand (action `((to move-arm)
                                                   (arm ,?arm)

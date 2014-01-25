@@ -19,6 +19,7 @@
                      #:both-arms
                      #:head
                      #:obj 
+                     #:coords
                      #:grasp 
                      #:take-pose
                      #:initial
