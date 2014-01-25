@@ -48,9 +48,9 @@
       
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
-  (with-retry-counters ((move-retry-counter 2))
+  (with-retry-counters ((move-retry-counter 1))
     (with-failure-handling
-        ((suturo-planning-common::location-not-reached (f)
+        ((suturo-planning-common::move-arm-failed (f)
            (declare (ignore f))
            (error-out (planlib) "Failed to move arm")
            (do-retry move-retry-counter
@@ -58,7 +58,7 @@
       (let ((coords (get-coords ?obj)))
         (setf coords `(,(nth 0 coords)
                        ,(nth 1 coords)
-                       ,(+ (nth 2 coords) 0.10)))
+                       ,(+ (nth 2 coords) 0.30)))
         (with-designators ((loc-over-obj (location (update-designator-properties `((coords ,coords)) (description (desig-prop-value ?obj 'at))))))
           (with-designators ((move-hand (action `((to move-arm)
                                                   (arm ,?arm)
