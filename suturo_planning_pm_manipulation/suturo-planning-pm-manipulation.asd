@@ -3,6 +3,7 @@
  
   :depends-on (actionlib
                suturo_manipulation_msgs-msg
+               suturo-planning-pm-gripper-monitor
                designators-ros
                process-modules
                cram-plan-failures

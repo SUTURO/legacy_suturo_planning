@@ -31,6 +31,7 @@
                      #:loc
                      #:keep-object-in-hand
                      #:gripper-is-closed
+                     #:get-gripper-state
                      #:name
                      #:frame
                      #:left-arm
