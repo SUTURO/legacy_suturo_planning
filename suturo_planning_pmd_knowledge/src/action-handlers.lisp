@@ -30,13 +30,15 @@
 (defvar *test-loc4* (make-designator 'location `((coords (0.60 -0.80 0.68))
                                                  (frame ,"odom_combined"))))
 (defvar *test-obj4* (make-designator 'object `((name ,"redbox")
+                                               (grip-force 12)
                                                (use storage-for-stuff)
                                                (at ,*test-loc4*))))
 
-;;wite box
+;;white box
 (defvar *test-loc5* (make-designator 'location `((coords (0.60 0.80 0.68))
                                                  (frame ,"odom_combined"))))
 (defvar *test-obj5* (make-designator 'object `((name ,"whitebox")
+                                               (grip-force 12)
                                                (use storage-for-food)
                                                (at ,*test-loc5*))))
 
