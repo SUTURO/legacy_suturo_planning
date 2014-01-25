@@ -261,7 +261,10 @@
                               (format t "Gripper difference: ~a~%" gripper-difference)
                               (format t "Gripper seems to have moved. Waiting until gripper stops.~%")
                               (waiting-for-gripper arm)
-                              (format t "Gripper seems to have stopped moving. Assuming grasping succeeded.~%")
+                              (format
+                               t
+                               "Gripper seems to have stopped moving. Assuming grasping succeeded.~%")
+                              (grasping-succeeded obj)
                               (return))
                             (progn
                               (format t "Gripper difference: ~a~%" gripper-difference)
@@ -288,9 +291,23 @@
                         (return))
                       (roslisp:with-fields (type) succ
                         (handle-action-answer type 'suturo-planning-common::grasping-failed)
+                        (grasping-succeeded obj)
                         (roslisp:ros-info(suturo-pm-manipulation call-grasp-action)
                                          "Action finished. Object grasped.~%")
                         (return)))))))))))
+
+(defun grasping-succeeded (obj)
+  (format t "Updating object's location~%")
+  (let* ((loc-des (description (desig-prop-value obj 'at)))
+         (loc (make-designator 'location 
+                               (update-designator-properties 
+                                '((in left-gripper))
+                                loc-des)))
+         (new-obj (make-designator 'object
+                                   (update-designator-properties 
+                                    `((at ,loc))
+                                    (description obj)))))
+    (equate obj new-obj)))
 
 ; open-hand
 (defvar *action-client-open-hand* nil)
