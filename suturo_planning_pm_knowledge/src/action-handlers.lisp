@@ -21,20 +21,20 @@
   (let ((gen (json-prolog:prolog-simple-1 (format nil "placedObjectInBox('~a', '~a', Out)"
                                                       (desig-prop-value object 'name)
                                                       (desig-prop-value box 'name)))))))
-; TODO: Replace table name
+
 (def-action-handler get-container-objects ()
   "Receives all containers from Knowledge Representation as a list."
-    (let* ((loc (make-designator 'location `((desig-props:on ,(make-designator 'object `((desig-props:name "insert_my_table_name")))))))
+    (let* ((loc (make-designator 'location `((desig-props:on ,(make-designator 'object `((desig-props:name "kitchen_island_counter_top")))))))
            (gen (json-prolog:prolog-simple-1 (suturo-planning-common:designator->string (make-designator 'object `((desig-props:type container) 
                                                                                            (desig-props:at ,loc)))))))
       (if gen
         (suturo-planning-common::json-prolog->designators gen)
         (roslisp:ros-warn nil "Could not receive container objects."))))
 
-; TODO: Replace table name
+
 (def-action-handler get-graspable-objects ()
   "Receives all graspable objects from Knowledge Representation as a list"
-    (let* ((loc (make-designator 'location `((desig-props:on ,(make-designator 'object `((desig-props:name "insert_my_table_name")))))))
+    (let* ((loc (make-designator 'location `((desig-props:on ,(make-designator 'object `((desig-props:name "kitchen_island_counter_top")))))))
            (gen (json-prolog:prolog-simple-1 (suturo-planning-common:designator->string (make-designator 'object `((desig-props:type graspable) 
                                                                                            (desig-props:at ,loc)))))))
       (if gen
