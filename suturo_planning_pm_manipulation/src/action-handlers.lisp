@@ -80,7 +80,8 @@
             (multiple-value-bind (result status)
                 (actionlib:call-goal *action-client-move-head*
                                      (make-move-head-goal pose-stamped-msg)
-                                     :timeout *move-head-timeout*)
+                                     :timeout *move-head-timeout*
+                                     :result-timeout *move-head-timeout*)
               (roslisp:ros-info (suturo-pm-manipulation call-move-head-action)
                                 "Result from call-goal move head ~a" result)
               (if (eq result nil)
@@ -108,7 +109,7 @@
                           (cpl:fail 'suturo-planning-common::move-head-failed)
                           (return))
                         (roslisp:with-fields (type) succ
-                          (handle-action-answer type 'suturo-planning-common::move-arm-failed)
+                          (handle-action-answer type 'suturo-planning-common::move-head-failed)
                           (roslisp:ros-info(suturo-pm-manipulation call-move-head-action)
                                            "Action finished. Head is looking at direction.")
                           (return))))))))))))
@@ -163,7 +164,8 @@
                    (suturo-pm-manipulation call-initial-action)
                    "Unhandled body part: ~a" body-part)
                   (cpl:error 'suturo-planning-common::unhandled-body-part)))
-             :timeout *initial-timeout*)
+             :timeout *initial-timeout*
+             :result-timeout *initial-timeout*)
           (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
                             "Result from call-goal initial position ~a" result)
           (if (eq result nil)
@@ -247,13 +249,15 @@
                       (suturo-pm-manipulation call-initial-action)
                       "Unhandled body part: ~a" arm)
                      (cpl:error 'suturo-planning-common::unhandled-body-part))))
-               :timeout *grasp-timeout*)
+               :timeout *grasp-timeout*
+               :result-timeout *grasp-timeout*)
             (roslisp:ros-info (suturo-pm-manipulation call-grasp-action)
                               "Result from call-goal grasp object ~a" result)
             (if (eq result nil)
                 (if (eq status :TIMEOUT)
                     (progn
                       (format t "Timeout reached.~%")
+                      #|
                       (let* ((new-gripper-state (get-gripper-state arm))
                              (gripper-difference (difference gripper-state new-gripper-state)))
                         (if (> gripper-difference *gripper-tolerance*)
@@ -269,6 +273,7 @@
                             (progn
                               (format t "Gripper difference: ~a~%" gripper-difference)
                               (format t "Gripper doesn't seem to have moved.~%"))))
+                      |#
                       (format t "Number intents: ~a~%" intents)
                       (if (< intents *maximum-retry-intents*)
                           (progn
@@ -291,7 +296,7 @@
                         (return))
                       (roslisp:with-fields (type) succ
                         (handle-action-answer type 'suturo-planning-common::grasping-failed)
-                        (grasping-succeeded obj)
+                        (grasping-succeeded obj arm)
                         (roslisp:ros-info(suturo-pm-manipulation call-grasp-action)
                                          "Action finished. Object grasped.~%")
                         (return)))))))))))
@@ -350,7 +355,8 @@
               (actionlib:call-goal
                *action-client-open-hand*
                (make-open-hand-goal arm)
-               :timeout *open-timeout*)
+               :timeout *open-timeout*
+               :result-timeout *open-timeout*)
             (roslisp:ros-info (suturo-pm-manipulation call-open-hand-action)
                               "Result from call-goal open hand ~a" result)
             (if (eq result nil)
@@ -458,7 +464,8 @@
                         (suturo-pm-manipulation call-move-arm-action)
                         "Unhandled body part: ~a" arm)
                        (cpl:error 'suturo-planning-common::unhandled-body-part))))
-                 :timeout 10)
+                 :timeout *move-arm-timeout*
+                 :result-timeout *move-arm-timeout*)
               (roslisp:ros-info (suturo-pm-manipulation call-move-arm-action)
                                 "Result from call-goal move arm ~a" result)
               (if (eq result nil)
