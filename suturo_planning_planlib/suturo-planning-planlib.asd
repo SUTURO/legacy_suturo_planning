@@ -5,6 +5,7 @@
                cram-plan-library
                cram-plan-failures
                cram-plan-knowledge
+               cl-tf
                suturo-planning-common)
 
   :components

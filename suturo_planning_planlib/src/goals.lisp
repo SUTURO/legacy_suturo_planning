@@ -1,5 +1,7 @@
 (in-package :suturo-planning-planlib)
 
+(defvar *transform-listener* nil)
+
 (define-policy dont-drop-object (arm)
   "Policy to monitor the gripper of the given arm that it wont completly close"
   (:init (perform (make-designator 'action `((to start-monitoring-gripper)
@@ -146,12 +148,12 @@
                  ;; Check for objects on the left
                  (if (not (desig-equal leftest-obj new-leftest-obj))
                      (prog1
-                         (achieve `(face-loc ,(get-unseen-location 'left new-leftest-obj)))
+                         (achieve `(face-loc ,(desig-prop-value new-leftest-obj 'at)))
                          (setf leftest-obj new-leftest-obj))
                      ;; Check for objects on the right
                      (if (not (desig-equal rightest-obj new-rightest-obj))
                          (prog1
-                             (achieve `(face-loc ,(get-unseen-location 'right new-rightest-obj)))
+                             (achieve `(face-loc ,(desig-prop-value new-rightest-obj 'at)))
                              (setf rightest-obj new-rightest-obj))
                          (cpl:fail 'suturo-planning-common::not-enough-objects-found)))))              
              (with-designators ((update-map 
@@ -221,15 +223,36 @@
 
 (defun get-best-arm (obj)
   "Returns the arm closest to the object"
-  (let ((coords (get-coords obj)))
-    (if (< (first coords) 0)
+  (let* ((coords (get-coords obj))
+         (frame (get-frame obj))
+         (pose-stamp-old (cl-tf:make-pose-stamped
+                          frame 0.0
+                          (cl-transforms:make-3d-vector (nth 0 coords)
+                                                        (nth 1 coords)
+                                                        (nth 2 coords))
+                          (cl-transforms:make-quaternion 0 0 0 1)))
+         (pose-stamp-base-link nil))
+    (if (not *transform-listener*)
+             (setf *transform-listener* 
+                   (make-instance 'cl-tf:transform-listener)))
+    (setf pose-stamp-base-link 
+          (cl-tf:transform-pose *transform-listener* 
+                                :pose pose-stamp-old
+                                :target-frame "/base_link"))
+    (if (> (cl-transforms:y (cl-transforms:origin pose-stamp-base-link)) 0)
         'left-arm
-        'right-arm)))
+        'right-arm)))      
 
 (defun get-coords (obj)
   "Returns the coordinates of the object"
   (if obj
       (desig-prop-value (desig-prop-value (current-desig obj) 'at) 'coords)
+      nil))
+
+(defun get-frame (obj)
+  "Returns the coordinates of the object"
+  (if obj
+      (desig-prop-value (desig-prop-value (current-desig obj) 'at) 'frame)
       nil))
 
 (defun switch-arms (arm)
