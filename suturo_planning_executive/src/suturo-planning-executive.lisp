@@ -26,19 +26,33 @@
   (with-failure-handling
     ((suturo-planning-common::pose-not-reached (f)
       (declare (ignore f))
-      (error-out (planning exec) "Could not reach initial pose.")))
+      (error-out (suturo exec) "Could not reach initial pose.")))
     (suturo-planning-planlib:achieve 
       '(suturo-planning-planlib:home-pose)))
-  (with-failure-handling
-    ((suturo-planning-common::no-object-perceived (f)
-      (declare (ignore f))
-      (error-out (planning exec) "No more objects found.")))
+  (let ((objects-to-perceive 3)
+        (retry-counter 2))
+    (with-failure-handling
+        ((suturo-planning-common::not-enough-objects-found (f)
+           (declare (ignore f))
+           (error-out (suturo exec) "Not enough objects found.")
+           (sleep 2)
+           (when (> objects-to-perceive 1)
+             (error-out (suturo exec) "Trying again with fewer objects.")
+             (decf objects-to-perceive)
+             (retry)))
+         (suturo-planning-common::simple-plan-failure (f)
+           (declare (ignore f))
+           (error-out (suturo exec) "Couldn't put all objects away")
+           (sleep 2)
+           (if (> retry-counter 0)
+               (prog1 (decf retry-counter)
+                 (retry))
+               (error-out (suturo exec) "Sorry I failed."))))
     (let ((result (suturo-planning-planlib:achieve
-                    '(suturo-planning-planlib:objects-and-boxes-perceived 3 2))))
-      (with-failure-handling
-        ((suturo-planning-common::grasping-failed (f)
-          (declare (ignore f))
-          (error-out (planning exec) "Grasping failed.")))
-        (suturo-planning-planlib:achieve 
-          `(suturo-planning-planlib:objects-in-appropriate-boxes ,(first result)
-                                                                  ,(second result)))))))
+                   `(suturo-planning-planlib:objects-and-boxes-perceived 
+                     ,objects-to-perceive 2))))
+      (suturo-planning-planlib:achieve 
+       `(suturo-planning-planlib:objects-in-appropriate-boxes 
+           ,(first result)
+           ,(second result)))
+      (setf retry-counter 2)))))
