@@ -264,7 +264,7 @@
                               (format
                                t
                                "Gripper seems to have stopped moving. Assuming grasping succeeded.~%")
-                              (grasping-succeeded obj)
+                              (grasping-succeeded obj arm)
                               (return))
                             (progn
                               (format t "Gripper difference: ~a~%" gripper-difference)
@@ -296,12 +296,12 @@
                                          "Action finished. Object grasped.~%")
                         (return)))))))))))
 
-(defun grasping-succeeded (obj)
+(defun grasping-succeeded (obj arm)
   (format t "Updating object's location~%")
   (let* ((loc-des (description (desig-prop-value obj 'at)))
          (loc (make-designator 'location 
                                (update-designator-properties 
-                                '((in left-gripper))
+                                `((in ,(if (eql arm 'left-gripper) 'left-gripper 'right-gripper)))
                                 loc-des)))
          (new-obj (make-designator 'object
                                    (update-designator-properties 

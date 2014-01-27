@@ -19,7 +19,8 @@
            #:objects-perceived
            #:home-pose
            #:empty-hand
-           #:hand-over)
+           #:hand-over
+           #:objects-and-boxes-perceived)
   (:desig-properties #:to
                      #:arm 
                      #:left-arm
