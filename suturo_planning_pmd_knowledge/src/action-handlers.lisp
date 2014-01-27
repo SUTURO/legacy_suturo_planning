@@ -53,6 +53,7 @@
   nil)
 
 (def-action-handler placed-object-in-box (object box)
+  (declare (ignore object box))
   nil)
 
 (def-action-handler get-graspable-objects ()
