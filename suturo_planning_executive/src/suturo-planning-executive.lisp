@@ -15,14 +15,17 @@
      ,@body))
 
 (def-top-level-cram-function clean-table ()
+  "Starts the plan on the PR2"
   (with-process-modules
     (clean-table-plan)))
 
 (def-top-level-cram-function clean-table-dummy ()
+  "Starts the plan with stubbed process modules"
   (with-dummy-process-modules
     (clean-table-plan)))
 
 (def-cram-function clean-table-plan ()
+  "Plan to clean a table in front of the robot with 3 objects and 2 boxes on it"
   (with-failure-handling
     ((suturo-planning-common::pose-not-reached (f)
       (declare (ignore f))

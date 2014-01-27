@@ -1,6 +1,7 @@
 (in-package :suturo-planning-planlib)
 
 (define-policy dont-drop-object (arm)
+  "Policy to monitor the gripper of the given arm that it wont completly close"
   (:init (perform (make-designator 'action `((to start-monitoring-gripper)
                                              (arm ,arm)))))
   (:check (sleep* 0.5)
