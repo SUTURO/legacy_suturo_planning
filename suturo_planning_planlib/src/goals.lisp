@@ -10,13 +10,14 @@
                      
 (def-goal (achieve (home-pose))
   "Move the robot in the initial position"
+  (info-out (suturo planlib) "Taking home pose")
   (with-retry-counters ((pose-retry-counter 2))
     (with-failure-handling 
         ((suturo-planning-common::pose-not-reached (f)
            (declare (ignore f))
-           (error-out (planlib) "Failed to take home pose")
+           (error-out (suturo planlib) "Failed to take home pose")
            (do-retry pose-retry-counter
-             (info-out (planlib) "Trying again")
+             (info-out (suturo planlib) "Trying again")
              (retry))))
       (with-designators ((take-home-pose (action 
                                           '((to take-pose)
@@ -27,16 +28,18 @@
 (def-goal (achieve (object-in-hand ?obj))
   "Takes the object in one hand"
   (let ((arm (get-best-arm ?obj)))
-    (with-retry-counters ((grasping-retry-counter 1))
+    (with-retry-counters ((grasping-retry-counter 2))
       (with-failure-handling 
           ((suturo-planning-common::grasping-failed (f)
              (declare (ignore f))
-             (error-out (planlib) "Failed to grasp object")
+             (error-out (suturo planlib) "Failed to grasp object")
              (do-retry grasping-retry-counter
-               (info-out (planlib) "Trying again")
+               (info-out (suturo planlib) "Trying again")
                (achieve '(home-pose))
                (setf arm (switch-arms arm))
                (retry))))
+        (info-out (suturo planlib) "Grasping object ~a with ~a" 
+                  (desig-prop-value ?obj 'name) arm)
         (with-designators ((grasp-obj (action `((to grasp)
                                                 (obj ,?obj)
                                                 (arm ,arm))))
@@ -48,12 +51,15 @@
       
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
+  (info-out (suturo planlib) "Moving ~a over object ~a"
+            ?arm (desig-prop-value ?obj 'name))
   (with-retry-counters ((move-retry-counter 1))
     (with-failure-handling
         ((suturo-planning-common::move-arm-failed (f)
            (declare (ignore f))
-           (error-out (planlib) "Failed to move arm")
+           (error-out (suturo planlib) "Failed to move arm")
            (do-retry move-retry-counter
+             (info-out (suturo planlib) "Trying again.")
              (retry))))
       (let ((coords (get-coords ?obj)))
         (setf coords `(,(nth 0 coords)
@@ -67,12 +73,14 @@
 
 (def-goal (achieve (empty-hand ?arm))
   "Opens the hand of the given arm"
+  (info-out (suturo planlib) "Opening hand")
   (with-retry-counters ((open-retry-counter 2))
     (with-failure-handling
         ((suturo-planning-common::drop-failed (f)
            (declare (ignore f))
-           (error-out (planlib) "Failed to open hand")
+           (error-out (suturo planlib) "Failed to open hand")
            (do-retry open-retry-counter
+             (info-out (suturo planib) "Trying again.")
              (retry))))
       (with-designators ((open-hand (action `((to open-hand)
                                               (arm ,?arm)))))
@@ -80,15 +88,7 @@
 
 (def-goal (achieve (object-in-box ?obj ?box))
   "The object should be in the box"
-  (with-retry-counters ((grasp-retry-counter 4))
-    (with-failure-handling 
-        ((suturo-planning-common::grasping-failed (f)
-           (declare (ignore f))
-           (error-out (planlib) "Grasping failed")
-           (do-retry grasp-retry-counter
-             (info-out (planlib) "Trying again")
-             (retry))))
-      (achieve `(object-in-hand ,?obj))))
+  (achieve `(object-in-hand ,?obj))
   (let ((arm (get-holding-hand (current-desig ?obj))))
     (with-named-policy 'dont-drop-object (arm)
       (achieve `(hand-over ,?box ,arm)))
@@ -105,7 +105,7 @@
       (with-failure-handling
           ((suturo-planning-common::dropped-object (f)
              (declare (ignore f))
-             (error-out (planlib) "Dropped ~a. Wont bother to retrieve it"
+             (error-out (planlib) "Dropped object ~a. Wont bother to retrieve it"
                         (desig-prop-value obj 'name))
              (sleep 2)
              (do-retry plan-retry-counter
@@ -165,6 +165,8 @@
                (perform update-map)
                (setf objs (perform get-objects))
                (setf boxes (perform get-containers))))
+    (info-out (suturo planlib) "Perceived ~a ~a" 
+              (generate-output objs) (generate-output boxes))
     `(,objs ,boxes)))
 
 (def-goal (achieve (face-loc ?loc))
@@ -178,17 +180,6 @@
       (with-designators ((move-head (action `((to move-head)
                                               (loc ,?loc)))))
         (perform move-head)))))
-
-(defun get-unseen-location (side obj)
-  (let ((loc (desig-prop-value obj 'at))
-        (new-coords (get-coords obj))
-        (offset 5))
-    (if (eql side 'left)
-        (setf offset (- offset)))
-    (setf (first new-coords) (+ (first new-coords) offset))
-    (make-designator 'location
-                     (update-designator-properties `((coords ,new-coords))
-                                                   (description loc)))))
 
 (defun get-object-on-side (side objs)
   "Returns the object furthest on the given side"

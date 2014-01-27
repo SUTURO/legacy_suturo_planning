@@ -56,8 +56,8 @@
   nil)
 
 (def-action-handler get-graspable-objects ()
-  nil);`(,*test-obj1* ,*test-obj2* ,*test-obj3*))
+  `(,*test-obj1* ,*test-obj2* ,*test-obj3*))
 
 (def-action-handler get-container-objects ()
-  nil);`(,*test-obj4* ,*test-obj5*))
+  `(,*test-obj4* ,*test-obj5*))
       
