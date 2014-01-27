@@ -12,11 +12,7 @@
        (destructuring-bind ,args ,params ,@body))))
 
 (def-action-handler take-pose (pose body-part)
-  (if (= *move-fails* 1) 
-      (setq *move-fails* 0) 
-      (prog1 nil 
-        (setq *move-fails* (+ *move-fails* 1))
-        (cpl:error 'suturo-planning-common::pose-not-reached :result pose))))
+  nil)
 
 (def-action-handler move-head (direction)
   (if (= *move-head-fails* 1)

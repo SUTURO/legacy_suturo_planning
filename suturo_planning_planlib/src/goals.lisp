@@ -14,19 +14,32 @@
 (def-goal (achieve (home-pose))
   "Move the robot in the initial position"
   (info-out (suturo planlib) "Taking home pose")
-  (with-retry-counters ((pose-retry-counter 2))
-    (with-failure-handling 
-        ((suturo-planning-common::pose-not-reached (f)
-           (declare (ignore f))
-           (error-out (suturo planlib) "Failed to take home pose")
-           (do-retry pose-retry-counter
-             (info-out (suturo planlib) "Trying again")
-             (retry))))
-      (with-designators ((take-home-pose (action 
-                                          '((to take-pose)
-                                            (pose initial)
-                                            (body-part right-arm)))))
-        (perform take-home-pose)))))
+  (with-retry-counters ((arm-retry-counter 2)
+                        (head-retry-counter 2))
+     (with-designators ((take-home-pose-arms (action 
+                                               '((to take-pose)
+                                                 (pose initial)
+                                                 (body-part both-arms))))
+                         (take-home-pose-head (action 
+                                               '((to take-pose)
+                                                 (pose initial)
+                                                 (body-part head)))))
+       (with-failure-handling 
+           ((suturo-planning-common::pose-not-reached (f)
+              (declare (ignore f))
+              (error-out (suturo planlib) "Failed to bring arms int the initial pose")
+              (do-retry arm-retry-counter
+                (info-out (suturo planlib) "Trying again")
+                (retry))))
+         (perform take-home-pose-arms))
+       (with-failure-handling 
+           ((suturo-planning-common::pose-not-reached (f)
+              (declare (ignore f))
+              (error-out (suturo planlib) "Failed to bring head in the initial pose")
+              (do-retry head-retry-counter
+                (info-out (suturo planlib) "Trying again")
+                (retry))))         
+         (perform take-home-pose-head)))))
 
 (def-goal (achieve (object-in-hand ?obj))
   "Takes the object in one hand"
@@ -223,25 +236,31 @@
 
 (defun get-best-arm (obj)
   "Returns the arm closest to the object"
-  (let* ((coords (get-coords obj))
-         (frame (get-frame obj))
-         (pose-stamp-old (cl-tf:make-pose-stamped
-                          frame 0.0
-                          (cl-transforms:make-3d-vector (nth 0 coords)
-                                                        (nth 1 coords)
-                                                        (nth 2 coords))
-                          (cl-transforms:make-quaternion 0 0 0 1)))
-         (pose-stamp-base-link nil))
-    (if (not *transform-listener*)
-             (setf *transform-listener* 
-                   (make-instance 'cl-tf:transform-listener)))
-    (setf pose-stamp-base-link 
-          (cl-tf:transform-pose *transform-listener* 
-                                :pose pose-stamp-old
-                                :target-frame "/base_link"))
-    (if (> (cl-transforms:y (cl-transforms:origin pose-stamp-base-link)) 0)
-        'left-arm
-        'right-arm)))      
+  (with-retry-counters ((lookup-retry-counter 3))
+    (with-failure-handling
+        ((cl-tf:tf-lookup-error (f)
+           (declare (ignore f))
+           (do-retry lookup-retry-counter
+             (retry))))      
+      (let* ((coords (get-coords obj))
+             (frame (get-frame obj))
+             (pose-stamp-old (cl-tf:make-pose-stamped
+                              frame 0.0
+                              (cl-transforms:make-3d-vector (nth 0 coords)
+                                                            (nth 1 coords)
+                                                            (nth 2 coords))
+                              (cl-transforms:make-quaternion 0 0 0 1)))
+             (pose-stamp-base-link nil))
+        (if (not *transform-listener*)
+            (setf *transform-listener* 
+                  (make-instance 'cl-tf:transform-listener)))
+        (setf pose-stamp-base-link 
+              (cl-tf:transform-pose *transform-listener* 
+                                    :pose pose-stamp-old
+                                    :target-frame "/base_link"))
+        (if (> (cl-transforms:y (cl-transforms:origin pose-stamp-base-link)) 0)
+            'left-arm
+            'right-arm)))))      
 
 (defun get-coords (obj)
   "Returns the coordinates of the object"
