@@ -135,7 +135,7 @@
         (multiple-value-bind (result status)
             (actionlib:call-goal
              *action-client-initial*
-             (get-body-part-constant body-part)
+             (make-initial-action-goal (get-body-part-constant body-part))
              :timeout *initial-timeout*
              :result-timeout *initial-timeout*)
           (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
