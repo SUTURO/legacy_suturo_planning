@@ -135,35 +135,7 @@
         (multiple-value-bind (result status)
             (actionlib:call-goal
              *action-client-initial*
-             (cond
-               ((eq body-part 'left-arm)
-                (make-initial-action-goal
-                 (string-downcase
-                  (symbol-name
-                   (roslisp-msg-protocol:symbol-code
-                    'suturo_manipulation_msgs-msg:RobotBodyPart :LEFT_ARM)))))
-               ((eq body-part 'right-arm)
-                (make-initial-action-goal
-                 (string-downcase
-                  (symbol-name
-                   (roslisp-msg-protocol:symbol-code
-                    'suturo_manipulation_msgs-msg:RobotBodyPart :RIGHT_ARM)))))
-               ((eq body-part 'both-arms)
-                (make-initial-action-goal
-                 (string-downcase
-                  (symbol-name
-                   (roslisp-msg-protocol:symbol-code
-                    'suturo_manipulation_msgs-msg:RobotBodyPart :BOTH_ARMS)))))
-               ((eq body-part 'head)
-                (make-initial-action-goal
-                 (string-downcase
-                  (symbol-name
-                   (roslisp-msg-protocol:symbol-code
-                    'suturo_manipulation_msgs-msg:RobotBodyPart :HEAD)))))
-               (t (roslisp:ros-error
-                   (suturo-pm-manipulation call-initial-action)
-                   "Unhandled body part: ~a" body-part)
-                  (cpl:error 'suturo-planning-common::unhandled-body-part)))
+             (get-body-part-constant body-part)
              :timeout *initial-timeout*
              :result-timeout *initial-timeout*)
           (roslisp:ros-info (suturo-pm-manipulation call-initial-action)
@@ -232,23 +204,7 @@
           (multiple-value-bind (result status)
               (actionlib:call-goal
                *action-client-grasp*
-               (make-grasp-action-goal
-                obj
-                (cond
-                  ((eq arm 'left-arm)
-                   (string-downcase
-                    (symbol-name
-                     (roslisp-msg-protocol:symbol-code
-                      'suturo_manipulation_msgs-msg:RobotBodyPart :LEFT_ARM))))
-                  ((eq arm 'right-arm)
-                   (string-downcase
-                    (symbol-name
-                     (roslisp-msg-protocol:symbol-code
-                      'suturo_manipulation_msgs-msg:RobotBodyPart :RIGHT_ARM))))
-                  (t (roslisp:ros-error
-                      (suturo-pm-manipulation call-initial-action)
-                      "Unhandled body part: ~a" arm)
-                     (cpl:error 'suturo-planning-common::unhandled-body-part))))
+               (make-grasp-action-goal obj (get-body-part-constant arm))
                :timeout *grasp-timeout*
                :result-timeout *grasp-timeout*)
             (roslisp:ros-info (suturo-pm-manipulation call-grasp-action)
@@ -332,10 +288,7 @@
             (grasp) nil
             (bodypart) (roslisp:make-msg
                         "suturo_manipulation_msgs/RobotBodyPart"
-                        (bodyPart)(string-downcase
-                                    (symbol-name
-                                     (roslisp-msg-protocol:symbol-code
-                                      'suturo_manipulation_msgs-msg:RobotBodyPart :LEFT_ARM)))))))
+                        (bodyPart) (get-body-part-constant 'left-arm)))))
     (format t "msg: ~a~%" msg-goal)
     (actionlib:make-action-goal *action-client-open-hand*
       goal msg-goal)))
@@ -447,23 +400,7 @@
             (multiple-value-bind (result status)
                 (actionlib:call-goal
                  *action-client-move-arm*
-                 (make-move-arm-goal
-                  pose-stamped-msg
-                  (cond
-                    ((eq arm 'left-arm)
-                     (string-downcase
-                      (symbol-name
-                       (roslisp-msg-protocol:symbol-code
-                        'suturo_manipulation_msgs-msg:RobotBodyPart :LEFT_ARM))))
-                    ((eq arm 'right-arm)
-                     (string-downcase
-                      (symbol-name
-                       (roslisp-msg-protocol:symbol-code
-                        'suturo_manipulation_msgs-msg:RobotBodyPart :RIGHT_ARM))))
-                    (t (roslisp:ros-error
-                        (suturo-pm-manipulation call-move-arm-action)
-                        "Unhandled body part: ~a" arm)
-                       (cpl:error 'suturo-planning-common::unhandled-body-part))))
+                 (make-move-arm-goal pose-stamped-msg (get-body-part-constant arm))
                  :timeout *move-arm-timeout*
                  :result-timeout *move-arm-timeout*)
               (roslisp:ros-info (suturo-pm-manipulation call-move-arm-action)
@@ -557,7 +494,29 @@
   ; if the action-client for the server and goal exists, it will be returned
   *action-client*)
 
+(defun get-body-part-constant (body-part)
+  (string-downcase
+   (symbol-name
+    (cond
+      ((eq body-part 'left-arm)
+       (roslisp-msg-protocol:symbol-code
+        'suturo_manipulation_msgs-msg:RobotBodyPart :LEFT_ARM))
+      ((eq body-part 'right-arm)
+       (roslisp-msg-protocol:symbol-code
+        'suturo_manipulation_msgs-msg:RobotBodyPart :RIGHT_ARM))
+      ((eq body-part 'both-arms)
+       (roslisp-msg-protocol:symbol-code
+        'suturo_manipulation_msgs-msg:RobotBodyPart :BOTH_ARMS))
+      ((eq body-part 'head)
+       (roslisp-msg-protocol:symbol-code
+        'suturo_manipulation_msgs-msg:RobotBodyPart :HEAD))
+      (t (roslisp:ros-error
+          (suturo-pm-manipulation call-initial-action)
+          "Unhandled body part: ~a" body-part)
+         (cpl:error 'suturo-planning-common::unhandled-body-part))))))
+
 (defun handle-action-answer (type error-to-throw)
+  "Analyses returns from action servers and throws the passed error if necessary."
   (cond
     ((eql
       type
