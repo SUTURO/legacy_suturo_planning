@@ -262,7 +262,7 @@
   (let* ((loc-des (description (desig-prop-value obj 'at)))
          (loc (make-designator 'location 
                                (update-designator-properties 
-                                `((in ,(if (eql arm 'left-gripper) 'left-gripper 'right-gripper)))
+                                `((in ,(if (eql arm 'left-arm) 'left-gripper 'right-gripper)))
                                 loc-des)))
          (new-obj (make-designator 'object
                                    (update-designator-properties 
@@ -273,7 +273,7 @@
 ; open-hand
 (defvar *action-client-open-hand* nil)
 
-(defun make-open-hand-goal (obj)
+(defun make-open-hand-goal (obj arm)
   (format t "make-open-hand-goal obj:~a~%" obj)
   (let* ((msg-header
            (roslisp:make-msg "std_msgs/Header"
@@ -288,16 +288,19 @@
             (grasp) nil
             (bodypart) (roslisp:make-msg
                         "suturo_manipulation_msgs/RobotBodyPart"
-                        (bodyPart) (get-body-part-constant 'left-arm)))))
+                        (bodyPart) (get-body-part-constant arm)))))
     (format t "msg: ~a~%" msg-goal)
     (actionlib:make-action-goal *action-client-open-hand*
       goal msg-goal)))
 
-(defun call-open-hand-action (arm)
-  (format t "call-open-hand-action arm: ~a~%" arm)
+(defun call-open-hand-action (obj)
+  (format t "call-open-hand-action obj: ~a~%" obj)
   (setf *action-client-open-hand* (get-action-client "suturo_man_grasping_server"
                                                      "suturo_manipulation_msgs/suturo_manipulation_graspingAction"))
-  (let ((intents 0))
+  (let ((intents 0)
+        (arm (if (eq (desig-props-value (desig-props-value obj 'at) 'in) 'left-gripper) 
+                 'left-arm
+                 'right-arm)))
     (let ((gripper-state (get-gripper-state arm)))
       (setf *keep-looping* t)
       (loop
@@ -307,7 +310,7 @@
           (multiple-value-bind (result status)
               (actionlib:call-goal
                *action-client-open-hand*
-               (make-open-hand-goal arm)
+               (make-open-hand-goal obj arm)
                :timeout *open-timeout*
                :result-timeout *open-timeout*)
             (roslisp:ros-info (suturo-pm-manipulation call-open-hand-action)

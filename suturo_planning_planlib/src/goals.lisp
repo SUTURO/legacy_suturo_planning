@@ -1,14 +1,13 @@
 (in-package :suturo-planning-planlib)
 
-(defvar *transform-listener* nil)
-
 (define-policy dont-drop-object (arm)
   "Policy to monitor the gripper of the given arm that it wont completly close"
   (:init (perform (make-designator 'action `((to start-monitoring-gripper)
                                              (arm ,arm)))))
   (:check (sleep* 0.5)
           (perform (make-designator 'action '((to gripper-is-closed)))))
-  (:recover (cpl:fail 'suturo-planning-common::dropped-object))
+  (:recover (perform (make-designator 'action '((to end-monitoring-gripper))))
+            (cpl:fail 'suturo-planning-common::dropped-object))
   (:clean-up (perform (make-designator 'action '((to end-monitoring-gripper))))))
                      
 (def-goal (achieve (home-pose))
@@ -38,12 +37,11 @@
               (error-out (suturo planlib) "Failed to bring head in the initial pose")
               (do-retry head-retry-counter
                 (info-out (suturo planlib) "Trying again")
-                (retry))))         
-         (perform take-home-pose-head)))))
+                (retry))))))))         
+         ;(perform take-home-pose-head)))))
 
-(def-goal (achieve (object-in-hand ?obj))
+(def-goal (achieve (object-in-hand ?obj ?arm))
   "Takes the object in one hand"
-  (let ((arm (get-best-arm ?obj)))
     (with-retry-counters ((grasping-retry-counter 2))
       (with-failure-handling 
           ((suturo-planning-common::grasping-failed (f)
@@ -52,18 +50,17 @@
              (do-retry grasping-retry-counter
                (info-out (suturo planlib) "Trying again")
                (achieve '(home-pose))
-               (setf arm (switch-arms arm))
                (retry))))
         (info-out (suturo planlib) "Grasping object ~a with ~a" 
-                  (desig-prop-value ?obj 'name) arm)
+                  (desig-prop-value ?obj 'name) ?arm)
         (with-designators ((grasp-obj (action `((to grasp)
                                                 (obj ,?obj)
-                                                (arm ,arm))))
+                                                (arm ,?arm))))
                            (monitor-gripper (action `((to monitor-gripper)
-                                                      (arm ,arm)))))
+                                                      (arm ,?arm)))))
           (perform grasp-obj)
           (if (perform monitor-gripper) 
-            (cpl:fail 'suturo-planning-common::grasping-failed)))))))
+            (cpl:fail 'suturo-planning-common::grasping-failed))))))
       
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
@@ -78,16 +75,16 @@
              (info-out (suturo planlib) "Trying again.")
              (retry))))
       (let ((coords (get-coords ?obj)))
-        (setf coords `(,(nth 0 coords)
+        (setf coords `(,(- (nth 0 coords) 0.20)
                        ,(nth 1 coords)
-                       ,(+ (nth 2 coords) 0.30)))
+                       ,(+ (nth 2 coords) 0.40)))
         (with-designators ((loc-over-obj (location (update-designator-properties `((coords ,coords)) (description (desig-prop-value ?obj 'at))))))
           (with-designators ((move-hand (action `((to move-arm)
                                                   (arm ,?arm)
                                                   (loc ,loc-over-obj)))))
             (perform move-hand)))))))
 
-(def-goal (achieve (empty-hand ?arm))
+(def-goal (achieve (empty-hand ?obj))
   "Opens the hand of the given arm"
   (info-out (suturo planlib) "Opening hand")
   (with-retry-counters ((open-retry-counter 2))
@@ -99,17 +96,20 @@
              (info-out (suturo planib) "Trying again.")
              (retry))))
       (with-designators ((open-hand (action `((to open-hand)
-                                              (arm ,?arm)))))
+                                              (obj ,?obj)))))
         (perform open-hand)))))
 
 (def-goal (achieve (object-in-box ?obj ?box))
   "The object should be in the box"
-  (achieve `(object-in-hand ,?obj))
-  (let ((arm (get-holding-hand (current-desig ?obj))))
+  (let ((arm (get-best-arm ?obj)))
+    (achieve `(object-in-hand ,?obj ,arm))
     (with-named-policy 'dont-drop-object (arm)
       (achieve `(hand-over ,?box ,arm)))
-    (achieve `(empty-hand ,arm)))
-  (with-designators ((placed-object-in-box (action `((to placed-object-in-box) (obj ,?obj) (container ,?box)))))
+    (achieve `(empty-hand ,?obj)))
+  (with-designators ((placed-object-in-box 
+                      (action `((to placed-object-in-box) 
+                                (obj ,?obj) 
+                                (container ,?box)))))
     (perform placed-object-in-box)))
 
 (def-goal (achieve (objects-in-appropriate-boxes ?objs ?boxes))
@@ -128,9 +128,9 @@
                (info-out (planlib) "Trying next object")
                (retry)))
            (suturo-planning-common::simple-plan-failure (f)
-             (declare (ignore f))
-             (error-out (planlib) "Failed to put ~a in the box"
-                        (desig-prop-value obj 'name))
+             ;(declare (ignore f))
+             (error-out (planlib) "Failed to put ~a in the box. ~a~%"
+                        (desig-prop-value obj 'name) f)
              (sleep 2)
              (do-retry plan-retry-counter
                (info-out (planlib) "Trying next object")
@@ -180,9 +180,10 @@
                                   '((to get-graspable-objects)))))
                (perform update-map)
                (setf objs (perform get-objects))
-               (setf boxes (perform get-containers))))
-    (info-out (suturo planlib) "Perceived ~a ~a" 
-              (generate-output objs) (generate-output boxes))
+               (setf boxes (perform get-containers))
+               (ros-info (suturo planlib) "Perceived ~a ~a" objs boxes)))
+    ;(info-out (suturo planlib) "Perceived ~a ~a" 
+              ;(generate-output objs) (generate-output boxes))
     `(,objs ,boxes)))
 
 (def-goal (achieve (face-loc ?loc))
@@ -194,8 +195,8 @@
            (do-retry head-retry-counter
              (retry))))
       (with-designators ((move-head (action `((to move-head)
-                                              (loc ,?loc)))))
-        (perform move-head)))))
+                                              (loc ,?loc)))))))))
+        ;(perform move-head)))))
 
 (defun get-object-on-side (side objs)
   "Returns the object furthest on the given side"
@@ -224,11 +225,14 @@
 (defun get-holding-hand (obj)
   "Returns the arm which holds the object"
   (if (not obj) (cpl:fail 'simple-plan-failure))
+  (format t "holds obj ~a~%" obj)
   (let ((pos (desig-prop-value 
               (desig-prop-value (current-desig obj) 'at) 
               'in)))
     (if (not pos)
-        (cpl:fail 'simple-plan-failure)
+        (progn
+          (format t "~a~%" obj)
+          (cpl:fail 'simple-plan-failure))
         (if (eql pos 'left-gripper) 
             'left-arm
             (if (eql pos 'right-gripper)
@@ -236,46 +240,12 @@
 
 (defun get-best-arm (obj)
   "Returns the arm closest to the object"
-  (with-retry-counters ((lookup-retry-counter 3))
-    (with-failure-handling
-        ((cl-tf:tf-lookup-error (f)
-           (declare (ignore f))
-           (do-retry lookup-retry-counter
-             (retry))))      
-      (let* ((coords (get-coords obj))
-             (frame (get-frame obj))
-             (pose-stamp-old (cl-tf:make-pose-stamped
-                              frame 0.0
-                              (cl-transforms:make-3d-vector (nth 0 coords)
-                                                            (nth 1 coords)
-                                                            (nth 2 coords))
-                              (cl-transforms:make-quaternion 0 0 0 1)))
-             (pose-stamp-base-link nil))
-        (if (not *transform-listener*)
-            (setf *transform-listener* 
-                  (make-instance 'cl-tf:transform-listener)))
-        (setf pose-stamp-base-link 
-              (cl-tf:transform-pose *transform-listener* 
-                                    :pose pose-stamp-old
-                                    :target-frame "/base_link"))
-        (if (> (cl-transforms:y (cl-transforms:origin pose-stamp-base-link)) 0)
-            'left-arm
-            'right-arm)))))      
+  (with-designators ((get-arm (action `((to get-best-arm)
+                                        (obj ,obj)))))
+    (perform get-arm)))
 
 (defun get-coords (obj)
   "Returns the coordinates of the object"
   (if obj
       (desig-prop-value (desig-prop-value (current-desig obj) 'at) 'coords)
       nil))
-
-(defun get-frame (obj)
-  "Returns the coordinates of the object"
-  (if obj
-      (desig-prop-value (desig-prop-value (current-desig obj) 'at) 'frame)
-      nil))
-
-(defun switch-arms (arm)
-  "Returns the opposite arm"
-  (if (eql 'left-arm arm)
-      'left-arm
-      'right-arm))

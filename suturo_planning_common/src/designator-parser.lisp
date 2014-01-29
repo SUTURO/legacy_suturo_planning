@@ -39,7 +39,7 @@
         (IN (desig-prop-value desig 'IN))
         (LOC (desig-prop-value desig 'LOC))
         (BETWEEN (desig-prop-value desig 'BETWEEN)))
-    (if (not (null ON))
+    (if ON
         (push "on" FUNCNAME))
     (if (eq (type-of ON) 'SYMBOL)
       (push (format nil "~a" ON) FUNCNAME)
@@ -72,6 +72,7 @@
 
 (defun json-prolog->designators (jj)
   (let ((objs (subseq (first (first jj)) 1)))
+    (format t "~a~%" jj)
     (mapcar (lambda (obj)
               (let* ((edible (first obj))
                      (name (second obj))
@@ -85,8 +86,9 @@
                              (frame ,(symbol->string frame-id))))))
                 (make-designator
                  'object
-                 `((edible ,(eq 'TRUE (intern (nstring-upcase (symbol->string edible)))))
+                 `((edible ,(equal 'TRUE (intern (nstring-upcase (symbol->string edible)))))
                    (name ,(symbol->string name))
-                   (use ,(if (eq (symbol->string use) "edible") 'storage-for-food 'storage-for-stuff))
+                   (use ,(if (equal (symbol->string use) "storage-for-food") 'storage-for-food 'storage-for-stuff))
                    (grip-force ,grip-force)
-                   (at ,loc))))) objs)))
+                   (at ,loc)))))
+            objs)))

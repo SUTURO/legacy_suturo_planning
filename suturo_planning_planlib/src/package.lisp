@@ -60,5 +60,6 @@
                      #:get-container-objects
                      #:get-graspable-objects
                      #:placed-object-in-box
+                     #:get-best-arm
                      #:storage-for-food
                      #:storage-for-stuff))

@@ -1,3 +1,4 @@
+
 (in-package :suturo-planning-pmd-knowledge)
 
 (def-fact-group suturo-knowledge-dummy-designators (action-desig)

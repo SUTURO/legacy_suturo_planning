@@ -20,6 +20,10 @@
                      #:frame
                      #:edible
                      #:obj
+                     #:use
+                     #:grip-force
+                     #:storage-for-stuff
+                     #:storage-for-food
                      #:container
                      #:update-semantic-map
                      #:placed-object-in-box

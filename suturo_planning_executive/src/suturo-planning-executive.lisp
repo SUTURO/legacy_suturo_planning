@@ -4,27 +4,29 @@
   `(cpm:with-process-modules-running
      (suturo-planning-pm-manipulation:suturo-planning-pm-manipulation
      suturo-planning-pm-knowledge:suturo-planning-pm-knowledge
-     suturo-planning-pm-gripper-monitor:suturo-planning-pm-gripper-monitor)
+     suturo-planning-pm-gripper-monitor:suturo-planning-pm-gripper-monitor
+     suturo-planning-pm-utils:suturo-planning-pm-utils)
      ,@body))
 
 (defmacro with-dummy-process-modules (&body body)
   `(cpm:with-process-modules-running
      (suturo-planning-pmd-manipulation:suturo-planning-pmd-manipulation
      suturo-planning-pmd-knowledge:suturo-planning-pmd-knowledge
-     suturo-planning-pmd-gripper-monitor:suturo-planning-pmd-gripper-monitor)
+     suturo-planning-pmd-gripper-monitor:suturo-planning-pmd-gripper-monitor
+     suturo-planning-pm-utils:suturo-planning-pm-utils)
      ,@body))
 
-(def-top-level-cram-function clean-table ()
+(def-top-level-cram-function clean-table (obj-nr)
   "Starts the plan on the PR2"
   (with-process-modules
-    (clean-table-plan)))
+    (clean-table-plan obj-nr)))
 
-(def-top-level-cram-function clean-table-dummy ()
+(def-top-level-cram-function clean-table-dummy (obj-nr)
   "Starts the plan with stubbed process modules"
   (with-dummy-process-modules
-    (clean-table-plan)))
+    (clean-table-plan obj-nr)))
 
-(def-cram-function clean-table-plan ()
+(def-cram-function clean-table-plan (obj-nr)
   "Plan to clean a table in front of the robot with 3 objects and 2 boxes on it"
   (with-failure-handling
     ((suturo-planning-common::pose-not-reached (f)
@@ -32,7 +34,7 @@
       (error-out (suturo exec) "Could not reach initial pose.")))
     (suturo-planning-planlib:achieve 
       '(suturo-planning-planlib:home-pose)))
-  (let ((objects-to-perceive 3)
+  (let ((objects-to-perceive obj-nr)
         (retry-counter 2))
     (with-failure-handling
         ((suturo-planning-common::not-enough-objects-found (f)

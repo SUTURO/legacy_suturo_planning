@@ -16,6 +16,7 @@
   (:export suturo-planning-pm-manipulation)
   (:desig-properties #:to
                      #:arm
+                     #:in
                      #:both-arms
                      #:head
                      #:obj 

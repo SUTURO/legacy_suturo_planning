@@ -15,7 +15,8 @@
       (setf *joint-state-subscriber* 
             (roslisp:subscribe "/joint_states" 
                        "sensor_msgs/JointState" 
-                       #'(lambda (state) (monitor-grip arm state))))))
+                       #'(lambda (state) (monitor-grip arm state)))))
+  t)
 
 (def-action-handler end-monitoring-gripper ()
   "Unsubscribes from joint_states"
