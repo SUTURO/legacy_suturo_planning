@@ -66,7 +66,7 @@
                            0.20))
               (y-coord (cl-transforms:y 
                          (cl-transforms:origin pose-stamp-base-link)))
-              (z-coord (+ (cl-transforms:y 
+              (z-coord (+ (cl-transforms:z 
                            (cl-transforms:origin pose-stamp-base-link))
                           0.40)))
           (make-designator 'location 

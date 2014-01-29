@@ -28,7 +28,7 @@
   (call-move-arm-action location arm))
 
 ; make-goal- and call-action-functions
-(defvar *maximum-retry-intents* 5)
+(defvar *maximum-retry-intents* 2)
 
 (defvar *gripper-tolerance* 0.03)
 

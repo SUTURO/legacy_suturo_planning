@@ -76,19 +76,12 @@
            (do-retry move-retry-counter
              (info-out (suturo planlib) "Trying again.")
              (retry))))
-      (let ((coords (get-coords ?obj)))
-        (setf coords `(,(- (nth 0 coords) 0.20)
-                       ,(nth 1 coords)
-                       ,(+ (nth 2 coords) 0.40)))
-        (with-designators ((loc-over-obj 
-                            (location 
-                             (update-designator-properties 
-                              `((coords ,coords)) 
-                              (description (desig-prop-value ?obj 'at))))))
-          (with-designators ((move-hand (action `((to move-arm)
-                                                  (arm ,?arm)
-                                                  (loc ,loc-over-obj)))))
-            (perform move-hand)))))))
+      (with-designators ((get-loc-over-obj (action `((to get-location-over)
+                                                     (loc ,(desig-prop-value ?obj 'at))))))
+        (with-designators ((move-hand (action `((to move-arm)
+                                                (arm ,?arm)
+                                                (loc ,(perform get-loc-over-obj))))))
+          (perform move-hand))))))
 
 (def-goal (achieve (empty-hand ?obj))
   "Opens the hand of the given arm"
@@ -107,16 +100,25 @@
 
 (def-goal (achieve (object-in-box ?obj ?box))
   "The object should be in the box"
-  (let ((arm (get-best-arm ?obj)))
+  (let ((arm (get-best-arm ?box)))
     (achieve `(object-in-hand ,?obj ,arm))
-    (with-named-policy 'dont-drop-object (arm)
-      (achieve `(hand-over ,?box ,arm)))
-    (achieve `(empty-hand ,?obj)))
-  (with-designators ((placed-object-in-box 
-                      (action `((to placed-object-in-box) 
-                                (obj ,?obj) 
-                                (container ,?box)))))
-    (perform placed-object-in-box)))
+    (with-failure-handling
+        ((suturo-planning-common::move-arm-failed (f)
+           (declare (ignore f))
+           (achieve `(empty-hand ,?obj))
+           (with-designators ((placed-object-in-box 
+                               (action `((to placed-object-in-box) 
+                                         (obj ,?obj) 
+                                         (container ,?box)))))
+        (perform placed-object-in-box))))
+           (with-named-policy 'dont-drop-object (arm)
+             (achieve `(hand-over ,?box ,arm))))
+    (achieve `(empty-hand ,?obj))
+    (with-designators ((placed-object-in-box 
+                          (action `((to placed-object-in-box) 
+                                    (obj ,?obj) 
+                                    (container ,?box)))))
+      (perform placed-object-in-box))))
 
 (def-goal (achieve (objects-in-appropriate-boxes ?objs ?boxes))
   "Edible Objects in the left box and inedible ones in the right box"
