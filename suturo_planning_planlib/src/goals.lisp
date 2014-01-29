@@ -205,7 +205,7 @@
 (defun get-object-on-side (side objs)
   "Returns the object furthest on the given side"
   (let ((compare-fun nil)
-        (obj-on-side nil))
+        (obj-on-side (first objs)))
     (if (eql side 'left)
         (setf compare-fun #'<)
         (setf compare-fun #'>))
