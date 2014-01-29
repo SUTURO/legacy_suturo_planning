@@ -78,7 +78,11 @@
         (setf coords `(,(- (nth 0 coords) 0.20)
                        ,(nth 1 coords)
                        ,(+ (nth 2 coords) 0.40)))
-        (with-designators ((loc-over-obj (location (update-designator-properties `((coords ,coords)) (description (desig-prop-value ?obj 'at))))))
+        (with-designators ((loc-over-obj 
+                            (location 
+                             (update-designator-properties 
+                              `((coords ,coords)) 
+                              (description (desig-prop-value ?obj 'at))))))
           (with-designators ((move-hand (action `((to move-arm)
                                                   (arm ,?arm)
                                                   (loc ,loc-over-obj)))))

@@ -14,7 +14,9 @@
   (:export suturo-planning-pm-utils)
   (:desig-properties #:to
                      #:obj
+                     #:loc
                      #:coords
                      #:frame
                      #:at
-                     #:get-best-arm))
+                     #:get-best-arm
+                     #:get-location-over))
