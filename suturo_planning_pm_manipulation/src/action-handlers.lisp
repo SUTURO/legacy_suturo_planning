@@ -280,7 +280,7 @@
   (setf *action-client-open-hand* (get-action-client "suturo_man_grasping_server"
                                                      "suturo_manipulation_msgs/suturo_manipulation_graspingAction"))
   (let ((intents 0)
-        (arm (if (eq (desig-props-value (desig-props-value obj 'at) 'in) 'left-gripper) 
+        (arm (if (eq (desig-prop-value (desig-prop-value obj 'at) 'in) 'left-gripper) 
                  'left-arm
                  'right-arm)))
     (let ((gripper-state (get-gripper-state arm)))
@@ -496,7 +496,7 @@
        (roslisp-msg-protocol:symbol-code
         'suturo_manipulation_msgs-msg:RobotBodyPart :HEAD))
       (t (roslisp:ros-error
-          (suturo-pm-manipulation call-initial-action)
+          (suturo-pm-manipulation)
           "Unhandled body part: ~a" body-part)
          (cpl:error 'suturo-planning-common::unhandled-body-part))))))
 

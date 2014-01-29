@@ -86,9 +86,10 @@
                              (frame ,(symbol->string frame-id))))))
                 (make-designator
                  'object
-                 `((edible ,(equal 'TRUE (intern (nstring-upcase (symbol->string edible)))))
+                 `((edible ,(equal "TRUE" (nstring-upcase edible)))
                    (name ,(symbol->string name))
-                   (use ,(if (equal (symbol->string use) "storage-for-food") 'storage-for-food 'storage-for-stuff))
+                   (use ,(if (equal (nstring-upcase use) "STORAGE-FOR-FOOD") 'storage-for-food 'storage-for-stuff))
+									 ; (use ,(intern use)) ; try to replace ^this line with this one
                    (grip-force ,grip-force)
                    (at ,loc)))))
             objs)))

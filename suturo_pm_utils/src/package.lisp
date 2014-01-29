@@ -18,5 +18,7 @@
                      #:coords
                      #:frame
                      #:at
+                     #:left-arm
+                     #:right-arm
                      #:get-best-arm
                      #:get-location-over))

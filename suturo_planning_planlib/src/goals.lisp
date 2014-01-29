@@ -147,7 +147,8 @@
               do (setf obj (pop ?objs))
                  (if (desig-prop-value obj 'edible)
                      (achieve `(object-in-box ,obj ,box-for-food))
-                     (achieve `(object-in-box ,obj ,box-for-stuff))))))))
+                     (achieve `(object-in-box ,obj ,box-for-stuff)))
+                 (achieve '(home-pose)))))))
 
 (def-goal (achieve (objects-and-boxes-perceived ?nr-objs ?nr-boxes))
   "Tries to perceive the given number of objectes and boxes"
