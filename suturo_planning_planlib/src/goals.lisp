@@ -26,7 +26,8 @@
        (with-failure-handling 
            ((suturo-planning-common::pose-not-reached (f)
               (declare (ignore f))
-              (error-out (suturo planlib) "Failed to bring arms int the initial pose")
+              (error-out (suturo planlib) 
+                         "Failed to bring arms int the initial pose")
               (do-retry arm-retry-counter
                 (info-out (suturo planlib) "Trying again")
                 (retry))))
@@ -34,7 +35,8 @@
        (with-failure-handling 
            ((suturo-planning-common::pose-not-reached (f)
               (declare (ignore f))
-              (error-out (suturo planlib) "Failed to bring head in the initial pose")
+              (error-out (suturo planlib) 
+                         "Failed to bring head in the initial pose")
               (do-retry head-retry-counter
                 (info-out (suturo planlib) "Trying again")
                 (retry))))))))         
@@ -125,7 +127,8 @@
       (with-failure-handling
           ((suturo-planning-common::dropped-object (f)
              (declare (ignore f))
-             (error-out (planlib) "Dropped object ~a. Wont bother to retrieve it"
+             (error-out (planlib) 
+                        "Dropped object ~a. Wont bother to retrieve it"
                         (desig-prop-value obj 'name))
              (sleep 2)
              (do-retry plan-retry-counter
@@ -165,12 +168,16 @@
                  ;; Check for objects on the left
                  (if (not (desig-equal leftest-obj new-leftest-obj))
                      (prog1
-                         (achieve `(face-loc ,(desig-prop-value new-leftest-obj 'at)))
+                         (achieve `(face-loc 
+                                    ,(desig-prop-value new-leftest-obj 
+                                                       'at)))
                          (setf leftest-obj new-leftest-obj))
                      ;; Check for objects on the right
                      (if (not (desig-equal rightest-obj new-rightest-obj))
                          (prog1
-                             (achieve `(face-loc ,(desig-prop-value new-rightest-obj 'at)))
+                             (achieve `(face-loc 
+                                        ,(desig-prop-value new-rightest-obj 
+                                                           'at)))
                              (setf rightest-obj new-rightest-obj))
                          (cpl:fail 'suturo-planning-common::not-enough-objects-found)))))              
              (with-designators ((update-map 
