@@ -195,67 +195,49 @@
   (setf *action-client-grasp*  (get-action-client "suturo_man_grasping_server"
                                                   "suturo_manipulation_msgs/suturo_manipulation_graspingAction"))
   (let ((intents 0))
-    (let ((gripper-state (get-gripper-state arm)))
-      (setf *keep-looping* t)
-      (loop
-        (if (eq *keep-looping* nil)
-            (return))
-        (block continue
-          (multiple-value-bind (result status)
-              (actionlib:call-goal
-               *action-client-grasp*
-               (make-grasp-action-goal obj (get-body-part-constant arm))
-               :timeout *grasp-timeout*
-               :result-timeout *grasp-timeout*)
-            (roslisp:ros-info (suturo-pm-manipulation call-grasp-action)
-                              "Result from call-goal grasp object ~a" result)
-            (if (eq result nil)
-                (if (eq status :TIMEOUT)
+    (setf *keep-looping* t)
+    (loop
+      (if (eq *keep-looping* nil)
+          (return))
+      (block continue
+        (multiple-value-bind (result status)
+            (actionlib:call-goal
+             *action-client-grasp*
+             (make-grasp-action-goal obj (get-body-part-constant arm))
+             :timeout *grasp-timeout*
+             :result-timeout *grasp-timeout*)
+          (roslisp:ros-info (suturo-pm-manipulation call-grasp-action)
+                            "Result from call-goal grasp object ~a" result)
+          (if (eq result nil)
+              (if (eq status :TIMEOUT)
+                  (progn
+                    (format t "Timeout reached.~%")
+                    (format t "Number intents: ~a~%" intents)
+                    (if (< intents *maximum-retry-intents*)
+                        (progn
+                          (format t "Retrying~%")
+                          (incf intents)
+                          (return-from continue))
+                        (progn
+                          (format t "Maximum number of intents reached.~%")
+                          (cpl:fail 'suturo-planning-common::grasping-failed)
+                          (return))))
+                  (progn
+                    (format t "Unhandled condition.~%")
+                    (cpl:error 'suturo-planning-common::unhandled-condition)
+                    (return)))  
+              (roslisp:with-fields (succ) result
+                (if (eq succ nil)
                     (progn
-                      (format t "Timeout reached.~%")
-                      #|
-                      (let* ((new-gripper-state (get-gripper-state arm))
-                             (gripper-difference (difference gripper-state new-gripper-state)))
-                        (if (> gripper-difference *gripper-tolerance*)
-                            (progn
-                              (format t "Gripper difference: ~a~%" gripper-difference)
-                              (format t "Gripper seems to have moved. Waiting until gripper stops.~%")
-                              (waiting-for-gripper arm)
-                              (format
-                               t
-                               "Gripper seems to have stopped moving. Assuming grasping succeeded.~%")
-                              (grasping-succeeded obj arm)
-                              (return))
-                            (progn
-                              (format t "Gripper difference: ~a~%" gripper-difference)
-                              (format t "Gripper doesn't seem to have moved.~%"))))
-                      |#
-                      (format t "Number intents: ~a~%" intents)
-                      (if (< intents *maximum-retry-intents*)
-                          (progn
-                            (format t "Retrying~%")
-                            (incf intents)
-                            (return-from continue))
-                          (progn
-                            (format t "Maximum number of intents reached.~%")
-                            (cpl:fail 'suturo-planning-common::grasping-failed)
-                            (return))))
-                    (progn
-                      (format t "Unhandled condition.~%")
-                      (cpl:error 'suturo-planning-common::unhandled-condition)
-                      (return)))  
-                (roslisp:with-fields (succ) result
-                  (if (eq succ nil)
-                      (progn
-                        (format t "Unknown problem.~%")
-                        (cpl:error 'suturo-planning-common::grasping-failed)
-                        (return))
-                      (roslisp:with-fields (type) succ
-                        (handle-action-answer type 'suturo-planning-common::grasping-failed)
-                        (grasping-succeeded obj arm)
-                        (roslisp:ros-info(suturo-pm-manipulation call-grasp-action)
-                                         "Action finished. Object grasped.~%")
-                        (return)))))))))))
+                      (format t "Unknown problem.~%")
+                      (cpl:error 'suturo-planning-common::grasping-failed)
+                      (return))
+                    (roslisp:with-fields (type) succ
+                      (handle-action-answer type 'suturo-planning-common::grasping-failed)
+                      (grasping-succeeded obj arm)
+                      (roslisp:ros-info(suturo-pm-manipulation call-grasp-action)
+                                       "Action finished. Object grasped.~%")
+                      (return))))))))))
 
 (defun grasping-succeeded (obj arm)
   (format t "Updating object's location~%")
