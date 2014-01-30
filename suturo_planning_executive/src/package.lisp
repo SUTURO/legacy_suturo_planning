@@ -24,4 +24,5 @@
                      #:use
                      #:get-graspable-objects
                      #:update-semantic-map
+                     #:clear-maps
                      #:get-container-objects))

@@ -29,6 +29,7 @@
 (def-cram-function clean-table-plan (obj-nr)
   "Plan to clean a table in front of the robot with 3 objects and 2 boxes on it"
   (with-failure-handling
+    (perform clear-maps)
     ((suturo-planning-common::pose-not-reached (f)
       (declare (ignore f))
       (error-out (suturo exec) "Could not reach initial pose.")))
