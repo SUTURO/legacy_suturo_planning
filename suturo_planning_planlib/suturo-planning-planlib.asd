@@ -1,19 +1,16 @@
 (defsystem suturo-planning-planlib
   :author "SUTURO Planning <suturo-planning@cs.uni-bremen.de>"
-  
-  :depends-on (roslisp
-               designators-ros
-               cram-roslisp-common
+ 
+  :depends-on (designators-ros
                cram-plan-library
-               cram-reasoning
+               cram-plan-failures
                cram-plan-knowledge
-               alexandria
-      	       cram-plan-failures
-               cram-language
-               suturo-planning-common
-               suturo-planning-process-module)
+               cl-tf
+               suturo-planning-common)
+
   :components
   ((:module "src"
     :components
     ((:file "package")
-     (:file "suturo-planning-planlib" :depends-on ("package"))))))
+     (:file "suturo-planning-planlib" :depends-on ("package"))
+     (:file "goals" :depends-on ("package" "suturo-planning-planlib"))))))

@@ -1,4 +1,7 @@
 <launch>
+<!--  <include file="$(find suturo_manipulation_gazebo)/gazebo_pr2_test_simulation.launch">
+    <arg name="world" value="pr2_table_beer_brick.world" />
+  </include> -->
 
   <include file="$(find suturo_manipulation_action)/launch/move_action_server.launch" />
 

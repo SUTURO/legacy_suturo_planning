@@ -1,15 +1,68 @@
 (in-package :cl-user)
 
 (desig-props:def-desig-package suturo-planning-common
-  (:use #:roslisp #:cram-utilities #:designators-ros
-        #:cram-roslisp-common #:cram-designators
-        #:cram-plan-knowledge #:cram-plan-library #:cpl
-    	  #:cram-plan-failures)
+  (:use #:roslisp 
+        #:cram-utilities 
+        #:designators-ros
+        #:cram-roslisp-common 
+        #:cram-designators
+        #:cram-plan-knowledge 
+        #:cpl
+    	  #:cram-plan-failures
+        #:cram-plan-library)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
-  (:export initial right left all the)
-  (:desig-properties #:to #:perceive #:obj #:ground #:touch
-                     #:type #:box #:bowl #:cutlery #:arm
-                     #:color #:red #:white #:blue #:green
-                     #:move #:at #:loc
-                     #:name #:container #:category #:owner #:cornflakes
-                     #:pose #:all #:a #:the #:edible #:left #:right))
+  (:export info-out
+           error-out
+           designator->string
+           string->designators)
+  (:desig-properties 
+   #:left
+   #:right
+   ;; Actions
+   #:to  
+   #:ground 
+   #:update-semantic-map
+   #:get-container-objects
+   #:get-graspable-objects
+   #:take-pose
+   #:move-head
+   #:move-arm
+   #:grasp
+   #:open-hand
+   #:direction
+   ;; Action - pose
+   #:pose
+   #:initial
+   ;; Actions - attributes
+   #:arm
+   #:left-arm
+   #:right-arm
+   ;; Objects
+   #:obj
+   #:volume
+   #:table
+   #:box
+   #:grip-force
+   ;; Objects - type
+   #:type
+   #:container
+   ;; Objects - use
+   #:use
+   #:storage-for-food
+   #:storage-for-stuff
+   ;; Objects - attributes
+   #:at
+   #:edible
+   #:owner
+   #:name
+   #:color
+   ;; Locations
+   #:loc
+   #:frame
+   #:on
+   #:in
+   #:over
+   #:between
+   #:coords
+   #:left-gripper
+   #:right-gripper))

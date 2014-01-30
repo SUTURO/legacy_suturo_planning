@@ -1,17 +1,15 @@
 (defsystem suturo-planning-common
   :author "SUTURO Planning <suturo-planning@cs.uni-bremen.de>"
   
-  :depends-on (roslisp
-               designators-ros
-               cram-roslisp-common
+  :depends-on (designators-ros
                cram-plan-library
-               cram-reasoning
+               cram-plan-failures
                cram-plan-knowledge
-               alexandria
-      	       cram-plan-failures
-               cram-language)
+               sound_play-msg)
   :components
   ((:module "src"
     :components
     ((:file "package")
-     (:file "suturo-planning-common" :depends-on ("package"))))))
+     (:file "speech" :depends-on ("package"))
+     (:file "designator-parser" :depends-on ("package"))
+     (:file "suturo-planning-common" :depends-on ("package" "speech"))))))

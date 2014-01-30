@@ -7,14 +7,60 @@
         #:cram-roslisp-common
         #:cram-designators
         #:cram-plan-knowledge
-        #:cram-plan-library
         #:cpl
-    	  #:cram-plan-failures)
+        #:cram-plan-failures
+        #:cram-plan-library
+        #:suturo-planning-common)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
-  (:export)
-  (:desig-properties #:to #:perceive #:obj #:ground #:touch
-                     #:type #:box #:bowl #:cutlery #:arm
-                     #:color #:red #:white #:blue #:green
-                     #:move #:at #:loc
-                     #:name #:container #:category #:owner #:cornflakes
-                     #:pose #:all #:a #:the #:edible #:left #:right))
+  (:export #:achieve
+           #:object-in-hand
+           #:object-in-box
+           #:objects-in-appropriate-boxes
+           #:objects-perceived
+           #:home-pose
+           #:empty-hand
+           #:hand-over
+           #:objects-and-boxes-perceived)
+  (:desig-properties #:to
+                     #:arm 
+                     #:left-arm
+                     #:right-arm
+                     #:both-arms
+                     #:head
+                     #:left-gripper
+                     #:right-gripper
+                     #:all
+                     #:body-part
+                     #:on
+                     #:at
+                     #:in
+                     #:name
+                     #:type
+                     #:frame
+                     #:coords
+                     #:obj 
+                     #:container
+                     #:use
+                     #:edible
+                     #:grasp 
+                     #:take-pose
+                     #:pose
+                     #:move-head
+                     #:direction
+                     #:open-hand
+                     #:move-arm
+                     #:loc
+                     #:initial
+                     #:grip-force
+                     #:start-monitoring-gripper
+                     #:end-monitoring-gripper
+                     #:gripper-is-closed
+                     #:monitor-gripper
+                     #:update-semantic-map
+                     #:get-container-objects
+                     #:get-graspable-objects
+                     #:placed-object-in-box
+                     #:get-best-arm
+                     #:get-location-over
+                     #:storage-for-food
+                     #:storage-for-stuff))

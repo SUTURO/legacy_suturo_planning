@@ -1,15 +1,20 @@
 (defsystem suturo-planning-executive
   :author "SUTURO Planning <suturo-planning@cs.uni-bremen.de>"
-  
-  :depends-on (roslisp
-               designators-ros
-               cram-roslisp-common
-               alexandria
-               cram-language
-               suturo-planning-process-module
-;               suturo-planning-process-module-dummy
+
+  :depends-on (designators-ros
+               cram-plan-library
+               cram-plan-failures
+               cram-plan-knowledge
+               suturo-planning-common
                suturo-planning-planlib
-               suturo-planning-common)
+               suturo-planning-pm-manipulation
+               suturo-planning-pmd-manipulation
+               suturo-planning-pm-gripper-monitor
+               suturo-planning-pmd-gripper-monitor
+               suturo-planning-pm-knowledge
+               suturo-planning-pmd-knowledge
+               suturo-planning-pm-utils)
+
   :components
   ((:module "src"
     :components
