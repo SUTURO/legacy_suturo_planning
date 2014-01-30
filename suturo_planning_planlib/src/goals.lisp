@@ -2,10 +2,10 @@
 
 (define-policy dont-drop-object (arm)
   "Policy to monitor the gripper of the given arm that it wont completly close"
-  (:init (perform (make-designator 'action `((to start-monitoring-gripper)
-                                             (arm ,arm)))))
+  (:init (perform (make-designator 'action '((to start-monitoring-gripper)))))
   (:check (sleep* 0.5)
-          (perform (make-designator 'action '((to gripper-is-closed)))))
+          (perform (make-designator 'action `((to gripper-is-closed)
+                                              (arm ,arm)))))
   (:recover (perform (make-designator 'action '((to end-monitoring-gripper))))
             (cpl:fail 'suturo-planning-common::dropped-object))
   (:clean-up (perform (make-designator 'action '((to end-monitoring-gripper))))))
