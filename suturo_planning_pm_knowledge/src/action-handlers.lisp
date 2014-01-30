@@ -11,7 +11,7 @@
     (if gen
         (with-vars-bound
             (?OUT) gen
-          (format t "~a~%" ?OUT)
+          (format t "Result: ~a~%" ?OUT)
           ?OUT)
         (roslisp:ros-warn nil "Could not update semantic map."))))
 
@@ -31,6 +31,7 @@
   (let* ((loc (make-designator 'location `((on ,(make-designator 'object `((name "kitchen_island_counter_top")))))))
          (gen (json-prolog:prolog-simple-1 (suturo-planning-common:designator->string (make-designator 'object `((type container) 
                                                                                                                  (at ,loc)))))))
+    (format t "gen: ~a~%" gen)
     (if gen
         (suturo-planning-common::json-prolog->designators gen)
         (roslisp:ros-warn nil "Could not receive container objects."))))

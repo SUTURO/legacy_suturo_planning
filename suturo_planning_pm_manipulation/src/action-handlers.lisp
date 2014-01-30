@@ -506,7 +506,7 @@
     ((eql
       type
       (roslisp-msg-protocol:symbol-code 'suturo_manipulation_msgs-msg:ActionAnswer :SUCCESS))
-     (roslisp:ros-info(suturo-planning-pm-manipulation call-move-arm-action) "SUCCESS!")
+     (roslisp:ros-info(suturo-planning-pm-manipulation) "SUCCESS!")
      (setf *keep-looping* nil))
     ((eql
       type
