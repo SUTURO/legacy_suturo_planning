@@ -66,7 +66,7 @@
            names positions)))
 
 (defun is-closed (pos)
-   (< pos 5.0d-7))
+   (< pos 0.002))
 
 
   
