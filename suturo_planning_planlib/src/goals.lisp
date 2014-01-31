@@ -49,6 +49,7 @@
           ((suturo-planning-common::grasping-failed (f)
              (declare (ignore f))
              (error-out (suturo planlib) "STOP! Hammer, time! Can't, touch, this. Failed, to ,grasp ,object")
+             (sleep 4)
              (achieve '(home-pose))
              (do-retry grasping-retry-counter
                (info-out (suturo planlib) "Trying again")
@@ -156,9 +157,9 @@
   "Tries to perceive the given number of objectes and boxes"
   (let ((objs nil)
         (boxes nil)
-        (leftest-obj nil)
-        (rightest-obj nil)
-        (things nil)
+        ;(leftest-obj nil)
+        ;(rightest-obj nil)
+        ;(things nil)
         (counter 0))
     (loop while (or (< counter 3)
                     (or (not (eql (length objs) ?nr-objs)) 
