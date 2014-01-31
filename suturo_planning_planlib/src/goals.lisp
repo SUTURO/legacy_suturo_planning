@@ -2,10 +2,10 @@
 
 (define-policy dont-drop-object (arm)
   "Policy to monitor the gripper of the given arm that it wont completly close"
-  (:init (perform (make-designator 'action `((to start-monitoring-gripper)
-                                             (arm ,arm)))))
+  (:init (perform (make-designator 'action '((to start-monitoring-gripper)))))
   (:check (sleep* 0.5)
-          (perform (make-designator 'action '((to gripper-is-closed)))))
+          (perform (make-designator 'action `((to gripper-is-closed)
+                                              (arm ,arm)))))
   (:recover (perform (make-designator 'action '((to end-monitoring-gripper))))
             (cpl:fail 'suturo-planning-common::dropped-object))
   (:clean-up (perform (make-designator 'action '((to end-monitoring-gripper))))))
@@ -39,22 +39,23 @@
                          "Failed to bring head in the initial pose")
               (do-retry head-retry-counter
                 (info-out (suturo planlib) "Trying again")
-                (retry))))))))         
-         ;(perform take-home-pose-head)))))
+                (retry))))        
+         (perform take-home-pose-head)))))
 
 (def-goal (achieve (object-in-hand ?obj ?arm))
   "Takes the object in one hand"
-    (with-retry-counters ((grasping-retry-counter 2))
+    (with-retry-counters ((grasping-retry-counter 1))
       (with-failure-handling 
           ((suturo-planning-common::grasping-failed (f)
              (declare (ignore f))
-             (error-out (suturo planlib) "Failed to grasp object")
+             (error-out (suturo planlib) "STOP! Hammer, time! Can't, touch, this. Failed, to ,grasp ,object")
+             (sleep 4)
+             (achieve '(home-pose))
              (do-retry grasping-retry-counter
                (info-out (suturo planlib) "Trying again")
-               (achieve '(home-pose))
                (retry))))
-        (info-out (suturo planlib) "Grasping object ~a with ~a" 
-                  (desig-prop-value ?obj 'name) ?arm)
+        (info-out (suturo planlib) "Grasping, object, ~a, with, ~a" 
+                  (object-output ?obj) ?arm)
         (with-designators ((grasp-obj (action `((to grasp)
                                                 (obj ,?obj)
                                                 (arm ,?arm))))
@@ -66,8 +67,8 @@
       
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
-  (info-out (suturo planlib) "Moving ~a over object ~a"
-            ?arm (desig-prop-value ?obj 'name))
+  (info-out (suturo planlib) "Moving, ~a, over, object, ~a"
+            ?arm (object-output ?obj))
   (with-retry-counters ((move-retry-counter 1))
     (with-failure-handling
         ((suturo-planning-common::move-arm-failed (f)
@@ -85,18 +86,22 @@
 
 (def-goal (achieve (empty-hand ?obj))
   "Opens the hand of the given arm"
-  (info-out (suturo planlib) "Opening hand")
+  (info-out (suturo planlib) "Opening, hand")
+  (sleep 1.5)
   (with-retry-counters ((open-retry-counter 2))
     (with-failure-handling
         ((suturo-planning-common::drop-failed (f)
            (declare (ignore f))
            (error-out (suturo planlib) "Failed to open hand")
+           (sleep 1.5)
            (do-retry open-retry-counter
              (info-out (suturo planib) "Trying again.")
+             (sleep 1.5)
              (retry))))
       (with-designators ((open-hand (action `((to open-hand)
                                               (obj ,?obj)))))
-        (perform open-hand)))))
+        (perform open-hand))))
+  (info-out (suturo planlib) "Droped, object"))
 
 (def-goal (achieve (object-in-box ?obj ?box))
   "The object should be in the box"
@@ -106,13 +111,9 @@
         ((suturo-planning-common::move-arm-failed (f)
            (declare (ignore f))
            (achieve `(empty-hand ,?obj))
-           (with-designators ((placed-object-in-box 
-                               (action `((to placed-object-in-box) 
-                                         (obj ,?obj) 
-                                         (container ,?box)))))
-        (perform placed-object-in-box))))
-           (with-named-policy 'dont-drop-object (arm)
-             (achieve `(hand-over ,?box ,arm))))
+           (achieve '(home-pose))))
+      (with-named-policy 'dont-drop-object (arm)
+        (achieve `(hand-over ,?box ,arm))))
     (achieve `(empty-hand ,?obj))
     (with-designators ((placed-object-in-box 
                           (action `((to placed-object-in-box) 
@@ -130,9 +131,9 @@
           ((suturo-planning-common::dropped-object (f)
              (declare (ignore f))
              (error-out (planlib) 
-                        "Dropped object ~a. Wont bother to retrieve it"
+                        "Droped object ~a. Won't bother to retrieve it"
                         (desig-prop-value obj 'name))
-             (sleep 2)
+             (sleep 3)
              (do-retry plan-retry-counter
                (info-out (planlib) "Trying next object")
                (retry)))
@@ -156,21 +157,23 @@
   "Tries to perceive the given number of objectes and boxes"
   (let ((objs nil)
         (boxes nil)
-        (leftest-obj nil)
-        (rightest-obj nil)
-        (things nil)
+        ;(leftest-obj nil)
+        ;(rightest-obj nil)
+        ;(things nil)
         (counter 0))
-    (loop while (or (< (length objs) ?nr-objs) (< (length boxes) ?nr-boxes))
+    (loop while (or (< counter 3)
+                    (or (not (eql (length objs) ?nr-objs)) 
+                        (not (eql (length boxes) ?nr-boxes))))
           do (if (eql counter 8)
                  (cpl:fail 'suturo-planning-common::not-enough-objects-found))
-             (incf counter)
-             (setf things (concatenate 'list objs boxes))
+             #|(setf things (concatenate 'list objs boxes))
              (when (> (length things) 0)
                (let ((new-leftest-obj (get-object-on-side 'left things))
                      (new-rightest-obj (get-object-on-side 'right things)))
                  ;; Check for objects on the left
                  (if (not (desig-equal leftest-obj new-leftest-obj))
                      (prog1
+                         (format t "Look at ~a~%" new-leftest-obj)
                          (achieve `(face-loc 
                                     ,(desig-prop-value new-leftest-obj 
                                                        'at)))
@@ -178,11 +181,18 @@
                      ;; Check for objects on the right
                      (if (not (desig-equal rightest-obj new-rightest-obj))
                          (prog1
+                             (format t "Look at ~a~%" new-rightest-obj)
                              (achieve `(face-loc 
                                         ,(desig-prop-value new-rightest-obj 
                                                            'at)))
                              (setf rightest-obj new-rightest-obj))
-                         (cpl:fail 'suturo-planning-common::not-enough-objects-found)))))              
+                         (cpl:fail 'suturo-planning-common::not-enough-objects-found)))))|#
+             (if (eql (mod counter 3) 0)
+                 (achieve `(face-loc ,(make-designator 'location '((coords (1 0 0.1)) (frame "/base_link"))))))
+             (if (eql (mod counter 3) 1)
+                 (achieve `(face-loc ,(make-designator 'location '((coords (1 0.4 0.4)) (frame "/base_link"))))))
+             (if (eql (mod counter 3) 2)
+                 (achieve `(face-loc ,(make-designator 'location '((coords (1 -0.4 0.4)) (frame "/base_link"))))))
              (with-designators ((update-map 
                                  (action 
                                   '((to update-semantic-map))))
@@ -195,9 +205,10 @@
                (perform update-map)
                (setf objs (perform get-objects))
                (setf boxes (perform get-containers))
-               (ros-info (suturo planlib) "Perceived ~a ~a" objs boxes)))
-    ;(info-out (suturo planlib) "Perceived ~a ~a" 
-              ;(generate-output objs) (generate-output boxes))
+               (ros-info (suturo planlib) "Perceived ~a ~a" objs boxes))
+             (incf counter))
+    (info-out (suturo planlib) "Perceived ~a ~a" 
+              (generate-output objs) (generate-output boxes))
     `(,objs ,boxes)))
 
 (def-goal (achieve (face-loc ?loc))
@@ -209,8 +220,8 @@
            (do-retry head-retry-counter
              (retry))))
       (with-designators ((move-head (action `((to move-head)
-                                              (loc ,?loc)))))))))
-        ;(perform move-head)))))
+                                              (loc ,?loc)))))
+        (perform move-head)))))
 
 (defun get-object-on-side (side objs)
   "Returns the object furthest on the given side"
@@ -222,8 +233,8 @@
     (loop for obj in objs
           do (if obj-on-side
                  (if (funcall compare-fun
-                              (first (get-coords obj))
-                              (first (get-coords obj-on-side)))
+                              (second (get-coords obj))
+                              (second (get-coords obj-on-side)))
                      (setf obj-on-side obj))
                  (setf obj-on-side obj)))
     obj-on-side))

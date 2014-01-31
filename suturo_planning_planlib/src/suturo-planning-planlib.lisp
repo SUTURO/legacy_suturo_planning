@@ -13,8 +13,12 @@
   (let ((output nil))
     (map nil (lambda (item)
                (if (typep item 'object-designator)
-                   (push (desig-prop-value item 'name) output)
-                   (push item output)))
+                   (push (object-output item) output)
+                   (if (not (typep item 'location-designator))
+                       (push item output))))
          occ)
     (reverse output)))
+
+(defun object-output (obj)
+  (subseq (desig-prop-value obj 'name) 40))
 

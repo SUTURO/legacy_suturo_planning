@@ -2,18 +2,18 @@
 
 (def-fact-group suturo-gripper-monitor-designators (action-desig)
   
-  (<- (action-desig ?desig (start-monitoring-gripper ?arm)) 
+  (<- (action-desig ?desig (start-monitoring-gripper)) 
     ;;Action designator for action to start monitoring the gripper-joint
-    (desig-prop ?desig (to start-monitoring-gripper))
-    (desig-prop ?desig (arm ?arm)))
+    (desig-prop ?desig (to start-monitoring-gripper)))
 	
   (<- (action-desig ?desig (end-monitoring-gripper))
     ;;Action designator for action to end monitoring the gripper-joint
     (desig-prop ?desig (to end-monitoring-gripper)))
 
-  (<- (action-desig ?desig (gripper-is-closed))
+  (<- (action-desig ?desig (gripper-is-closed ?arm))
     ;;Action designator for action to end monitoring the gripper-joint
-    (desig-prop ?desig (to gripper-is-closed)))
+    (desig-prop ?desig (to gripper-is-closed))
+    (desig-prop ?desig (arm ?arm)))
   
   (<- (action-desig ?desig (get-gripper-state ?arm)) 
     ;;Action designator for action to start monitoring the gripper-joint

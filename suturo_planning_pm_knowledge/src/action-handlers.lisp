@@ -15,6 +15,10 @@
           ?OUT)
         (roslisp:ros-warn nil "Could not update semantic map."))))
 
+(def-action-handler clear-maps ()
+  "Clears the semantic map and planning scene"
+  (json-prolog:prolog-simple-1 "clearPerceived"))
+
 ;; TODO: Error-handling
 (def-action-handler placed-object-in-box (object box)
   "Invokes Knowledge Representation's process to update a object that has been placed in a box"

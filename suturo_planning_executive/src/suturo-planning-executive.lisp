@@ -28,23 +28,25 @@
 
 (def-cram-function clean-table-plan (obj-nr)
   "Plan to clean a table in front of the robot with 3 objects and 2 boxes on it"
+  (perform (make-designator 'action '((to clear-maps))))
   (with-failure-handling
-    ((suturo-planning-common::pose-not-reached (f)
-      (declare (ignore f))
-      (error-out (suturo exec) "Could not reach initial pose.")))
+      ((suturo-planning-common::pose-not-reached (f)
+         (declare (ignore f))
+         (error-out (suturo exec) "Could not reach initial pose.")))
     (suturo-planning-planlib:achieve 
-      '(suturo-planning-planlib:home-pose)))
+     '(suturo-planning-planlib:home-pose)))
   (let ((objects-to-perceive obj-nr)
         (retry-counter 2))
     (with-failure-handling
         ((suturo-planning-common::not-enough-objects-found (f)
            (declare (ignore f))
-           (error-out (suturo exec) "Not enough objects found.")
-           (sleep 2)
-           (when (> objects-to-perceive 1)
-             (error-out (suturo exec) "Trying again with fewer objects.")
-             (decf objects-to-perceive)
-             (retry)))
+           (error-out (suturo exec) "Did not find the required number of objects.")
+           (sleep 3)       
+           ;(when (not (eq objects-to-perceive 1))
+           (error-out (suturo exec) "Trying again objects.")
+           (perform (make-designator 'action '((to clear-maps))))
+             ;(decf objects-to-perceive)
+           (retry))
          (suturo-planning-common::simple-plan-failure (f)
            (declare (ignore f))
            (error-out (suturo exec) "Couldn't put all objects away")
@@ -52,12 +54,15 @@
            (if (> retry-counter 0)
                (prog1 (decf retry-counter)
                  (retry))
-               (error-out (suturo exec) "Sorry I failed."))))
-    (let ((result (suturo-planning-planlib:achieve
-                   `(suturo-planning-planlib:objects-and-boxes-perceived 
-                     ,objects-to-perceive 2))))
-      (suturo-planning-planlib:achieve 
-       `(suturo-planning-planlib:objects-in-appropriate-boxes 
+               (error-out (suturo exec) "Oh noo! Sorry I failed."))))
+      (let ((result (suturo-planning-planlib:achieve
+                     `(suturo-planning-planlib:objects-and-boxes-perceived 
+                       ,objects-to-perceive 2))))
+        (suturo-planning-planlib:achieve 
+         `(suturo-planning-planlib:objects-in-appropriate-boxes 
            ,(first result)
            ,(second result)))
-      (setf retry-counter 2)))))
+        (setf retry-counter 2))))
+  (info-out (suturo-executive) "Oops, I, did, it, again! Passed, with, one, point, zero!")
+  (sleep 5.0)
+  (info-out (suturo-executive) "Come, on, Barby, let's, go, Party!"))
