@@ -9,6 +9,17 @@
 
 ;(defun holds (?occ) nil)
 
+(declare-goal perceive (target)
+  "Perceives the target and updates its description
+ with the updated properties"
+  (ros-info (suturo planlib) "Perceive ~a" target))
+
+(declare-goal locate (location)
+  "Gets a general description of the location and 
+equates it with a exact location"
+  (ros-info (suturo planlib) "Locate ~a" location))
+
+
 (defun generate-output (occ)
   (let ((output nil))
     (map nil (lambda (item)

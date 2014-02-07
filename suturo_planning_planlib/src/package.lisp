@@ -22,6 +22,9 @@
            #:hand-over
            #:objects-and-boxes-perceived)
   (:desig-properties #:to
+                     #:a
+                     #:the 
+                     #:all
                      #:arm 
                      #:left-arm
                      #:right-arm

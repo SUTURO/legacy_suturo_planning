@@ -1,5 +1,60 @@
 (in-package :suturo-planning-planlib)
 
+(def-goal (achieve (all ?obj1 on ?obj2))
+  (perceive `(,?obj1))
+  (perceive `(,?obj2))
+  (let ((objs-on (get-equal-designators ?obj1))
+        (place-to-put (current-desig ?obj2))
+        (obj nil))
+    (loop while objs-on
+          do (setf obj (pop objs-on))
+             (achieve `(the ,obj on ,place-to-put)))))
+
+(def-goal (achieve (a ?obj1 on ?obj2))
+  (format t "hi2"))
+
+(def-goal (achieve (the ?obj1 on ?obj2))
+  ;;(achieve `(at ,(make-designator 'location `((to reach) (obj ,?obj1)))))
+  (achieve `(in-gripper ,?obj1))
+  (let ((loc-put-down (locate `(,(make-designator 'location `((to put-down) 
+                                                              (obj ,?obj1) 
+                                                              (on ,?obj2)))))))
+    (achieve `(at ,(make-designator 'location `((to-execute put-down) 
+                                                (at ,loc-put-down)))))
+    (perform (make-designator 'action `((to put-down) (at ,loc-put-down))))))
+
+(def-goal (achieve (all ?obj1 in ?obj2))
+  (format t "moin"))
+
+(def-goal (achieve (a ?obj1 in ?obj2))
+  (format t "moin2"))
+
+(def-goal (achieve (the ?obj1 in ?obj2))
+  (format t "moin3"))
+
+(def-goal (achieve (at ?loc))
+  (format t "hallo"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 (define-policy dont-drop-object (arm)
   "Policy to monitor the gripper of the given arm that it wont completly close"
   (:init (perform (make-designator 'action '((to start-monitoring-gripper)))))
