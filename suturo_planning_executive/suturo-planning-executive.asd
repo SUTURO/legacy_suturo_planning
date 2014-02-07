@@ -5,6 +5,7 @@
                cram-plan-library
                cram-plan-failures
                cram-plan-knowledge
+               roslisp-utilities
                suturo-planning-common
                suturo-planning-planlib
                suturo-planning-pm-manipulation
