@@ -450,8 +450,6 @@
             (format t "LOOPING: diff > tolerance: ~a < ~a~%" diff *gripper-tolerance*))))))
 
 (defvar *action-client* nil) 
-(defvar *action-server* nil)
-(defvar *action-goal* nil)
 
 (defun init-action-client (server goal)
   ;Initialises an action-client for the specified server and goal
@@ -466,17 +464,8 @@
                     "Action client for goal ~a created ..." goal))
 
 (defun get-action-client (server goal)
-  ; Returns an action-client for the specified aserver and goal
-  (if (or (and (not (eq *action-server* server)) 
-               (not (eq *action-goal* goal)))
-          (null *action-client*))
-      (progn 
-        (setq *action-server* server)
-        (setq *action-goal* goal)
-        (init-action-client server goal)))
-  ; if no action-client exists a new one is initialized 
-  ; if the existing action-client doesnt match the specified server and goal a new one is initialized
-  ; if the action-client for the server and goal exists, it will be returned
+  "Returns an action-client for the specified server and goal"
+  (init-action-client server goal)
   *action-client*)
 
 (defun get-body-part-constant (body-part)
