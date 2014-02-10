@@ -5,7 +5,7 @@
 (defun common-init ()
   (setf *adv* (advertise "/robotsound" "sound_play/SoundRequest")))
 
-(cram-roslisp-common:register-ros-init-function common-init)
+(roslisp-utilities:register-ros-init-function common-init)
 
 (defmacro error-out (domain msg &rest arg)
   `(let
