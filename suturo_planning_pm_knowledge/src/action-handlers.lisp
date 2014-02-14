@@ -26,6 +26,13 @@
                                                   (desig-prop-value object 'name)
                                                   (desig-prop-value box 'name)))))))
 
+(def-action-handler get-objects-with-properties (object)
+  (let ((gen (json-prolog:prolog-simple-1 (suturo-planning-common:designator->string object))))
+    (format t "generated function-call: ~a~%" gen)
+    (if gen
+      (suturo-planning-common::json-prolog->designators gen)
+      (roslisp:ros-warn nil "Could not find any matching objects."))))
+
 (def-action-handler get-container-objects ()
   "Receives all containers from Knowledge Representation as a list."
   (let* ((loc (make-designator 'location `((on ,(make-designator 'object `((name "kitchen_island_counter_top")))))))

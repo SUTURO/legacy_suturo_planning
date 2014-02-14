@@ -28,5 +28,6 @@
                      #:update-semantic-map
                      #:clear-maps
                      #:placed-object-in-box
+                     #:get-objects-with-properties
                      #:get-container-objects
                      #:get-graspable-objects))
