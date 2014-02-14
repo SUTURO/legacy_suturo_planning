@@ -13,4 +13,5 @@
     :components
     ((:file "package")
      (:file "suturo-planning-planlib" :depends-on ("package"))
-     (:file "goals" :depends-on ("package" "suturo-planning-planlib"))))))
+     (:file "goals" :depends-on ("package" "suturo-planning-planlib"))
+     (:file "locate" :depens-on ("pacakge" "suturo-planning-planlib")))))
