@@ -44,6 +44,10 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "drop-failed"))
 
+(define-condition place-failed (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "place-failed"))
+
 (define-condition location-not-reached (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "location-not-reached"))
