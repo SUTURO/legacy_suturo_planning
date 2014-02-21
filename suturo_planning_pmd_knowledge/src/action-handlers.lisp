@@ -56,6 +56,9 @@
   (declare (ignore object box))
   nil)
 
+(def-action-handler get-objects-with-properties (object)
+  `(,*test-obj1* ,*test-obj2* ,*test-obj3* ,*test-obj4* ,*test-obj5*))
+
 (def-action-handler get-graspable-objects ()
   `(,*test-obj1* ,*test-obj2* ,*test-obj3*))
 
