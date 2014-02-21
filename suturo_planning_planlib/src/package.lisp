@@ -61,6 +61,7 @@
                      #:gripper-is-closed
                      #:monitor-gripper
                      #:update-semantic-map
+                     #:get-objects-with-properties
                      #:get-container-objects
                      #:get-graspable-objects
                      #:placed-object-in-box
