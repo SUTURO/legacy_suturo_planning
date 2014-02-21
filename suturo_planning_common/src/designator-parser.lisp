@@ -70,7 +70,32 @@
   (let ((str (symbol-name s)))
     (subseq str 1 (- (length str) 1))))
 
+(defun match-pattern (pattern value)
+  (let ((res nil))
+    (if (eq (type-of pattern) 'SYMBOL)
+      (setq res (append res `((,pattern ,value))))
+      (if (and (eq (type-of pattern) (type-of value)) (eq (type-of pattern) 'CONS))
+        (mapcar (lambda (p v)
+                  (setq res (append res (match-pattern p v))))
+                pattern value)))
+    res))
+
+(defmacro bind-pattern (pattern value &rest body)
+  `(let ,(match-pattern pattern value)
+    ,@body))
+
 (defun json-prolog->designators (jj)
+  ; (mapcar (lambda (e)
+  ;   (bind-pattern (edible name centroid frame-id grip-force use dimensions) e
+  ;     (make-designator 'object `((edible ,(equal "true" (symbol->string edible)))
+  ;                                (name ,name)
+  ;                                (use ,(if (equal (symbol->string use) "storage-for-food") 'storage-for-food 'storage-for-stuff))
+  ;                                (grip-force ,grip-force)
+  ;                                (at ,(make-designator 'location ((coords ,centroid)
+  ;                                                                 (frame ,(symbold->string frame-id)))))
+  ;                                (dimensions ,dimensions)))))
+  ;   (subseq (first (first jj)) 1)))
+  ;
   (let ((objs (subseq (first (first jj)) 1)))
     (format t "~a~%" jj)
     (mapcar (lambda (obj)
