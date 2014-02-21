@@ -5,7 +5,8 @@
                cram-plan-library
                cram-plan-failures
                cram-plan-knowledge
-               sound_play-msg)
+               sound_play-msg
+               roslisp-utilities)
   :components
   ((:module "src"
     :components
