@@ -20,7 +20,8 @@
            #:home-pose
            #:empty-hand
            #:hand-over
-           #:objects-and-boxes-perceived)
+           #:objects-and-boxes-perceived
+           #:get-holding-arm)
   (:desig-properties #:to
                      #:a
                      #:the 
