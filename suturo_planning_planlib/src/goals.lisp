@@ -1,7 +1,8 @@
 (in-package :suturo-planning-planlib)
 
 (defmacro with-perceived-objects (vars-and-objs &rest body)
-  "Perceives the given objects and binds all equal designators to the variable"
+  "Perceives the given objects and binds all equal designators to 
+   the variable"
   (let ((let-list nil)
         (perceive-list nil)
         result)
@@ -90,7 +91,7 @@
                (retry)))
            (simple-plan-failure (f)  ;maybe change condition
              (declare (ignore f))
-             (when places-to-put
+             (when containers
                (setf container (pop containers))
                (retry))))
         (achieve `(in-gripper ,obj))
@@ -107,6 +108,8 @@
   "Moves the robot to a position described by ?loc"
   (let ((loc-robot (locate ?loc)))
     (perform (make-designator 'action `((to move) (loc ,loc-robot))))))
+
+
 
 
 
