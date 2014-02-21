@@ -6,7 +6,9 @@
                cram-plan-failures
                cram-plan-knowledge
                cl-tf
-               suturo-planning-common)
+               suturo-planning-common
+               nav_msgs-msg
+               location-costmap)
 
   :components
   ((:module "src"
