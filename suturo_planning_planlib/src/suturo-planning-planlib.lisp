@@ -19,6 +19,20 @@
 equates it with a exact location"
   (ros-info (suturo planlib) "Locate ~a" location))
 
+(defmacro with-perceived-objects (vars-and-objs &rest body)
+  "Perceives the given objects and binds all equal designators to 
+   the variable"
+  (let ((let-list nil)
+        (perceive-list nil)
+        result)
+    (loop for x in vars-and-objs
+          do (push `(perceive '(,(second x))) perceive-list)
+             (push `(,(first x) (get-equal-designators ,(second x))) 
+                   let-list))
+    (push `(let ,let-list ,@body) result)
+    (setf result (append perceive-list result))
+    (push 'progn result)
+    result))
 
 (defun generate-output (occ)
   (let ((output nil))
@@ -32,3 +46,12 @@ equates it with a exact location"
 
 (defun object-output (obj)
   (subseq (desig-prop-value obj 'name) 40))
+
+(defun get-coords (desig)
+  "Returns the coordinates of the object"
+  (if (typep desig 'object-designator)
+      (desig-prop-value (desig-prop-value (current-desig desig) 'at) 'coords)
+      (if (typep desig 'location-designator)
+          (desig-prop-value desig 'coords)
+          nil)))
+

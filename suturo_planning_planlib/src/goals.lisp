@@ -1,131 +1,5 @@
 (in-package :suturo-planning-planlib)
 
-(defmacro with-perceived-objects (vars-and-objs &rest body)
-  "Perceives the given objects and binds all equal designators to 
-   the variable"
-  (let ((let-list nil)
-        (perceive-list nil)
-        result)
-    (loop for x in vars-and-objs
-          do (push `(perceive '(,(second x))) perceive-list)
-             (push `(,(first x) (get-equal-designators ,(second x))) 
-                   let-list))
-    (push `(let ,let-list ,@body) result)
-    (setf result (append perceive-list result))
-    (push 'progn result)
-    result))
-
-(def-goal (achieve (all ?obj1 ?prep ?obj2))
-  "All objects matching the description of ?obj1 will be put on ?obj2"
-  (let ((obj nil))
-    (with-perceived-objects ((objs ?obj1))
-      (with-retry-counters ((new-obj-counter 3))
-        (with-failure-handling 
-            ((suturo-planning-common::simple-plan-failure (f)
-               (declare (ignore f))
-               (do-retry new-obj-counter
-                 (retry))))
-          (loop while objs
-                do (setf obj (pop objs))
-                   (with-retry-counters ((same-obj-counter 1))
-                     (with-failure-handling 
-                         ((suturo-planning-common::simple-plan-failure (f)
-                            (declare (ignore f))
-                            (do-retry same-obj-counter
-                              (retry))
-                            (append `(,obj) objs)))
-                       (achieve `(the ,obj ,?prep ,?obj2))))))))))
-
-(def-goal (achieve (the ?obj1 ?prep ?obj2))
-  "Puts the object described by ?obj1 on ?obj2, fails if there are more
-   than one object matching the description of ?obj1"
-  (perceive `(,?obj1))
-  (if (> (length (get-equal-designators ?obj1)) 1)
-      (cpl:fail 'ambiguous-description)) ;missing real condition 
-  (achieve `(a ,?obj1 ,?prep ?obj2)))   
-
-(def-goal (achieve (a ?obj1 on ?obj2))
-  "Puts one object matching the description of ?obj1 on ?obj2"
-  (let ((obj nil)
-        (place nil))
-    (with-perceived-objects ((objs-to-place ?obj1)
-                             (places-to-put ?obj2))
-      (setf obj (pop objs-to-place))
-      (setf place (pop places-to-put))
-      (with-failure-handling 
-          ((grasping-failed (f)
-             (declare (ignore f))
-             (when objs-to-place
-               (setf obj (pop objs-to-place ))
-               (retry)))
-           (simple-plan-failure (f)  ;maybe change condition
-             (declare (ignore f))
-             (when places-to-put
-               (setf place (pop places-to-put))
-               (retry))))
-        (let ((loc-put-down (locate `(,(make-designator 'location 
-                                                        `((to put-down) 
-                                                          (obj ,obj) 
-                                                          (on ,place)))))))
-          (achieve `(in-gripper ,obj))
-          (achieve `(robot-at ,(make-designator 'location 
-                                                `((to-execute put-down) 
-                                                  (at ,loc-put-down)))))
-          (perform (make-designator 'action 
-                                    `((to put-down) 
-                                      (at ,loc-put-down)))))))))
-  
-(def-goal (achieve (a ?obj1 in ?obj2))
-  "Drops a object matching the description of ?obj1 in ?obj2"
-  (let ((obj nil)
-        (container nil))
-    (with-perceived-objects ((objs-to-put ?obj1)
-                             (containers ?obj2))
-      (setf obj (pop objs-to-put))
-      (setf container (pop containers))
-      (with-failure-handling 
-          ((grasping-failed (f)
-             (declare (ignore f))
-             (when objs-to-put
-               (setf obj (pop objs-to-put))
-               (retry)))
-           (simple-plan-failure (f)  ;maybe change condition
-             (declare (ignore f))
-             (when containers
-               (setf container (pop containers))
-               (retry))))
-        (achieve `(in-gripper ,obj))
-        (achieve `(at-location (locate ,(make-designator 'location 
-                                                         `((to-execute drop) 
-                                                           (obj ,obj) 
-                                                           (in ,container))))))
-        (perform (make-designator 'action 
-                                  `((to drop) 
-                                    (obj ,obj) 
-                                    (in ,container))))))))
-  
-(def-goal (achieve (robot-at ?loc))
-  "Moves the robot to a position described by ?loc"
-  (let ((loc-robot (locate ?loc)))
-    (perform (make-designator 'action `((to move) (loc ,loc-robot))))))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 (define-policy dont-drop-object (arm)
   "Policy to monitor the gripper of the given arm that it wont completly close"
   (:init (perform (make-designator 'action '((to start-monitoring-gripper)))))
@@ -135,6 +9,11 @@
   (:recover (perform (make-designator 'action '((to end-monitoring-gripper))))
             (cpl:fail 'suturo-planning-common::dropped-object))
   (:clean-up (perform (make-designator 'action '((to end-monitoring-gripper))))))
+  
+(def-goal (achieve (robot-at ?loc))
+  "Moves the robot to a position described by ?loc"
+  (let ((loc-robot (locate ?loc)))
+    (perform (make-designator 'action `((to move) (loc ,loc-robot))))))
                      
 (def-goal (achieve (home-pose))
   "Move the robot in the initial position"
@@ -227,7 +106,7 @@
       (with-designators ((open-hand (action `((to open-hand)
                                               (obj ,?obj)))))
         (perform open-hand))))
-  (info-out (suturo planlib) "Droped, object"))
+  (info-out (suturo planlib) "Dropped, object"))
 
 (def-goal (achieve (object-in-box ?obj ?box))
   "The object should be in the box"
@@ -246,96 +125,6 @@
                                     (obj ,?obj) 
                                     (container ,?box)))))
       (perform placed-object-in-box))))
-
-(def-goal (achieve (objects-in-appropriate-boxes ?objs ?boxes))
-  "Edible Objects in the left box and inedible ones in the right box"
-  (let ((box-for-food (get-box ?boxes 'storage-for-food)) 
-        (box-for-stuff (get-box ?boxes 'storage-for-stuff))
-        (obj nil))
-    (with-retry-counters ((plan-retry-counter 6))
-      (with-failure-handling
-          ((suturo-planning-common::dropped-object (f)
-             (declare (ignore f))
-             (error-out (planlib) 
-                        "Droped object ~a. Won't bother to retrieve it"
-                        (desig-prop-value obj 'name))
-             (sleep 3)
-             (do-retry plan-retry-counter
-               (info-out (planlib) "Trying next object")
-               (retry)))
-           (suturo-planning-common::simple-plan-failure (f)
-             ;(declare (ignore f))
-             (error-out (planlib) "Failed to put ~a in the box. ~a~%"
-                        (desig-prop-value obj 'name) f)
-             (sleep 2)
-             (do-retry plan-retry-counter
-               (info-out (planlib) "Trying next object")
-               (append `(,obj) ?objs)
-               (retry))))
-        (loop while ?objs
-              do (setf obj (pop ?objs))
-                 (if (desig-prop-value obj 'edible)
-                     (achieve `(object-in-box ,obj ,box-for-food))
-                     (achieve `(object-in-box ,obj ,box-for-stuff)))
-                 (achieve '(home-pose)))))))
-
-(def-goal (achieve (objects-and-boxes-perceived ?nr-objs ?nr-boxes))
-  "Tries to perceive the given number of objectes and boxes"
-  (let ((objs nil)
-        (boxes nil)
-        ;(leftest-obj nil)
-        ;(rightest-obj nil)
-        ;(things nil)
-        (counter 0))
-    (loop while (or (< counter 3)
-                    (or (not (eql (length objs) ?nr-objs)) 
-                        (not (eql (length boxes) ?nr-boxes))))
-          do (if (eql counter 8)
-                 (cpl:fail 'suturo-planning-common::not-enough-objects-found))
-             #|(setf things (concatenate 'list objs boxes))
-             (when (> (length things) 0)
-               (let ((new-leftest-obj (get-object-on-side 'left things))
-                     (new-rightest-obj (get-object-on-side 'right things)))
-                 ;; Check for objects on the left
-                 (if (not (desig-equal leftest-obj new-leftest-obj))
-                     (prog1
-                         (format t "Look at ~a~%" new-leftest-obj)
-                         (achieve `(face-loc 
-                                    ,(desig-prop-value new-leftest-obj 
-                                                       'at)))
-                         (setf leftest-obj new-leftest-obj))
-                     ;; Check for objects on the right
-                     (if (not (desig-equal rightest-obj new-rightest-obj))
-                         (prog1
-                             (format t "Look at ~a~%" new-rightest-obj)
-                             (achieve `(face-loc 
-                                        ,(desig-prop-value new-rightest-obj 
-                                                           'at)))
-                             (setf rightest-obj new-rightest-obj))
-                         (cpl:fail 'suturo-planning-common::not-enough-objects-found)))))|#
-             (if (eql (mod counter 3) 0)
-                 (achieve `(face-loc ,(make-designator 'location '((coords (1 0 0.1)) (frame "/base_link"))))))
-             (if (eql (mod counter 3) 1)
-                 (achieve `(face-loc ,(make-designator 'location '((coords (1 0.4 0.4)) (frame "/base_link"))))))
-             (if (eql (mod counter 3) 2)
-                 (achieve `(face-loc ,(make-designator 'location '((coords (1 -0.4 0.4)) (frame "/base_link"))))))
-             (with-designators ((update-map 
-                                 (action 
-                                  '((to update-semantic-map))))
-                                (get-containers 
-                                 (action 
-                                  '((to get-container-objects))))
-                                (get-objects
-                                 (action 
-                                  '((to get-graspable-objects)))))
-               (perform update-map)
-               (setf objs (perform get-objects))
-               (setf boxes (perform get-containers))
-               (ros-info (suturo planlib) "Perceived ~a ~a" objs boxes))
-             (incf counter))
-    (info-out (suturo planlib) "Perceived ~a ~a" 
-              (generate-output objs) (generate-output boxes))
-    `(,objs ,boxes)))
 
 (def-goal (achieve (face-loc ?loc))
   "Let the Head point to the given Location"
@@ -365,29 +154,17 @@
                  (setf obj-on-side obj)))
     obj-on-side))
 
-(defun get-box (boxes use)
-  "Returns a box with the given use"
-  (let ((box nil))
-    (loop while boxes
-          do (setf box (pop boxes))
-             (if (eql (desig-prop-value box 'use) use)
-                 (return box)))))
-
-(defun get-holding-hand (obj)
+(defun get-holding-arm (obj)
   "Returns the arm which holds the object"
-  (if (not obj) (cpl:fail 'simple-plan-failure))
-  (format t "holds obj ~a~%" obj)
-  (let ((pos (desig-prop-value 
-              (desig-prop-value (current-desig obj) 'at) 
-              'in)))
-    (if (not pos)
-        (progn
-          (format t "~a~%" obj)
-          (cpl:fail 'simple-plan-failure))
-        (if (eql pos 'left-gripper) 
-            'left-arm
-            (if (eql pos 'right-gripper)
-                'right-arm)))))
+  (when obj
+    (let ((pos (desig-prop-value 
+                (desig-prop-value (current-desig obj) 'at) 
+                'in)))
+      (if pos
+          (if (eql pos 'left-gripper) 
+              'left-arm
+              (if (eql pos 'right-gripper)
+                  'right-arm))))))
 
 (defun get-best-arm (obj)
   "Returns the arm closest to the object"
@@ -395,8 +172,3 @@
                                         (obj ,obj)))))
     (perform get-arm)))
 
-(defun get-coords (obj)
-  "Returns the coordinates of the object"
-  (if obj
-      (desig-prop-value (desig-prop-value (current-desig obj) 'at) 'coords)
-      nil))
