@@ -80,6 +80,9 @@
                      (frame-id (fourth obj))
                      (grip-force (fifth obj))
                      (use (sixth obj))
+                     (width (seventh obj))
+                     (height (eighth obj))
+                     (depth (ninth obj))
                      (loc (make-designator
                            'location
                            `((coords ,centroid)
@@ -91,5 +94,6 @@
                    (name ,(symbol->string name))
                    (use ,(if (equal (symbol->string use) "storage-for-food") 'storage-for-food 'storage-for-stuff))
                    (grip-force ,grip-force)
-                   (at ,loc)))))
+                   (at ,loc)
+                   (dimensions (,width ,height ,depth))))))
             objs)))

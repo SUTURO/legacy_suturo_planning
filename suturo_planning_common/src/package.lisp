@@ -68,6 +68,7 @@
    #:owner
    #:name
    #:color
+   #:dimensions
    ;; Locations
    #:loc
    #:frame
