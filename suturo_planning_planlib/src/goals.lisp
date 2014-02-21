@@ -1,42 +1,112 @@
 (in-package :suturo-planning-planlib)
 
-(def-goal (achieve (all ?obj1 on ?obj2))
+(defmacro with-perceived-objects (vars-and-objs &rest body)
+  "Perceives the given objects and binds all equal designators to the variable"
+  (let ((let-list nil)
+        (perceive-list nil)
+        result)
+    (loop for x in vars-and-objs
+          do (push `(perceive '(,(second x))) perceive-list)
+             (push `(,(first x) (get-equal-designators ,(second x))) 
+                   let-list))
+    (push `(let ,let-list ,@body) result)
+    (setf result (append perceive-list result))
+    (push 'progn result)
+    result))
+
+(def-goal (achieve (all ?obj1 ?prep ?obj2))
+  "All objects matching the description of ?obj1 will be put on ?obj2"
+  (let ((obj nil))
+    (with-perceived-objects ((objs ?obj1))
+      (with-retry-counters ((new-obj-counter 3))
+        (with-failure-handling 
+            ((suturo-planning-common::simple-plan-failure (f)
+               (declare (ignore f))
+               (do-retry new-obj-counter
+                 (retry))))
+          (loop while objs
+                do (setf obj (pop objs))
+                   (with-retry-counters ((same-obj-counter 1))
+                     (with-failure-handling 
+                         ((suturo-planning-common::simple-plan-failure (f)
+                            (declare (ignore f))
+                            (do-retry same-obj-counter
+                              (retry))
+                            (append `(,obj) objs)))
+                       (achieve `(the ,obj ,?prep ,?obj2))))))))))
+
+(def-goal (achieve (the ?obj1 ?prep ?obj2))
+  "Puts the object described by ?obj1 on ?obj2, fails if there are more
+   than one object matching the description of ?obj1"
   (perceive `(,?obj1))
-  (perceive `(,?obj2))
-  (let ((objs-on (get-equal-designators ?obj1))
-        (place-to-put (current-desig ?obj2))
-        (obj nil))
-    (loop while objs-on
-          do (setf obj (pop objs-on))
-             (achieve `(the ,obj on ,place-to-put)))))
+  (if (> (length (get-equal-designators ?obj1)) 1)
+      (cpl:fail 'ambiguous-description)) ;missing real condition 
+  (achieve `(a ,?obj1 ,?prep ?obj2)))   
 
 (def-goal (achieve (a ?obj1 on ?obj2))
-  (format t "hi2"))
-
-(def-goal (achieve (the ?obj1 on ?obj2))
-  ;;(achieve `(at ,(make-designator 'location `((to reach) (obj ,?obj1)))))
-  (achieve `(in-gripper ,?obj1))
-  (let ((loc-put-down (locate `(,(make-designator 'location `((to put-down) 
-                                                              (obj ,?obj1) 
-                                                              (on ,?obj2)))))))
-    (achieve `(at ,(make-designator 'location `((to-execute put-down) 
-                                                (at ,loc-put-down)))))
-    (perform (make-designator 'action `((to put-down) (at ,loc-put-down))))))
-
-(def-goal (achieve (all ?obj1 in ?obj2))
-  (format t "moin"))
-
+  "Puts one object matching the description of ?obj1 on ?obj2"
+  (let ((obj nil)
+        (place nil))
+    (with-perceived-objects ((objs-to-place ?obj1)
+                             (places-to-put ?obj2))
+      (setf obj (pop objs-to-place))
+      (setf place (pop places-to-put))
+      (with-failure-handling 
+          ((grasping-failed (f)
+             (declare (ignore f))
+             (when objs-to-place
+               (setf obj (pop objs-to-place ))
+               (retry)))
+           (simple-plan-failure (f)  ;maybe change condition
+             (declare (ignore f))
+             (when places-to-put
+               (setf place (pop places-to-put))
+               (retry))))
+        (let ((loc-put-down (locate `(,(make-designator 'location 
+                                                        `((to put-down) 
+                                                          (obj ,obj) 
+                                                          (on ,place)))))))
+          (achieve `(in-gripper ,obj))
+          (achieve `(robot-at ,(make-designator 'location 
+                                                `((to-execute put-down) 
+                                                  (at ,loc-put-down)))))
+          (perform (make-designator 'action 
+                                    `((to put-down) 
+                                      (at ,loc-put-down)))))))))
+  
 (def-goal (achieve (a ?obj1 in ?obj2))
-  (format t "moin2"))
-
-(def-goal (achieve (the ?obj1 in ?obj2))
-  (format t "moin3"))
-
-(def-goal (achieve (at ?loc))
-  (format t "hallo"))
-
-
-
+  "Drops a object matching the description of ?obj1 in ?obj2"
+  (let ((obj nil)
+        (container nil))
+    (with-perceived-objects ((objs-to-put ?obj1)
+                             (containers ?obj2))
+      (setf obj (pop objs-to-put))
+      (setf container (pop containers))
+      (with-failure-handling 
+          ((grasping-failed (f)
+             (declare (ignore f))
+             (when objs-to-put
+               (setf obj (pop objs-to-put))
+               (retry)))
+           (simple-plan-failure (f)  ;maybe change condition
+             (declare (ignore f))
+             (when places-to-put
+               (setf container (pop containers))
+               (retry))))
+        (achieve `(in-gripper ,obj))
+        (achieve `(at-location (locate ,(make-designator 'location 
+                                                         `((to-execute drop) 
+                                                           (obj ,obj) 
+                                                           (in ,container))))))
+        (perform (make-designator 'action 
+                                  `((to drop) 
+                                    (obj ,obj) 
+                                    (in ,container))))))))
+  
+(def-goal (achieve (robot-at ?loc))
+  "Moves the robot to a position described by ?loc"
+  (let ((loc-robot (locate ?loc)))
+    (perform (make-designator 'action `((to move) (loc ,loc-robot))))))
 
 
 
