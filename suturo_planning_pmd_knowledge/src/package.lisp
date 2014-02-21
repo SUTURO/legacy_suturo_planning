@@ -26,6 +26,7 @@
                      #:storage-for-food
                      #:storage-for-stuff
                      #:update-semantic-map
+                     #:get-objects-with-properties
                      #:get-container-objects
                      #:get-graspable-objects
                      #:placed-object-in-box))
