@@ -14,7 +14,19 @@
   (:export info-out
            error-out
            designator->string
-           string->designators)
+           string->designators
+           monitor-not-started
+           grasping-failed
+           pose-not-reached
+           unhandled-body-part
+           move-head-failed
+           move-arm-failed
+           drop-failed
+           dropped-object
+           location-not-reached
+           place-failed
+           unhandled-action-answer
+           unhandled-condition)
   (:desig-properties 
    #:left
    #:right
