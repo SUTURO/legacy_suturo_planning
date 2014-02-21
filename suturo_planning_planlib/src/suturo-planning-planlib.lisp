@@ -32,4 +32,3 @@ equates it with a exact location"
 
 (defun object-output (obj)
   (subseq (desig-prop-value obj 'name) 40))
-
