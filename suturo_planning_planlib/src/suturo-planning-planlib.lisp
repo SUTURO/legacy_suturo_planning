@@ -48,10 +48,13 @@ equates it with a exact location"
   (subseq (desig-prop-value obj 'name) 40))
 
 (defun get-coords (desig)
-  "Returns the coordinates of the object"
+  "Returns the coordinates of the object or location"
   (if (typep desig 'object-designator)
       (desig-prop-value (desig-prop-value (current-desig desig) 'at) 'coords)
       (if (typep desig 'location-designator)
           (desig-prop-value desig 'coords)
           nil)))
+
+(defun eql-or (var1 var2 var3)
+  (or (eql var1 var2) (eql var1 var3)))
 

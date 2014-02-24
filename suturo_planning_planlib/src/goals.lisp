@@ -1,92 +1,114 @@
 (in-package :suturo-planning-planlib)
 
 (define-policy dont-drop-object (arm)
-  "Policy to monitor the gripper of the given arm that it wont completly close"
-  (:init (perform (make-designator 'action '((to start-monitoring-gripper)))))
+  "Monitors the griper of the given arm and checks if it closes
+   completly"
+  (:init (perform (make-designator 'action 
+                                   '((to start-monitoring-gripper)))))
   (:check (sleep* 0.5)
-          (perform (make-designator 'action `((to gripper-is-closed)
-                                              (arm ,arm)))))
-  (:recover (perform (make-designator 'action '((to end-monitoring-gripper))))
-            (cpl:fail 'suturo-planning-common::dropped-object))
-  (:clean-up (perform (make-designator 'action '((to end-monitoring-gripper))))))
+          (perform (make-designator 'action 
+                                    `((to gripper-is-closed)
+                                      (arm ,arm)))))
+  (:recover (perform (make-designator 'action 
+                                      '((to end-monitoring-gripper))))
+            (cpl:fail 'dropped-object))
+  (:clean-up (perform (make-designator 'action 
+                                       '((to end-monitoring-gripper))))))
   
 (def-goal (achieve (robot-at ?loc))
   "Moves the robot to a position described by ?loc"
   (let ((loc-robot (locate ?loc)))
-    (perform (make-designator 'action `((to move) (loc ,loc-robot))))))
+    (with-failure-handling 
+        ((movement-failed (f)
+           (declare (ignore f))
+           ;; try with next position
+           ))
+      (perform (make-designator 'action `((to move) 
+                                          (loc ,loc-robot)))))))
                      
 (def-goal (achieve (home-pose))
-  "Move the robot in the initial position"
+  "Moves the robot in the initial position"
   (info-out (suturo planlib) "Taking home pose")
-  (with-retry-counters ((arm-retry-counter 2)
-                        (head-retry-counter 2))
-     (with-designators ((take-home-pose-arms (action 
-                                               '((to take-pose)
-                                                 (pose initial)
-                                                 (body-part both-arms))))
-                         (take-home-pose-head (action 
-                                               '((to take-pose)
-                                                 (pose initial)
-                                                 (body-part head)))))
+  (achieve '(home-pose both-arms))
+  (achieve '(home-pose head)))
+
+(def-goal (achieve (home-pose ?body-part))
+  (with-retry-counters ((retry-counter 2))
+     (with-designators ((take-home-pose (action 
+                                          `((to take-pose)
+                                            (pose initial)
+                                            (body-part ,?body-part)))))
        (with-failure-handling 
-           ((suturo-planning-common::pose-not-reached (f)
+           ((pose-not-reached (f)
               (declare (ignore f))
               (error-out (suturo planlib) 
-                         "Failed to bring arms int the initial pose")
-              (do-retry arm-retry-counter
+                         "Failed to bring ~a into the initial pose"
+                         ?body-part)
+              (do-retry retry-counter
                 (info-out (suturo planlib) "Trying again")
                 (retry))))
-         (perform take-home-pose-arms))
-       (with-failure-handling 
-           ((suturo-planning-common::pose-not-reached (f)
-              (declare (ignore f))
-              (error-out (suturo planlib) 
-                         "Failed to bring head in the initial pose")
-              (do-retry head-retry-counter
-                (info-out (suturo planlib) "Trying again")
-                (retry))))        
-         (perform take-home-pose-head)))))
+         (perform take-home-pose)))))
+  
+
+(def-goal (achieve (in-gripper ?obj))
+  "Grasps the object with one gripper"
+  (when (not (eql-or (desig-prop-value (desig-prop-value ?obj 'at) 'in)
+                     'left-gripper
+                     'right-gripper))
+    (let ((arm (get-best-arm ?obj))
+          (loc-to-reach (make-designator 'location 
+                                         `((to-execute grasp)
+                                           (obj ,?obj)))))
+      (with-retry-counters ((grasping-retry-counter 1))
+        (with-failure-handling 
+            ((grasping-failed (f)
+               (declare (ignore f))
+               (error-out (suturo planlib) 
+                          "Grasping failed retry with other arm")
+               (achieve `(home-pose ,arm))
+               (do-retry grasping-retry-counter
+                 (setf arm (switch-arms arm))
+                 (info-out (suturo planlib) "Trying again")
+                 (retry))
+               ;; get next position
+               ;; (setf grasping-retry-counter 1)
+               ))
+          (achieve `(robot-at ,loc-to-reach))
+          (achieve `(object-in-hand ,?obj ,arm)))))))
+  
 
 (def-goal (achieve (object-in-hand ?obj ?arm))
   "Takes the object in one hand"
-    (with-retry-counters ((grasping-retry-counter 1))
-      (with-failure-handling 
-          ((suturo-planning-common::grasping-failed (f)
-             (declare (ignore f))
-             (error-out (suturo planlib) "STOP! Hammer, time! Can't, touch, this. Failed, to ,grasp ,object")
-             (sleep 4)
-             (achieve '(home-pose))
-             (do-retry grasping-retry-counter
-               (info-out (suturo planlib) "Trying again")
-               (retry))))
-        (info-out (suturo planlib) "Grasping, object, ~a, with, ~a" 
-                  (object-output ?obj) ?arm)
-        (with-designators ((grasp-obj (action `((to grasp)
-                                                (obj ,?obj)
-                                                (arm ,?arm))))
-                           (monitor-gripper (action `((to monitor-gripper)
-                                                      (arm ,?arm)))))
-          (perform grasp-obj)
-          (if (perform monitor-gripper) 
-            (cpl:fail 'suturo-planning-common::grasping-failed))))))
-      
+  (info-out (suturo planlib) "Grasping object ~a with ~a" 
+            (object-output ?obj) ?arm)
+  (with-designators ((grasp-obj (action `((to grasp)
+                                          (obj ,?obj)
+                                          (arm ,?arm))))
+                     (monitor-gripper (action `((to monitor-gripper)
+                                                (arm ,?arm)))))
+    (perform grasp-obj)
+    (if (perform monitor-gripper) 
+        (cpl:fail 'grasping-failed))))
+
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
   (info-out (suturo planlib) "Moving, ~a, over, object, ~a"
             ?arm (object-output ?obj))
   (with-retry-counters ((move-retry-counter 1))
     (with-failure-handling
-        ((suturo-planning-common::move-arm-failed (f)
+        ((move-arm-failed (f)
            (declare (ignore f))
            (error-out (suturo planlib) "Failed to move arm")
            (do-retry move-retry-counter
              (info-out (suturo planlib) "Trying again.")
              (retry))))
-      (with-designators ((get-loc-over-obj (action `((to get-location-over)
-                                                     (loc ,(desig-prop-value ?obj 'at))))))
-        (with-designators ((move-hand (action `((to move-arm)
-                                                (arm ,?arm)
-                                                (loc ,(perform get-loc-over-obj))))))
+      (with-designators 
+          ((get-loc-over-obj (action `((to get-location-over)
+                                       (loc ,(desig-prop-value ?obj 'at))))))
+        (with-designators 
+            ((move-hand (action `((to move-arm)
+                                  (arm ,?arm)
+                                  (loc ,(perform get-loc-over-obj))))))
           (perform move-hand))))))
 
 (def-goal (achieve (empty-hand ?obj))
@@ -95,7 +117,7 @@
   (sleep 1.5)
   (with-retry-counters ((open-retry-counter 2))
     (with-failure-handling
-        ((suturo-planning-common::drop-failed (f)
+        ((drop-failed (f)
            (declare (ignore f))
            (error-out (suturo planlib) "Failed to open hand")
            (sleep 1.5)
@@ -113,7 +135,7 @@
   (let ((arm (get-best-arm ?box)))
     (achieve `(object-in-hand ,?obj ,arm))
     (with-failure-handling
-        ((suturo-planning-common::move-arm-failed (f)
+        ((move-arm-failed (f)
            (declare (ignore f))
            (achieve `(empty-hand ,?obj))
            (achieve '(home-pose))))
@@ -172,3 +194,11 @@
                                         (obj ,obj)))))
     (perform get-arm)))
 
+(defun switch-arms (?arm)
+  "Returns the other arm"
+  (if (eql ?arm 'left-arm)
+      'left-arm
+      'right-arm))
+
+(def-goal (achieve (in-gripper))
+  (format t "asd"))
