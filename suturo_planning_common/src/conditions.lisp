@@ -6,6 +6,10 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "monitor-not-started"))
 
+(define-condition ambiguous-description (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "ambiguous-description"))
+
 
 ;;; Conditions thrown by manipulation
 
@@ -14,7 +18,7 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "grasping-failed"))
 
-;; The robot copuldn't take the pose
+;; The robot couldn't take the pose
 (define-condition pose-not-reached (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "pose-not-reached"))

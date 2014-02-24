@@ -25,4 +25,15 @@
                      #:get-graspable-objects
                      #:update-semantic-map
                      #:clear-maps
-                     #:get-container-objects))
+                     #:get-container-objects
+                     #:achieve
+                     #:object-in-hand
+                     #:object-in-box
+                     #:objects-in-appropriate-boxes
+                     #:objects-perceived
+                     #:home-pose
+                     #:empty-hand
+                     #:hand-over
+                     #:objects-and-boxes-perceived
+                     #:get-holding-arm
+                     #:in-gripper))

@@ -16,6 +16,7 @@
            designator->string
            string->designators
            monitor-not-started
+           ambiguous-description
            grasping-failed
            pose-not-reached
            unhandled-body-part
