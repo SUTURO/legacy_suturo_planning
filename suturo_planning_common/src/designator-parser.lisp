@@ -71,6 +71,7 @@
     (subseq str 1 (- (length str) 1))))
 
 (defun match-pattern (pattern value)
+  "Creates a list of name value pairs, to be used as first argument for a let block"
   (let ((res nil))
     (if (eq (type-of pattern) 'SYMBOL)
       (setq res (append res `((,pattern ,value))))
@@ -80,45 +81,24 @@
                 pattern value)))
     res))
 
-(defmacro bind-pattern (pattern value &rest body)
-  `(let ,(match-pattern pattern value)
-    ,@body))
+(defmacro bind-pattern (pattern value &body body)
+  "Executes body with the bindings defined by pattern and value"
+  (let ((bindings (mapcar (lambda (e)
+                            (if (or (eq (type-of (second e)) 'CONS) (eq (type-of (second e)) 'SYMBOL))
+                              `(,(first e) (quote ,(second e)))
+                              e)) (match-pattern pattern value))))
+    `(let ,bindings
+      ,@body)))
 
 (defun json-prolog->designators (jj)
-  ; (mapcar (lambda (e)
-  ;   (bind-pattern (edible name centroid frame-id grip-force use dimensions) e
-  ;     (make-designator 'object `((edible ,(equal "true" (symbol->string edible)))
-  ;                                (name ,name)
-  ;                                (use ,(if (equal (symbol->string use) "storage-for-food") 'storage-for-food 'storage-for-stuff))
-  ;                                (grip-force ,grip-force)
-  ;                                (at ,(make-designator 'location ((coords ,centroid)
-  ;                                                                 (frame ,(symbold->string frame-id)))))
-  ;                                (dimensions ,dimensions)))))
-  ;   (subseq (first (first jj)) 1)))
-  ;
-  (let ((objs (subseq (first (first jj)) 1)))
-    (format t "~a~%" jj)
-    (mapcar (lambda (obj)
-              (let* ((edible (first obj))
-                     (name (second obj))
-                     (centroid (third obj))
-                     (frame-id (fourth obj))
-                     (grip-force (fifth obj))
-                     (use (sixth obj))
-                     (width (seventh obj))
-                     (height (eighth obj))
-                     (depth (ninth obj))
-                     (loc (make-designator
-                           'location
-                           `((coords ,centroid)
-                             (frame ,(symbol->string frame-id))))))
-                (make-designator
-                 'object
-                 ;`((edible ,(equal 'TRUE (intern (nstring-upcase (symbol->string edible)))))
-                 `((edible ,(equal "true" (symbol->string edible)))
-                   (name ,(symbol->string name))
-                   (use ,(if (equal (symbol->string use) "storage-for-food") 'storage-for-food 'storage-for-stuff))
-                   (grip-force ,grip-force)
-                   (at ,loc)
-                   (dimensions (,width ,height ,depth))))))
-            objs)))
+  "Converts a JSON-Prolog return value to object designators"
+  (mapcar (lambda (e)
+    (eval `(bind-pattern (edible name centroid frame-id grip-force use dimensions) ,e
+      (make-designator 'object `((edible ,(equal "true" (symbol->string `,edible)))
+                                 (name ,(symbol->string `,name))
+                                 (use ,(if (equal (symbol->string `,use) "storage-for-food") 'storage-for-food 'storage-for-stuff))
+                                 (grip-force ,grip-force)
+                                 (at ,(make-designator 'location `((coords ,centroid)
+                                                                   (frame ,(symbol->string `,frame-id)))))
+                                 (dimensions ,dimensions))))))
+    (subseq (first (first jj)) 1)))
