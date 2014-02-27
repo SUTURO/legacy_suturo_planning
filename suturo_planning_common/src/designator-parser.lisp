@@ -1,5 +1,55 @@
 (in-package :suturo-planning-common)
 
+; get location designator if present
+;   sort desig-props
+;   if desig-prop-name is coords
+;     replace desig-prop-name -> at
+;   if desig-prop-value is not symbol
+;     add to string -> desig-prop-name Object
+;     add to param list -> desig-prop-value
+;   else
+;     add to string -> desig-prop-name desig-prop-value
+; if designator has other properties than location
+;   add to string -> With
+;   sort desig-props
+;   add to string -> desig-prop-name
+;   add to param list -> desig-prop-value
+
+
+(defun desig->string (desig)
+  (let ((function-name '())
+        (parameter-list '()))
+    (if (not (null (desig-prop-value desig 'at)))
+      (let ((location-desig (desig-prop-value desig 'at)))
+        (mapcar (lambda (k)
+                  (setq function-name (append function-name `(,(symbol-name k))))
+                  (if (eq (type-of (desig-prop-value location-desig k)) 'SYMBOL)
+                    (setq function-name (append function-name `(,(symbol-name (desig-prop-value location-desig k)))))
+                    (prog2
+                      (if (eq (type-of (desig-prop-value location-desig k)) 'OBJECT-DESIGNATOR)
+                        (setq parameter-list (append parameter-list `(,(param->string (desig-prop-value (desig-prop-value location-desig k) 'NAME)))))
+                        (setq parameter-list (append parameter-list `(,(param->string (desig-prop-value location-desig k))))))
+                      (setq function-name (append function-name '("OBJECT"))))))
+                (remove-if (lambda (e) (eq e 'frame))
+                           (sorted-description location-desig)))
+        (list (list->camel function-name) parameter-list)))
+    (if (not (null (remove-if (lambda (j) (eq j 'at)) (sorted-description desig))))
+      (let ((other-props (remove-if (lambda (i) (eq i 'at)) (sorted-description desig))))
+        (setq function-name (append function-name '("WITH")))
+        (mapcar (lambda (l)
+                  (setq function-name (append function-name `(,(symbol-name l))))
+                  (setq parameter-list (append parameter-list `(,(param->string (desig-prop-value desig l))))))
+                other-props)))
+    (setq parameter-list (append parameter-list '("Out")))
+    (concatenate 'string (list->camel function-name) (list->params parameter-list))))
+
+(defun param->string (param)
+  (if (not param)
+    "false"
+    (if (eq (type-of param) 'BOOLEAN)
+      "true"
+      (write-to-string param))))
+
 (defun list->camel (strings)
   "Concatenates a list of strings as camelCase; Thanks Jan!"
   (nstring-downcase (apply #'concatenate 'string (mapcar #'string-capitalize strings)) :end 1))
@@ -65,6 +115,13 @@
     (if (not (null BETWEEN))
       (push (format nil "between") FUNCNAME))
     `(,(reverse FUNCNAME) ,(reverse (push "Out" PARAMS)))))
+
+(defun sorted-description (desig)
+  (mapcar #'first 
+          (sort (copy-list (description desig)) 
+                (lambda (e1 e2)
+                  (string< (symbol-name (first e1))
+                           (symbol-name (first e2)))))))
 
 (defun symbol->string (s)
   (let ((str (symbol-name s)))
