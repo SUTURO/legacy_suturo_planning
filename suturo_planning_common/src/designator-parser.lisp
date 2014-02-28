@@ -1,22 +1,6 @@
 (in-package :suturo-planning-common)
 
-; get location designator if present
-;   sort desig-props
-;   if desig-prop-name is coords
-;     replace desig-prop-name -> at
-;   if desig-prop-value is not symbol
-;     add to string -> desig-prop-name Object
-;     add to param list -> desig-prop-value
-;   else
-;     add to string -> desig-prop-name desig-prop-value
-; if designator has other properties than location
-;   add to string -> With
-;   sort desig-props
-;   add to string -> desig-prop-name
-;   add to param list -> desig-prop-value
-
-
-(defun desig->string (desig)
+(defun designator->string (desig)
   (let ((function-name '())
         (parameter-list '()))
     (if (not (null (desig-prop-value desig 'at)))
@@ -63,58 +47,6 @@
     (concatenate 'string "("
                  (subseq result 0 (- (length result) 1))
                  ")")))
-
-(defun designator->string (desig)
-  (if (eq (type-of desig) 'LOCATION-DESIGNATOR)
-    (let ((STRS (location-designator->string desig)))
-      (format nil "~a~a" (list->camel (first STRS)) (list->params (second STRS))))
-    (if (eq (type-of desig) 'OBJECT-DESIGNATOR)
-      (let ((STRS (object-designator->string desig)))
-        (format nil "~a~a" (list->camel (first STRS)) (list->params (second STRS)))))))
-
-(defun object-designator->string (desig)
-  (let* ((TYP (desig-prop-value desig 'TYPE))
-        (LOC (desig-prop-value desig 'AT))
-        (L (location-designator->string LOC))
-        (FUNCNAME (first L))
-        (PARAMS (second L)))
-    (if (not (null TYP))
-      (push (format nil "~a" TYP) FUNCNAME))
-    `(,FUNCNAME ,PARAMS)))
-
-(defun location-designator->string (desig)
-  (let ((FUNCNAME '())
-        (PARAMS '())
-        (ON (desig-prop-value desig 'ON))
-        (IN (desig-prop-value desig 'IN))
-        (LOC (desig-prop-value desig 'LOC))
-        (BETWEEN (desig-prop-value desig 'BETWEEN)))
-    (if ON
-        (push "on" FUNCNAME))
-    (if (eq (type-of ON) 'SYMBOL)
-      (push (format nil "~a" ON) FUNCNAME)
-      (if (eq (type-of ON) 'OBJECT-DESIGNATOR)
-        (let ((TYP (desig-prop-value ON 'TYPE))
-              (NAME (desig-prop-value ON 'NAME)))
-          (push (format nil "'~a'" NAME) PARAMS))))
-    (if (not (null IN))
-        (push "in" FUNCNAME))
-    (if (eq (type-of IN) 'SYMBOL)
-      (push (format nil "~a" IN) FUNCNAME)
-      (if (eq (type-of IN) 'OBJECT-DESIGNATOR)
-        (let ((TYP (desig-prop-value IN 'TYPE))
-              (NAME (desig-prop-value IN 'NAME)))
-          (push (format nil "~a" TYP) FUNCNAME)
-          (push (format nil "~a" NAME) PARAMS))))
-    (if (not (null LOC))
-      (let ((x (first LOC))
-            (y (second LOC))
-            (z (third LOC)))
-        (push "at" FUNCNAME)
-        (push (format nil "[~a,~a,~a]" x y z) PARAMS)))
-    (if (not (null BETWEEN))
-      (push (format nil "between") FUNCNAME))
-    `(,(reverse FUNCNAME) ,(reverse (push "Out" PARAMS)))))
 
 (defun sorted-description (desig)
   (mapcar #'first 
