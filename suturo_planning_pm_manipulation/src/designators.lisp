@@ -28,7 +28,13 @@
     ;;Action designator for action to move the specified arm with the hand over the specified box.
     (desig-prop ?desig (to move-arm))
     (desig-prop ?desig (arm ?arm))
-    (desig-prop ?desig (loc ?location))))
+    (desig-prop ?desig (loc ?location)))
+
+ (<- (action-desig ?desig (move-base ?pose-stamped)) 
+   ;;Action designator for action to move the base to teh specified pose
+   (desig-prop ?desig (to move-base))
+   (desig-prop ?desig (pose pose-stamped))))
+
 
   
 (def-fact-group suturo-planning-pm-manipulation (matching-process-module
@@ -39,7 +45,8 @@
         (desig-prop ?designator (to move-head))
         (desig-prop ?designator (to grasp))
         (desig-prop ?designator (to open-hand))
-        (desig-prop ?designator (to move-arm))))
+        (desig-prop ?designator (to move-arm))
+        (desig-prop ?designator (to move-base)))
   
   (<- (available-process-module suturo-planning-pm-manipulation)
     (symbol-value cram-projection:*projection-environment* nil)))
