@@ -46,7 +46,7 @@
         (desig-prop ?designator (to grasp))
         (desig-prop ?designator (to open-hand))
         (desig-prop ?designator (to move-arm))
-        (desig-prop ?designator (to move-base)))
+        (desig-prop ?designator (to move-base))))
   
   (<- (available-process-module suturo-planning-pm-manipulation)
     (symbol-value cram-projection:*projection-environment* nil)))

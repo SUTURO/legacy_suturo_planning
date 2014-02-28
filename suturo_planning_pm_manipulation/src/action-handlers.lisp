@@ -29,7 +29,7 @@
 
 (def-action-handler move-base (pose-stamped)
   "Moves Base to specified location."
-  (call-move-base-action location))
+  (call-move-base-action pose-stamped))
 
 ; make-goal- and call-action-functions
 (defvar *maximum-retry-intents* 2)
