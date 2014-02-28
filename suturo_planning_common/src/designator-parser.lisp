@@ -6,35 +6,34 @@
     (if (not (null (desig-prop-value desig 'at)))
       (let ((location-desig (desig-prop-value desig 'at)))
         (mapcar (lambda (k)
-                  (setq function-name (append function-name `(,(symbol-name k))))
-                  (if (eq (type-of (desig-prop-value location-desig k)) 'SYMBOL)
-                    (setq function-name (append function-name `(,(symbol-name (desig-prop-value location-desig k)))))
-                    (prog2
-                      (if (eq (type-of (desig-prop-value location-desig k)) 'OBJECT-DESIGNATOR)
+                  (setq function-name (append function-name `(,(cl-ppcre:regex-replace-all "-" (symbol-name k) ""))))
+                  (cond
+                    ((eq (type-of (desig-prop-value location-desig k)) 'SYMBOL)
+                      (setq function-name (append function-name `(,(symbol-name (desig-prop-value location-desig k))))))
+                    ((eq (type-of (desig-prop-value location-desig k)) 'OBJECT-DESIGNATOR)
+                      (prog2
                         (setq parameter-list (append parameter-list `(,(param->string (desig-prop-value (desig-prop-value location-desig k) 'NAME)))))
-                        (setq parameter-list (append parameter-list `(,(param->string (desig-prop-value location-desig k))))))
-                      (setq function-name (append function-name '("OBJECT"))))))
+                        (setq function-name (append function-name '("OBJECT")))))
+                    (t (setq parameter-list (append parameter-list `(,(param->string (desig-prop-value location-desig k))))))))
                 (remove-if (lambda (e) (eq e 'frame))
-                           (sorted-description location-desig)))
-        (list (list->camel function-name) parameter-list)))
+                           (sorted-description location-desig)))))
     (if (not (null (remove-if (lambda (j) (eq j 'at)) (sorted-description desig))))
       (let ((other-props (remove-if (lambda (i) (eq i 'at)) (sorted-description desig))))
         (setq function-name (append function-name '("WITH")))
         (mapcar (lambda (l)
-                  (setq function-name (append function-name `(,(symbol-name l))))
+                  (setq function-name (append function-name `(,(cl-ppcre:regex-replace-all "-" (symbol-name l) ""))))
                   (setq parameter-list (append parameter-list `(,(param->string (desig-prop-value desig l))))))
                 other-props)))
     (setq parameter-list (append parameter-list '("Out")))
     (concatenate 'string (list->camel function-name) (list->params parameter-list))))
 
 (defun param->string (param)
-  (if (not param)
-    "false"
-    (if (eq (type-of param) 'BOOLEAN)
-      "true"
-      (if (eq (type-of param) 'CONS)
-        (format nil "[~{~A~^, ~}]" (mapcar #'write-to-string param))
-        (write-to-string param)))))
+  (cond 
+    ((not param) "false")
+    ((eq (type-of param) 'BOOLEAN) "true")
+    ((eq (type-of param) 'CONS) (format nil "[~{~A~^, ~}]" (mapcar #'write-to-string param)))
+    ((eq (type-of param) 'SYMBOL) (write-to-string (symbol-name param)))
+    (t (write-to-string param))))
 
 (defun list->camel (strings)
   "Concatenates a list of strings as camelCase; Thanks Jan!"
@@ -50,10 +49,6 @@
                 (lambda (e1 e2)
                   (string< (symbol-name (first e1))
                            (symbol-name (first e2)))))))
-
-(defun symbol->string (s)
-  (let ((str (symbol-name s)))
-    (subseq str 1 (- (length str) 1))))
 
 (defun match-pattern (pattern value)
   "Creates a list of name value pairs, to be used as first argument for a let block"
@@ -79,12 +74,12 @@
   "Converts a JSON-Prolog return value to object designators"
   (mapcar (lambda (e)
     (eval `(bind-pattern (edible name centroid frame-id grip-force use dimensions pose) ,e
-      (make-designator 'object `((edible ,(equal "true" (symbol->string `,edible)))
-                                 (name ,(symbol->string `,name))
-                                 (use ,(if (equal (symbol->string `,use) "storage-for-food") 'storage-for-food 'storage-for-stuff))
+      (make-designator 'object `((edible ,(equal "true" (symbol-name `,edible)))
+                                 (name ,(symbol-name `,name))
+                                 (use ,(if (equal (symbol-name `,use) "storage-for-food") 'storage-for-food 'storage-for-stuff))
                                  (grip-force ,grip-force)
                                  (at ,(make-designator 'location `((coords ,centroid)
-                                                                   (frame ,(symbol->string `,frame-id))
+                                                                   (frame ,(symbol-name `,frame-id))
                                                                    (pose ,pose))))
                                  (dimensions ,dimensions))))))
     (subseq (first (first jj)) 1)))
