@@ -5,6 +5,7 @@
                cram-plan-library
                cram-plan-failures
                cram-plan-knowledge
+               cram-language-designator-support
                cl-tf
                suturo-planning-common
                nav_msgs-msg

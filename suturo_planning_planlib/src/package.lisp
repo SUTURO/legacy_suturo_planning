@@ -10,6 +10,7 @@
         #:cpl
         #:cram-plan-failures
         #:cram-plan-library
+        #:cram-language-designator-support
         #:suturo-planning-common)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
   (:export )
