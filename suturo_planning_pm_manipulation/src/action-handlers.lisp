@@ -27,6 +27,10 @@
   "Moves the specified arm to the location."
   (call-move-arm-action location arm))
 
+(def-action-handler move-base (pose-stamped)
+  "Moves Base to specified location."
+  (call-move-base-action location))
+
 ; make-goal- and call-action-functions
 (defvar *maximum-retry-intents* 2)
 
@@ -39,6 +43,7 @@
 (defvar *grasp-timeout* 20.0)
 (defvar *open-timeout* 7.0)
 (defvar *move-arm-timeout* 10.0)
+(defvar *move-base-timeout* 30.0)
 
 ; move-head
 (defvar *action-client-move-head* nil)
@@ -232,6 +237,26 @@
       (make-move-arm-goal pose-stamped-msg (get-body-part-constant arm))
       *move-arm-timeout*
       'suturo-planning-common::move-arm-failed)))
+
+; move-base
+
+(defvar *action-client-move-base* nil)
+
+(defun make-move-base-goal (pose-stamped)
+  (format t "make-move-base-goal pose-stamped: ~a~%" pose-stamped)
+  (actionlib:make-action-goal *action-client-move-base* 
+                              ps pose-stamped))
+
+(defun call-move-base-action (pose-stamped)
+  (format t "call-move-base-action location:~a~%" location)
+  (setf *action-client-move-base* (get-action-client "suturo_man_move_base_server"
+                                                     "suturo_manipulation_msgs/suturo_manipulation_baseAction"))
+  (with-lost-in-resultation-workaround
+    *action-client-move-base*
+    (make-move-base-goal pose-stamped)
+    *move-base-timeout*
+    'suturo-planning-common::move-base-failed))
+         
      
 ; Helper functions for actions
 

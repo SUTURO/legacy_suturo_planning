@@ -38,6 +38,11 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "move-arm-failed"))
 
+;; The base coudn't be moved
+(define-condition move-base-failed (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "move-base-failed"))
+
 ;; Failed to drop the object
 (define-condition drop-failed (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))
