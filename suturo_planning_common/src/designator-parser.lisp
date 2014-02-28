@@ -78,12 +78,13 @@
 (defun json-prolog->designators (jj)
   "Converts a JSON-Prolog return value to object designators"
   (mapcar (lambda (e)
-    (eval `(bind-pattern (edible name centroid frame-id grip-force use dimensions) ,e
+    (eval `(bind-pattern (edible name centroid frame-id grip-force use dimensions pose) ,e
       (make-designator 'object `((edible ,(equal "true" (symbol->string `,edible)))
                                  (name ,(symbol->string `,name))
                                  (use ,(if (equal (symbol->string `,use) "storage-for-food") 'storage-for-food 'storage-for-stuff))
                                  (grip-force ,grip-force)
                                  (at ,(make-designator 'location `((coords ,centroid)
                                                                    (frame ,(symbol->string `,frame-id)))))
-                                 (dimensions ,dimensions))))))
+                                 (dimensions ,dimensions)
+                                 (pose ,pose))))))
     (subseq (first (first jj)) 1)))
