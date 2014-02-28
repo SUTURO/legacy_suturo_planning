@@ -1,7 +1,7 @@
 (defsystem suturo-planning-pm-knowledge
   :author "SUTURO Planning <suturo-planning@cs.uni-bremen.de>"
  
-  :depends-on (cl-json-pl-client
+  :depends-on (cram-json-prolog
                designators-ros
                process-modules
                cram-plan-failures
