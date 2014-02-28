@@ -32,7 +32,9 @@
     "false"
     (if (eq (type-of param) 'BOOLEAN)
       "true"
-      (write-to-string param))))
+      (if (eq (type-of param) 'CONS)
+        (format nil "[~{~A~^, ~}]" (mapcar #'write-to-string param))
+        (write-to-string param)))))
 
 (defun list->camel (strings)
   "Concatenates a list of strings as camelCase; Thanks Jan!"
@@ -40,13 +42,7 @@
 
 (defun list->params (strings)
   "Concatenates a list of strings to a Prolog parameter list string"
-  (let ((result ""))
-    (dolist (e strings)
-      (setq result (concatenate 'string result
-                                (format nil "~a" e) ",")))
-    (concatenate 'string "("
-                 (subseq result 0 (- (length result) 1))
-                 ")")))
+  (format nil "(~{~A~^, ~})" strings))
 
 (defun sorted-description (desig)
   (mapcar #'first 
