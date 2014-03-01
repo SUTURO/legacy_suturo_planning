@@ -58,3 +58,26 @@ equates it with a exact location"
 (defun eql-or (var1 var2 var3)
   (or (eql var1 var2) (eql var1 var3)))
 
+(defun get-holding-arm (obj)
+  "Returns the arm which holds the object"
+  (when obj
+    (let ((pos (desig-prop-value 
+                (desig-prop-value (current-desig obj) 'at) 
+                'in)))
+      (if pos
+          (if (eql pos 'left-gripper) 
+              'left-arm
+              (if (eql pos 'right-gripper)
+                  'right-arm))))))
+
+(defun get-best-arm (obj)
+  "Returns the arm closest to the object"
+  (with-designators ((get-arm (action `((to get-best-arm)
+                                        (obj ,obj)))))
+    (perform get-arm)))
+
+(defun switch-arms (?arm)
+  "Returns the other arm"
+  (if (eql ?arm 'left-arm)
+      'left-arm
+      'right-arm))

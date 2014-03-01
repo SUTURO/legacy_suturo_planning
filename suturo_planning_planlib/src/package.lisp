@@ -1,6 +1,7 @@
 (in-package :cl-user)
 
 (desig-props:def-desig-package suturo-planning-planlib
+  (:nicknames :s-p-planlib)
   (:use #:roslisp
         #:cram-utilities
         #:designators-ros
@@ -28,6 +29,8 @@
    #:in-gripper
    #:robot-at
    #:to
+   #:see
+   #:reach
    #:a
    #:the 
    #:all

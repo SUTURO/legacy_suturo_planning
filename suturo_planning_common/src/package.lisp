@@ -22,6 +22,7 @@
            unhandled-body-part
            move-head-failed
            move-arm-failed
+           move-base-failed
            drop-failed
            dropped-object
            location-not-reached

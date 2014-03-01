@@ -17,14 +17,13 @@
   
 (def-goal (achieve (robot-at ?loc))
   "Moves the robot to a position described by ?loc"
-  (let ((loc-robot (locate ?loc)))
-    (with-failure-handling 
-        ((movement-failed (f)
-           (declare (ignore f))
-           ;; try with next position
-           ))
-      (perform (make-designator 'action `((to move) 
-                                          (loc ,loc-robot)))))))
+  (with-failure-handling 
+      ((move-base-failed (f)
+         (declare (ignore f))
+         ;; try with next position
+         ))
+    (perform (make-designator 'action `((to move) 
+                                        (pose ,(reference ?loc)))))))
                      
 (def-goal (achieve (home-pose))
   "Moves the robot in the initial position"
@@ -57,8 +56,7 @@
                      'right-gripper))
     (let ((arm (get-best-arm ?obj))
           (loc-to-reach (make-designator 'location 
-                                         `((to-execute grasp)
-                                           (obj ,?obj)))))
+                                         `((to reach) (obj ,?obj)))))
       (with-retry-counters ((grasping-retry-counter 1))
         (with-failure-handling 
             ((grasping-failed (f)
@@ -176,29 +174,4 @@
                  (setf obj-on-side obj)))
     obj-on-side))
 
-(defun get-holding-arm (obj)
-  "Returns the arm which holds the object"
-  (when obj
-    (let ((pos (desig-prop-value 
-                (desig-prop-value (current-desig obj) 'at) 
-                'in)))
-      (if pos
-          (if (eql pos 'left-gripper) 
-              'left-arm
-              (if (eql pos 'right-gripper)
-                  'right-arm))))))
 
-(defun get-best-arm (obj)
-  "Returns the arm closest to the object"
-  (with-designators ((get-arm (action `((to get-best-arm)
-                                        (obj ,obj)))))
-    (perform get-arm)))
-
-(defun switch-arms (?arm)
-  "Returns the other arm"
-  (if (eql ?arm 'left-arm)
-      'left-arm
-      'right-arm))
-
-(def-goal (achieve (in-gripper))
-  (format t "asd"))
