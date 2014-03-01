@@ -2,20 +2,26 @@
 
 (defun with-lost-in-resultation-workaround
     (client goal timeout throwable
-     &key (max-retry-intents 3) (on-timeout-fn #'(lambda () t)) on-fail-fn)
+     &key (max-retry-intents 3)
+       (on-timeout-fn #'(lambda () t))
+       (on-fail-fn #'(lambda () t))
+       (on-success-fn #'(lambda () t)))
   "Calls actionlib:call-goal `client' `goal' :timeout `timeout' :result-timeout `timeout'.
 When timeout is reached the function `on-timeout-fn' is called.
 If `on-timeout' returns t, the process will be repeated `max-retry-intents' times.
 When call-goal fails or `max-retry-intents' is reached, `on-fail-fn' will be executed
-and `trowable' will be thrown."
+and `trowable' will be thrown.
+When call-goal succeeds, `on-success-fn' will be executed."
   (let ((intents 1)
         (keep-looping t))
     (loop while keep-looping                
           do (block continue
+               (format t "calling goal: ~a~%client: ~a~%timeout: ~a~%" goal client timeout)
+               (format t "waiting: ~a~%" (actionlib:wait-for-server client))
                (multiple-value-bind (result status)
                    (actionlib:call-goal client goal :timeout timeout :result-timeout timeout)
                  (roslisp:ros-info (suturo-planning-pm-manipulation)
-                                   "Result from call-goal: ~a~%" result)
+                                   "result: ~a, status: ~a~%" result status)
                  (if (eq result nil)
                      (if (eq status :TIMEOUT)
                          (progn
@@ -49,6 +55,7 @@ and `trowable' will be thrown."
                              (handle-action-answer type throwable)
                              (roslisp:ros-info (suturo-pm-manipulation)
                                                "Action finished successfully.")
+                             (funcall on-success-fn)
                              (return))))))))))
 
 (defun handle-action-answer (type error-to-throw)

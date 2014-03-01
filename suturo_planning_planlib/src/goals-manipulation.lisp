@@ -15,7 +15,8 @@ The location has to be reachable without having to move the robot's base."
              (do-retry place-retry-counter
                (info-out (suturo planib) "Trying again.")
                (sleep 1.0)
-               (retry))))
+               (retry)))
+           (call-move-arm-action ?loc))
         (with-designators ((open-hand (action `((to open-hand)
                                                 (obj ,?obj)))))
           (perform open-hand)))))

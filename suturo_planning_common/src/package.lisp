@@ -27,7 +27,9 @@
            location-not-reached
            place-failed
            unhandled-action-answer
-           unhandled-condition)
+           unhandled-condition
+           get-holding-gripper
+           get-last-gripper-pose)
   (:desig-properties 
    #:left
    #:right
@@ -65,6 +67,7 @@
    #:storage-for-stuff
    ;; Objects - attributes
    #:at
+   #:pose
    #:edible
    #:owner
    #:name

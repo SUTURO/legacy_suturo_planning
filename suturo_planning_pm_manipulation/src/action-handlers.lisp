@@ -40,9 +40,9 @@
 
 (defvar *move-head-timeout* 5.0)
 (defvar *initial-timeout* 10.0)
-(defvar *grasp-timeout* 20.0)
+(defvar *grasp-timeout* 15.0)
 (defvar *open-timeout* 7.0)
-(defvar *move-arm-timeout* 10.0)
+(defvar *move-arm-timeout* 5.0)
 (defvar *move-base-timeout* 30.0)
 
 ; move-head
@@ -93,7 +93,7 @@
     (roslisp:make-msg "suturo_manipulation_msgs/RobotBodyPart" bodyPart body-part)))
 
 (defun call-initial-action (body-part)
-  (setf *action-client-initial* (get-action-client "suturo_man_move_home_server" 
+  (setf *action-client-initial* (get-action-client "/suturo_man_move_home_server" 
                                                    "suturo_manipulation_msgs/suturo_manipulation_homeAction"))
   (with-lost-in-resultation-workaround
     *action-client-initial*
@@ -129,15 +129,23 @@
     *action-client-grasp*
     (make-grasp-action-goal obj (get-body-part-constant arm))
     *grasp-timeout*
-    'suturo-planning-common::grasping-failed))
+    'suturo-planning-common::grasping-failed
+    :on-success-fn #'(lambda () (grasping-succeeded obj arm))))
   
 (defun grasping-succeeded (obj arm)
-  (format t "Updating object's location~%")
-  (let* ((loc-des (description (desig-prop-value obj 'at)))
+  (format t "Updating object's location and pose~%")
+  (let* ((loc-old (desig-prop-value obj 'at))
+         (frame (desig-prop-value loc-old 'frame))
          (loc (make-designator 'location 
                                (update-designator-properties 
-                                `((in ,(if (eql arm 'left-arm) 'left-gripper 'right-gripper)))
-                                loc-des)))
+                                `((in ,(cond
+                                         ((eql arm 'left-arm) 'left-gripper)
+                                         ((eql arm 'right-arm) 'right-gripper)
+                                         (t nil)))
+                                  (pose ,(suturo-pm-gripper-monitor:get-gripper-pose
+                                          arm
+                                          :target-frame frame)))
+                                (description loc-old))))
          (new-obj (make-designator 'object
                                    (update-designator-properties 
                                     `((at ,loc))
@@ -213,6 +221,7 @@
   (format t "getting frame and coords.~%")
   (let* ((frame (desig-prop-value location 'frame))
          (coords (desig-prop-value location 'coords))
+         (pose (desig-prop-value location 'pose))
          (header-msg (roslisp:make-msg "std_msgs/Header"
                                        (stamp) (roslisp:ros-time)
                                        (frame_id) frame))
@@ -221,10 +230,10 @@
                                          (y) (second coords)
                                          (z) (third coords)))
          (orientation-msg (roslisp:make-msg "geometry_msgs/Quaternion"
-                                            (x) 0
-                                            (y) 0
-                                            (z) 0
-                                            (w) 1))
+                                            (x) (first pose)
+                                            (y) (second pose)
+                                            (z) (third pose)
+                                            (w) (fourth pose)))
          (pose-msg (roslisp:make-msg "geometry_msgs/Pose"
                                      (position) position-msg
                                      (orientation) orientation-msg))

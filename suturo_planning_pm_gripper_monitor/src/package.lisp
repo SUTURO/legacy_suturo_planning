@@ -10,9 +10,11 @@
        #:cram-roslisp-common
        #:cram-process-modules
        #:cram-plan-failures
-       #:cram-plan-knowledge)
+       #:cram-plan-knowledge
+       #:cl-transforms)
   (:import-from alexandria ignore-some-conditions)
-  (:export suturo-planning-pm-gripper-monitor)
+  (:export suturo-planning-pm-gripper-monitor
+           get-gripper-pose)
   (:desig-properties #:to
                      #:arm
                      #:left-arm
