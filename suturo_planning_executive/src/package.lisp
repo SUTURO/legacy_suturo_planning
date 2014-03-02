@@ -11,6 +11,7 @@
         #:cpl
         #:cram-plan-failures
         #:cram-plan-library
+        #:cram-language-designator-support
         #:suturo-planning-common
         #:suturo-planning-planlib
         #:suturo-planning-pmd-manipulation
