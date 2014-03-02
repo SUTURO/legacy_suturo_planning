@@ -30,7 +30,8 @@
            unhandled-action-answer
            unhandled-condition
            get-holding-gripper
-           get-last-gripper-pose)
+           get-last-gripper-pose
+           no-object-with-that-description)
   (:desig-properties 
    #:left
    #:right

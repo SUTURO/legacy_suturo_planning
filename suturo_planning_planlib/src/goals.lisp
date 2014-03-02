@@ -158,20 +158,5 @@
                                               (loc ,?loc)))))
         (perform move-head)))))
 
-(defun get-object-on-side (side objs)
-  "Returns the object furthest on the given side"
-  (let ((compare-fun nil)
-        (obj-on-side (first objs)))
-    (if (eql side 'left)
-        (setf compare-fun #'<)
-        (setf compare-fun #'>))
-    (loop for obj in objs
-          do (if obj-on-side
-                 (if (funcall compare-fun
-                              (second (get-coords obj))
-                              (second (get-coords obj-on-side)))
-                     (setf obj-on-side obj))
-                 (setf obj-on-side obj)))
-    obj-on-side))
 
 

@@ -10,6 +10,9 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "ambiguous-description"))
 
+(define-condition no-object-with-that-description (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "no-object-with-that-description"))
 
 ;;; Conditions thrown by manipulation
 
