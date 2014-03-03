@@ -14,7 +14,7 @@
   (:export info-out
            error-out
            designator->string
-           string->designators
+           json-prolog->designators
            monitor-not-started
            ambiguous-description
            grasping-failed

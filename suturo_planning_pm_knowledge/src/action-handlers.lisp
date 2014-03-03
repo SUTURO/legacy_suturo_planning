@@ -31,7 +31,7 @@
   (let ((gen (json-prolog:prolog-simple-1 (suturo-planning-common:designator->string object))))
     (format t "generated function-call: ~a~%" gen)
     (if gen
-      (suturo-planning-common::json-prolog->designators gen)
+      (suturo-planning-common:json-prolog->designators gen)
       (roslisp:ros-warn nil "Could not find any matching objects."))))
 
 (def-action-handler get-container-objects ()
