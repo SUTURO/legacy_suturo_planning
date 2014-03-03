@@ -15,7 +15,10 @@
         #:suturo-planning-common
         #:suturo-planning-planlib
         #:suturo-planning-pmd-manipulation
-        #:suturo-planning-pmd-manipulation)
+        #:suturo-planning-pmd-manipulation
+        #:location-costmap)
+  (:import-from cram-reasoning #:<- #:def-fact-group)
+  (:import-from semantic-map-utils semantic-map-name)
   (:desig-properties #:to 
                      #:grasp 
                      #:arm 

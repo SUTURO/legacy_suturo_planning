@@ -6,6 +6,7 @@
                cram-plan-failures
                cram-plan-knowledge
                roslisp-utilities
+               semantic-map-costmap
                suturo-planning-common
                suturo-planning-planlib
                suturo-planning-pm-manipulation
@@ -20,4 +21,6 @@
   ((:module "src"
     :components
     ((:file "package")
-     (:file "suturo-planning-executive" :depends-on ("package"))))))
+     (:file "costmap-metadata" :depends-on ("package"))
+     (:file "sem-map-config" :depends-on ("package"))
+     (:file "suturo-planning-executive" :depends-on ("package" "costmap-metadata" "sem-map-config"))))))
