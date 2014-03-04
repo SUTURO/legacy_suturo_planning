@@ -34,6 +34,10 @@ equates it with a exact location"
     (push 'progn result)
     result))
 
+(defmacro retry-with-next-solution (desig)
+  `(if (setf ,desig (next-solution ,desig))
+       (retry)))
+
 (defun generate-output (occ)
   (let ((output nil))
     (map nil (lambda (item)
@@ -81,3 +85,4 @@ equates it with a exact location"
   (if (eql ?arm 'left-arm)
       'left-arm
       'right-arm))
+

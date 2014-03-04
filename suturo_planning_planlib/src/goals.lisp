@@ -20,8 +20,7 @@
   (with-failure-handling 
       ((move-base-failed (f)
          (declare (ignore f))
-         ;; try with next position
-         ))
+         (retry-with-next-solution ?loc)))
     (perform (make-designator 'action `((to move) 
                                         (pose ,(reference ?loc)))))))
                      

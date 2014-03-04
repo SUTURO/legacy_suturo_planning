@@ -43,12 +43,10 @@
   "Puts one object matching the description of ?obj on ?loc"
   (with-designators ((loc-to-reach (location `((to reach) (loc ,?loc)))))
     (with-failure-handling 
-        ((move-base-failed (f)
+        ((place-failed (f)
            (declare (ignore f))
-           );(next-different-location-solution loc-to-reach)
-         (place-failed (f)
-           (declare (ignore f))
-           ));(next-different-location-solution ?loc)
+           (retry-with-next-solution ?loc)
+           (retry-with-next-solution loc-to-reach)))
       (achieve `(in-gripper ,?obj))
       (achieve `(robot-at ,loc-to-reach))
       (achieve `(,?obj placed ,?loc)))))
@@ -57,9 +55,9 @@
   "Drops a object matching the description of ?obj in ?loc"
   (with-designators ((loc-to-reach (location `((to reach) (loc ,?loc)))))
       (with-failure-handling 
-          ((move-base-failed (f)
+          ((move-arm-failed (f)
              (declare (ignore f))
-             ));(next-different-location-solution loc-to-reach)
+             (retry-with-next-solution loc-to-reach)))
         (achieve `(in-gripper ,?obj))
         (achieve `(robot-at ,loc-to-reach))
         (achieve `(hand-over ,(make-designator 'object
