@@ -22,16 +22,16 @@
     (clean-table-plan)))
 
 (def-top-level-cram-function clean-table-dummy ()
-  "Starts the plan with stubbed process modules"
+  "Deprecated!!! Starts the plan with stubbed process modules"
   (with-dummy-process-modules
     (clean-table-plan)))
 
 (def-cram-function clean-table-plan ()
   ""
   (with-designators ((loc-table (location '((on table)
-                                            (name "kichtchen_table"))))
+                                            (name "kitchen_table"))))
                      (loc-counter (location '((on counter)
-                                              (name "spuele")))))
-    (with-designators ((objs-edible (object `((edible t) 
-                                              (at ,(locate loc-table))))))
-      (achieve `(all ,objs-edible on ,loc-counter)))))
+                                              (name "spuele"))))
+                     (objs-edible (object `((edible t) 
+                                              (at ,loc-table)))))
+      (achieve `(all ,objs-edible on ,loc-counter))))

@@ -7,6 +7,8 @@
                cram-plan-knowledge
                roslisp-utilities
                semantic-map-costmap
+               cl-bullet
+               bullet-reasoning
                suturo-planning-common
                suturo-planning-planlib
                suturo-planning-pm-manipulation
@@ -23,4 +25,5 @@
     ((:file "package")
      (:file "costmap-metadata" :depends-on ("package"))
      (:file "sem-map-config" :depends-on ("package"))
-     (:file "suturo-planning-executive" :depends-on ("package" "costmap-metadata" "sem-map-config"))))))
+     (:file "robot-beliefstate" :depends-on ("package"))
+     (:file "suturo-planning-executive" :depends-on ("package" "costmap-metadata" "sem-map-config" "robot-beliefstate"))))))
