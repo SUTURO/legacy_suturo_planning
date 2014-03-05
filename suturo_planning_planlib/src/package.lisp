@@ -14,7 +14,7 @@
         #:cram-language-designator-support
         #:suturo-planning-common)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
-  (:export )
+  (:export init-localize)
   (:desig-properties 
    #:achieve
    #:object-in-hand

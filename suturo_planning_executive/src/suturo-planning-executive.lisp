@@ -1,5 +1,8 @@
 (in-package :suturo-planning-executive)
 
+(defvar *kitchen-table* "kitchen_island")
+(defvar *kitchen-counter* "kitchen_island_counter")
+
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
      (suturo-planning-pm-manipulation:suturo-planning-pm-manipulation
@@ -33,13 +36,13 @@
 
 (def-cram-function clean-table-plan ()
   ""
-  (with-designators ((loc-table (location '((on table)
-                                            (name "kitchen_table"))))
-                     (loc-counter (location '((on counter)
-                                              (name "spuele"))))
+  (with-designators ((loc-table (location '((on *kitchen-table*)
+                                            (name *kitchen-table*))))
+                     (loc-counter (location '((on *kitchen-counter*)
+                                              (name *kitchen-counter*))))
                      (objs-edible (object `((edible t) 
-                                              (at ,loc-table)))))
-      (achieve `(all ,objs-edible on ,loc-counter))))
+                                            (at ,loc-table)))))
+    (achieve `(all ,objs-edible on ,loc-counter))))
 
 (def-cram-function place-gently-plan (object location)
   ""

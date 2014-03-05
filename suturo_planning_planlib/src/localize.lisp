@@ -2,6 +2,9 @@
 
 (defvar *transform-listener* nil)
 
+(defvar *table-name* "kitchen_island")
+(defvar *counter-name* "kitchen_island_counter")
+
 (defvar *location-on-table-nr* 0)
 (defvar *location-on-counter-nr* 0)
 (defvar *locations-on-table* nil)
@@ -15,12 +18,11 @@
 
 (defun init-localize ()
   (setf *location-to-see-table* (make-pose '(0 0 0)
-                                          '(0 0 0 1)))
+                                           '(0 0 0 1)))
   (setf *location-to-see-counter* (make-pose '(0 0 0)
-                                          '(0 0 0 1)))) 
+                                             '(0 0 0 1)))) 
 
 (defun reference (loc)
-  (format t "lalalal~a ~%" (eql (desig-prop-value loc 'to) 'see))
   (cond
     ;; Location to reach something
     ((eql (desig-prop-value loc 'to) 'reach)
@@ -37,18 +39,18 @@
     ((eql (desig-prop-value loc 'to) 'see)
      (let ((name (desig-prop-value loc 'name)))
        (cond 
-         ((equal name "kitchen_island") *location-to-see-table*)
-         ((equal name "kitchen_island_counter") *location-to-see-counter*)))) 
+         ((equal name *kitchen-table*) *location-to-see-table*)
+         ((equal name *kitchen-counter*) *location-to-see-counter*)))) 
     ;; Location on something
     ((desig-prop-value loc 'on)
      (let ((name (desig-prop-value loc 'name)))
        (cond 
-         ((equal name "kitchen_island") 
+         ((equal name *kitchen-table*) 
           (if (not *locations-on-table*)
               (generate-locations-on name))
           (nth *location-on-table-nr*
                *locations-on-table*))
-         ((equal name "kitchen_island_counter") 
+         ((equal name *kitchen-counter*) 
           (if (not *locations-on-counter*)
               (generate-locations-on name))
           (nth *location-on-counter-nr*
@@ -61,11 +63,11 @@
     ((desig-prop-value loc 'on)
      (let ((name (desig-prop-value loc 'name)))
        (cond
-         ((equal name "kitchen_island") 
+         ((equal name *kitchen-table*) 
           (incf *location-on-table-nr*)
           (nth *location-on-table-nr* 
                *locations-on-table*))
-         ((equal name "kitchen_island_counter")
+         ((equal name *kitchen-counter*)
           (incf *location-on-counter-nr*)
           (nth *location-on-counter-nr*
                *locations-on-counter*)))))))
@@ -87,7 +89,7 @@
          (x (first coords))
          (y (second coords))
          (z (+ (third coords) (/ (third dims) 2)))
-         (locs (if (equal name "kitchen_island")
+         (locs (if (equal name *kitchen-table*)
                    *locations-on-table*
                    *locations-on-counter*)))
     (push (make-pose `(,x ,(+ y *gap-between-objects*) ,z) '(0 0 0 1)) locs)
