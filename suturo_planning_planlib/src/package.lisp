@@ -51,7 +51,8 @@
    #:type
    #:frame
    #:coords
-   #:obj 
+   #:obj
+   #:dimensions
    #:container
    #:use
    #:edible
@@ -59,10 +60,12 @@
    #:take-pose
    #:pose
    #:move-head
+   #:move-arm
    #:direction
    #:open-hand
    #:move-arm
    #:loc
+   #:location
    #:initial
    #:grip-force
    #:start-monitoring-gripper
@@ -74,6 +77,7 @@
    #:get-graspable-objects
    #:get-objects-with-properties
    #:placed-object-in-box
+   #:placed-gently
    #:get-best-arm
    #:get-location-over
    #:storage-for-food

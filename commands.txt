@@ -1,0 +1,76 @@
+(setf cafe  (make-designator 'object `((name "cafetfilter")
+                                       (dimensions (0.132 0.197 0.037))
+                                       (grip-force 50)
+                                       (at ,(make-designator 'location `((frame ,"/base_footprint")
+                                                                         (coords (0.1 0.6 0.7))))))))
+
+(setf dlink  (make-designator 'object `((name "dlink")
+                                       (dimensions (0.24 0.169 0.035))
+                                       (grip-force 50)
+                                       (at ,(make-designator 'location `((frame ,"/base_footprint")
+                                                                         (coords (0.4 -0.2 0.8))))))))
+
+(setf corny  (make-designator 'object `((name "corny")
+                                       (dimensions (0.143 0.145 0.036))
+                                       (grip-force 50)
+                                       (at ,(make-designator 'location `((frame ,"/base_footprint")
+                                                                         (coords (0.4 0.0 0.8))))))))
+
+(setf loc (make-designator 'location '((on cupboard) (name "kitchen_island"))))
+(
+call-grasp-action cafe 'left-arm)
+
+(call-move-arm-action (make-designator 'location '((frame "/odom_combined") (coords (0.00 0.65 1.15)) (pose (0.5 -0.5 0.5 0.5)))) 'left-arm)
+
+(suturo-planning-executive:place-gently-go cafe loc)
+
+;(call-move-arm-action (make-designator 'location '((frame "base_footprint") (coords (0.1 0.6 1.0)) (pose (0 0 1 0)))) 'left-arm)
+
+;(call-move-arm-action (make-designator 'location '((frame "/odom_combined") (coords (0.3 0.6 1.0)) (pose (0.5 0.5 0.5 0.5)))) 'left-arm)
+;(call-move-arm-action (make-designator 'location '((frame "/odom_combined") (coords (0.3 0.6 1.0)) (pose (0.5 -0.5 0.5 0.5)))) 'left-arm)
+;(call-move-arm-action (make-designator 'location '((frame "/odom_combined") (coords (0.3 -0.6 1.0)) (pose (0.5 0.5 0.5 -0.5)))) 'right-arm)
+
+;(call-move-arm-action (make-designator 'location '((frame "/odom_combined") (coords (0.73 -0.2 1.0)) (pose (0.5 -0.5 -0.5 -0.5)))) 'right-arm)
+
+
+
+; auf dem tisch
+(make-designator 'location '((on cupboard) (frame "/odom_combined") (coords (0.5 0.5 0.6))))
+
+(make-designator 'location '((on cupboard) (name "kitchen_island")))
+(setf loc (make-designator 'location '((on cupboard) (name "kitchen_island"))))
+
+
+(call-grasp-action (make-designator 'object `((grip-force 50) (name
+"corny") (at ,(make-designator 'location '((frame "asd")))))) 'left-arm)
+(call-open-hand-action (make-designator 'object `((name "corny") (at
+,(make-designator 'location '((frame "asd")))))))
+(call-move-head-action (make-designator 'location '((frame
+"base_footprint") (coords (3 2 1)))))
+(call-initial-action 'left-arm)
+(call-move-arm-action (make-designator 'location '((frame
+"base_footprint") (coords (0.5 0 1)))) 'left-arm)
+
+
+RECHTS
+	(0.5 0.5 0.5 0.5)
+	(0.5 0.5 0.5 -0.5)
+	(0.5 0.5 -0.5 0.5)
+	(0.5 -0.5 0.5 0.5)
+	(-0.5 0.5 0.5 0.5)
+	(0.5 0.5 -0.5 -0.5)
+	(0.5 -0.5 0.5 -0.5)
+	(-0.5 0.5 0.5 -0.5)
+	(0.5 -0.5 -0.5 -0.5)
+	(-0.5 0.5 -0.5 -0.5)
+	(-0.5 -0.5 -0.5 -0.5)
+	(0.5 0.5 0.5 0.5)
+	von oben
+		(-0.5 0.5 0.5 0.5)
+		(-0.5 -0.5 0.5 -0.5)
+
+
+
+LINKS
+	von oben
+		(0.5 -0.5 -0.5 -0.5)

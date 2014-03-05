@@ -21,6 +21,11 @@
   (with-process-modules
     (clean-table-plan)))
 
+(def-top-level-cram-function place-gently-go (obj loc)
+  "Starts the plan"
+  (with-process-modules
+    (place-gently-plan obj loc)))
+
 (def-top-level-cram-function clean-table-dummy ()
   "Deprecated!!! Starts the plan with stubbed process modules"
   (with-dummy-process-modules
@@ -35,3 +40,21 @@
                      (objs-edible (object `((edible t) 
                                               (at ,loc-table)))))
       (achieve `(all ,objs-edible on ,loc-counter))))
+
+(def-cram-function place-gently-plan (object location)
+  ""
+  (format t "Iniciating plan.~%")
+  (let ((corn (make-designator 'location `((on cupboard)
+                                           (name "corny")
+                                           (dimensions (10 15 20))
+                                           (grip-force 50)
+                                           (at ,(make-designator 'location `((frame ,"/base_footprint")
+                                                                             (coords (0.1 0.6 0.7))
+                                                                             (in left-gripper))))))))
+    (with-designators ((loc (location '((frame "/base_footprint")))))
+      (with-designators ((ob (object `((name "/corny") 
+                                       (at ,loc)
+                                       (grip-force 50)
+                                       (dimensions (10 15 20))))))
+        (format t "Achieving goal.~%")
+        (achieve `(,object placed-gently ,location))))))

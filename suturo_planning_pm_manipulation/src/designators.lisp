@@ -27,8 +27,8 @@
   (<- (action-desig ?desig (move-arm ?location ?arm)) ; pose arm coorsystem
     ;;Action designator for action to move the specified arm with the hand over the specified box.
     (desig-prop ?desig (to move-arm))
-    (desig-prop ?desig (arm ?arm))
-    (desig-prop ?desig (loc ?location)))
+    (desig-prop ?desig (loc ?location))
+    (desig-prop ?desig (arm ?arm)))
 
  (<- (action-desig ?desig (move-base ?pose-stamped)) 
    ;;Action designator for action to move the base to teh specified pose

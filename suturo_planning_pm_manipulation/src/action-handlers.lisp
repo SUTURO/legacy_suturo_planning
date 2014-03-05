@@ -106,17 +106,25 @@
 
 (defun make-grasp-action-goal (obj in-arm)
   (format t "make obj: ~a ~%in-arm:~a~%" obj in-arm)
-  (let* ((msg-header (roslisp:make-msg "std_msgs/Header"
+  (let* ((time (roslisp:ros-time))
+         (msg-header (roslisp:make-msg "std_msgs/Header"
                                        (seq) 4
-                                       (stamp) (roslisp:ros-time)
+                                       (stamp) time
                                        (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
          (msg-arm (roslisp:make-msg "suturo_manipulation_msgs/RobotBodyPart"
                                     (bodyPart) in-arm))
+         (msg-grasp-header (roslisp:make-msg "std_msgs/Header"
+                                       (seq) 4
+                                       (stamp) time
+                                       (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
+         (msg-action (roslisp:make-msg "suturo_manipulation_msgs/GraspingAndDrop"
+                                      (header) msg-grasp-header
+                                      (action) (get-grasp-constant 'grasp-action-grasp)))
          (msg-goal (roslisp:make-msg "suturo_manipulation_msgs/suturo_manipulation_grasping_goal"
                                      (header) msg-header 
                                      (objectName) (desig-prop-value obj 'name)
                                      (newton) (desig-prop-value obj 'grip-force)
-                                     (grasp) t
+                                     (action) msg-action
                                      (bodypart) msg-arm)))
     (format t "msg: ~a~%" msg-goal)
     (actionlib:make-action-goal *action-client-grasp*
@@ -315,6 +323,24 @@
   "Returns an action-client for the specified server and goal"
   (init-action-client server goal)
   *action-client*)
+
+(defun get-grasp-constant (action)
+  (string-downcase
+   (symbol-name
+    (cond
+      ((eq action 'grasp-action-grasp)
+       (roslisp-msg-protocol:symbol-code
+        'suturo_manipulation_msgs-msg:GraspingAndDrop :GRASP))
+      ((eq action 'grasp-action-drop)
+       (roslisp-msg-protocol:symbol-code
+        'suturo_manipulation_msgs-msg:GraspingAndDrop :DROP_OBJECT))
+      ((eq action 'grasp-action-open)
+       (roslisp-msg-protocol:symbol-code
+        'suturo_manipulation_msgs-msg:GraspingAndDrop :OPEN_GRIPPER))
+      (t (roslisp:ros-error
+          (suturo-pm-manipulation)
+          "Unhandled grasp/drop action: ~a" action)
+         (cpl:error 'suturo-planning-common::unhandled-grasp-action))))))
 
 (defun get-body-part-constant (body-part)
   (string-downcase

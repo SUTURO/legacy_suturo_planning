@@ -13,6 +13,7 @@ Otherwise returns `nil'"
 (defun get-last-gripper-pose (obj)
   "Returns the gripper's grasping pose of the gripper which is containing `obj'.
 If there isn't any `nil' is returned."
+  (format t "Getting last gripper pose.~%")
   (let* ((current-designator (current-desig obj))
          (parent-designator (if current-designator (parent current-designator)))
          (current-gripper nil)

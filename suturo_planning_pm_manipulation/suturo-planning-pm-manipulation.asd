@@ -11,7 +11,8 @@
                cram-projection
                cram-language
                cram-plan-library
-               suturo-planning-common)
+               suturo-planning-common
+               cl-transforms)
 
   :components
   ((:module "src"

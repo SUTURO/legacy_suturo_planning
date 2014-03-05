@@ -12,6 +12,7 @@
        #:cram-plan-failures
        #:cram-plan-knowledge
        #:suturo-planning-common)
+       ;#:suturo-planning-executive)
   (:import-from alexandria ignore-some-conditions)
   (:export suturo-planning-pm-manipulation)
   (:desig-properties #:to
@@ -36,9 +37,15 @@
                      #:get-gripper-state
                      #:name
                      #:frame
+                     #:location
+                     #:coords
+                     #:dimensions
                      #:left-arm
                      #:right-arm
                      #:left-gripper
                      #:right-gripper
                      #:type
-                     #:grip-force))
+                     #:grip-force
+                     #:grasping-action-grasp
+                     #:grasping-action-drop
+                     #:grasping-action-open))

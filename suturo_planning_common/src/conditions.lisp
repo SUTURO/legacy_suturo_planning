@@ -31,6 +31,11 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "unhandled-body-part"))
 
+;; The given action isn't specified or can't be used
+(define-condition unhandled-grasp-action (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "unhandled-grasp-action"))
+
 ;; The head of the robot couldn't be moved
 (define-condition move-head-failed (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))

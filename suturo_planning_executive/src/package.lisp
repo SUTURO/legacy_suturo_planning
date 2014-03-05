@@ -15,10 +15,10 @@
         #:suturo-planning-common
         #:suturo-planning-planlib
         #:suturo-planning-pmd-manipulation
-        #:suturo-planning-pmd-manipulation
         #:location-costmap)
   (:import-from cram-reasoning #:<- #:def-fact-group)
   (:import-from semantic-map-utils semantic-map-name)
+  (:export place-gently-go)
   (:desig-properties #:to 
                      #:grasp 
                      #:arm 
@@ -37,7 +37,12 @@
                      #:objects-perceived
                      #:home-pose
                      #:empty-hand
+                     #:placed-gently
                      #:hand-over
                      #:objects-and-boxes-perceived
                      #:get-holding-arm
-                     #:in-gripper))
+                     #:in-gripper
+                     #:dimensions
+                     #:location
+                     #:frame
+                     #:coords))
