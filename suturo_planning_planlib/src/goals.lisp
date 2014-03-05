@@ -2,7 +2,7 @@
 
 (define-policy dont-drop-object (arm)
   "Monitors the griper of the given arm and checks if it closes
-   completly"
+   completely"
   (:init (perform (make-designator 'action 
                                    '((to start-monitoring-gripper)))))
   (:check (sleep* 0.5)
@@ -31,6 +31,7 @@
   (achieve '(home-pose head)))
 
 (def-goal (achieve (home-pose ?body-part))
+  "Brings the specified robotpart in the home pose"
   (with-retry-counters ((retry-counter 2))
      (with-designators ((take-home-pose (action 
                                           `((to take-pose)
@@ -67,9 +68,8 @@
                  (setf arm (switch-arms arm))
                  (info-out (suturo planlib) "Trying again")
                  (retry))
-               ;; get next position
-               ;; (setf grasping-retry-counter 1)
-               ))
+               (setf grasping-retry-counter 1)
+               (retry-with-next-solution loc-to-reach)))
           (achieve `(robot-at ,loc-to-reach))
           (achieve `(object-in-hand ,?obj ,arm)))))))
   
