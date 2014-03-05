@@ -49,7 +49,9 @@ equates it with a exact location"
     (reverse output)))
 
 (defun object-output (obj)
-  (subseq (desig-prop-value obj 'name) 40))
+  (let ((name (desig-prop-value obj 'name)))
+    (if (> (length name) 40)
+        (subseq name 40))))
 
 (defun get-coords (desig)
   "Returns the coordinates of the object or location"

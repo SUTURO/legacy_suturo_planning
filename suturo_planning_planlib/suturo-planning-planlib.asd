@@ -9,14 +9,16 @@
                cl-tf
                suturo-planning-common
                nav_msgs-msg
-               location-costmap)
+               location-costmap
+               cram-json-prolog)
 
   :components
   ((:module "src"
     :components
     ((:file "package")
      (:file "suturo-planning-planlib" :depends-on ("package"))
-     (:file "achieve-on-in" :depends-on ("package" "suturo-planning-planlib"))
+     (:file "localize" :depends-on ("package"))
+     (:file "achieve-on-in" :depends-on ("package" "suturo-planning-planlib" "localize"))
      (:file "goals-manipulation" :depends-on ("package"))
-     (:file "goals-knowledge" :depends-on ("package"))
-     (:file "goals" :depends-on ("package" "suturo-planning-planlib" "goals-knowledge" "goals-manipulation"))))))
+     (:file "goals-knowledge" :depends-on ("package" "localize" "suturo-planning-planlib"))
+     (:file "goals" :depends-on ("package" "suturo-planning-planlib" "goals-knowledge" "goals-manipulation" "localize"))))))

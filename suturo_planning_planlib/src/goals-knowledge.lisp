@@ -1,19 +1,28 @@
 (in-package :suturo-planning-planlib)
 
 (def-goal (perceive (?obj))
-  (let ((objs (perform (make-designator 'action `((to get-objects-with-properties) (obj ,?obj))))))
+  (let ((objs (perform (make-designator 'action 
+                                        `((to get-objects-with-properties) 
+                                          (obj ,?obj))))))
     (if (not objs)
       (let* ((loc (desig-prop-value ?obj 'at))
-             ; TODO: Also consider 'in', ...
-             (on (desig-prop-value loc 'on)))
-        (if on
-          (let* ((on-obj (perceive (make-designator 'object `((name ,on)))))
-                 (over-obj (perform (make-designator 'action `((to get-location-over) (loc ,loc))))))
-            ; TODO: Bewegen
-            (perform (make-designator 'action `((to move-base) (pose ,(reference (make-designator 'location `((to see) (name "kitchen_island"))))))))
-            (perform (make-designator 'action `((to move-head) (loc ,over-obj))))
-            (perform (make-designator 'action '((to update-semantic-map))))
-            (perceive ?obj))))
+             (name (desig-prop-value loc 'name))
+             (on-obj (get-furniture name))
+             (coords (get-coords on-obj))
+             (frame (desig-prop-value (desig-prop-value on-obj 'at) 'frame)))
+        
+        (setf (nth 2 coords) (+ (nth 2 coords) 0.6))
+        (achieve `(robot-at ,(make-designator 'location 
+                                              `((to see) (name ,name)))))
+        (perform (make-designator 'action 
+                                  `((to move-head) 
+                                    (loc ,(make-designator 'location
+                                                           `((coords ,coords)
+                                                             (frame ,frame)))))))
+        (perform (make-designator 'action '((to update-semantic-map))))
+        (perform (make-designator 'action 
+                                  `((to get-objects-with-properties) 
+                                    (obj ,?obj)))))
       objs)))
 ; get objs from knwoledge
 ; if not objs

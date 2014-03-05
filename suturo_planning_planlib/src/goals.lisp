@@ -56,22 +56,24 @@
                      'right-gripper))
     (let ((arm (get-best-arm ?obj))
           (loc-to-reach (make-designator 'location 
-                                         `((to reach) (obj ,?obj)))))
-      (with-retry-counters ((grasping-retry-counter 1))
-        (with-failure-handling 
-            ((grasping-failed (f)
-               (declare (ignore f))
-               (error-out (suturo planlib) 
-                          "Grasping failed retry with other arm")
-               (achieve `(home-pose ,arm))
-               (do-retry grasping-retry-counter
-                 (setf arm (switch-arms arm))
-                 (info-out (suturo planlib) "Trying again")
-                 (retry))
-               (setf grasping-retry-counter 1)
-               (retry-with-next-solution loc-to-reach)))
+                                         `((to reach) (obj ,?obj))))
+          (try-other-arm t))
+      (with-failure-handling 
+          ((grasping-failed (f)
+             (declare (ignore f))
+             (error-out (suturo planlib) 
+                        "Grasping failed retry with other arm")
+             (achieve `(home-pose ,arm))
+             (when try-other-arm
+               (setf arm (switch-arms arm))
+               (info-out (suturo planlib) "Trying again")
+               (retry))
+             (if try-other-arm
+                 (setf try-other-arm nil)
+                 (setf try-other-arm t))
+             (retry-with-next-solution loc-to-reach)))
           (achieve `(robot-at ,loc-to-reach))
-          (achieve `(object-in-hand ,?obj ,arm)))))))
+          (achieve `(object-in-hand ,?obj ,arm))))))
   
 
 (def-goal (achieve (object-in-hand ?obj ?arm))
