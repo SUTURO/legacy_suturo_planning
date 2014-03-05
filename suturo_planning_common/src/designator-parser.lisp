@@ -86,3 +86,12 @@
                                                                    (pose ,pose))))
                                  (dimensions ,dimensions))))))
     (subseq (first (first jj)) 1)))
+
+(defun json-prolog->short-designators (jj)
+  "Converts a JSON-Prolog return value to object designators"
+  (mapcar (lambda (e)
+    (eval `(bind-pattern (frame-id centroid dimensions) ,e
+      (make-designator 'object `((at ,(make-designator 'location `((coords ,centroid)
+                                                                   (frame ,(symbol-name `,frame-id)))))
+                                 (dimensions ,dimensions))))))
+    (subseq (first (first jj)) 1)))
