@@ -88,10 +88,13 @@
     (subseq (first (first jj)) 1)))
 
 (defun json-prolog->short-designators (jj)
+  "Backwards compatibility function for json-prolog->short-designator"
+  `(,(json-prolog->short-designator jj)))
+
+(defun json-prolog->short-designator (jj)
   "Converts a JSON-Prolog return value to object designators"
-  (mapcar (lambda (e)
+  (let ((e (second (first (first jj)))))
     (eval `(bind-pattern (frame-id centroid dimensions) ,e
       (make-designator 'object `((at ,(make-designator 'location `((coords ,centroid)
                                                                    (frame ,(symbol-name `,frame-id)))))
-                                 (dimensions ,dimensions))))))
-    (subseq (first (first jj)) 1)))
+                                 (dimensions ,dimensions)))))))
