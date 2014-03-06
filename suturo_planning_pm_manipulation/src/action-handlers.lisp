@@ -170,12 +170,16 @@
                              (seq) 4
                              (stamp) (roslisp:ros-time)
                              (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
+         (msg-action (roslisp:make-msg "suturo_manipulation_msgs/GraspingAndDrop"
+                                       (header) msg-header
+                                       (action) (get-grasp-constant 'grasp-action-drop)))
          (msg-goal
            (roslisp:make-msg
             "suturo_manipulation_msgs/suturo_manipulation_grasping_goal"
             (header) msg-header 
             (objectName) (desig-prop-value obj 'name)
             (grasp) nil
+            (action) msg-action
             (bodypart) (roslisp:make-msg
                         "suturo_manipulation_msgs/RobotBodyPart"
                         (bodyPart) (get-body-part-constant arm)))))

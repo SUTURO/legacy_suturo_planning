@@ -33,9 +33,10 @@ If there isn't any `nil' is returned."
                        (progn
                          (setf current-designator parent-designator)
                          (setf parent-designator (parent parent-designator))))))
-        (format t "Object is not being hold by any gripper.~%at: ~a~%in: ~a"
+        (format t "Object is not being hold by any gripper.~%at: ~a~%in: ~a~%"
                 (desig-prop-value current-designator 'at)
                 (desig-prop-value (desig-prop-value current-designator 'at) 'in)))
+    (format t "get-last-gripper-pose result: ~a~%" result)
     result))
 
 (defun calc-gripper-offset (gripper offset-frame &key (target-frame "/base_link"))
