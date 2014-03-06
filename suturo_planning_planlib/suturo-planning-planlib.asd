@@ -6,7 +6,7 @@
                cram-plan-failures
                cram-plan-knowledge
                cram-language-designator-support
-               cl-tf
+               cl-transforms
                suturo-planning-common
                nav_msgs-msg
                location-costmap

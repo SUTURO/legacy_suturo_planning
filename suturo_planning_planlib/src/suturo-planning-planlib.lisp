@@ -38,7 +38,8 @@ equates it with a exact location"
   `(if (setf ,desig (next-solution ,desig))
        (retry)))
 
-(defun generate-output (occ)
+(defun generate-output (occ) nil)
+#|
   (let ((output nil))
     (map nil (lambda (item)
                (if (typep item 'object-designator)
@@ -47,6 +48,7 @@ equates it with a exact location"
                        (push item output))))
          occ)
     (reverse output)))
+|#
 
 (defun object-output (obj)
   (let ((name (desig-prop-value obj 'name)))

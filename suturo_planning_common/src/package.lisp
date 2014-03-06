@@ -31,7 +31,8 @@
            unhandled-condition
            get-holding-gripper
            get-last-gripper-pose
-           no-object-with-that-description)
+           no-object-with-that-description
+           calc-gripper-offset)
   (:desig-properties 
    #:left
    #:right

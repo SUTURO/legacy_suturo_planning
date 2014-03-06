@@ -7,7 +7,8 @@
                cram-plan-knowledge
                sound_play-msg
                roslisp-utilities
-               cl-ppcre)
+               cl-ppcre
+               cl-transforms)
   :components
   ((:module "src"
     :components

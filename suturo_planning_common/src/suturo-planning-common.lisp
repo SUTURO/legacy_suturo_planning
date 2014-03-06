@@ -37,3 +37,52 @@ If there isn't any `nil' is returned."
                 (desig-prop-value current-designator 'at)
                 (desig-prop-value (desig-prop-value current-designator 'at) 'in)))
     result))
+
+(defun calc-gripper-offset (gripper offset-frame &key (target-frame "/base_link"))
+  (format t
+          "Calculating offset. gripper: ~a, offset-frame: ~a, target-frame: ~a~%"
+          gripper offset-frame target-frame)
+  (defparameter *tf* (make-instance 'cl-tf:transform-listener))
+  (let ((gripper-vector nil)
+        (offset-vector nil)
+        (result nil)
+        (pov-frame (cond
+                     ((position gripper '(left-gripper left-arm)) "l_wrist_roll_link")
+                     ((position gripper '(right-gripper right-arm)) "r_wrist_roll_link")
+                     (t (cpl:error 'suturo-planning-common::unhandled-body-part)))))
+    (if (and (setf gripper-vector (transform pov-frame target-frame))
+             (setf offset-vector (transform offset-frame target-frame)))          
+        (progn
+          (setf result (cl-transforms:v- offset-vector gripper-vector))
+          (if (position gripper '(right-gripper right-arm))
+              (setf result
+                    (cl-transforms:make-3d-vector
+                     (cl-transforms:x offset-vector)
+                     (* -1 (cl-transforms:y result))
+                     (* -1 (cl-transforms:z result)))))))))
+
+(defun transform (source-frame target-frame &key (timeout 5))
+  (let ((time (roslisp:ros-time))
+        (result nil)
+        (intents 5))
+    (loop while (and (not result) (> intents 0))
+          do (setf result
+                   (tf:wait-for-transform *tf*
+                                          :timeout timeout
+                                          :time time
+                                          :source-frame source-frame
+                                          :target-frame target-frame))
+             (if (not result)
+                 (progn
+                   (format t "No result. Result: ~a, *tf*: ~a. Retrying.~%" result *tf*)
+                   (decf intents)
+                   (setf time (roslisp:ros-time)))))
+    (if result
+        (progn
+          (cl-transforms:origin
+           (cl-transforms:transform->pose
+            (tf:lookup-transform *tf*
+                                 :time time
+                                 :source-frame source-frame
+                                 :target-frame target-frame))))
+        nil)))
