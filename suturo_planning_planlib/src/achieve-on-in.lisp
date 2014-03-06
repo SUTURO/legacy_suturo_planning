@@ -42,7 +42,7 @@
 
 (def-goal (achieve (the ?obj on ?loc))
   "Puts one object matching the description of ?obj on ?loc"
-  (with-designators ((loc-to-reach (location `((to reach) (loc ,?loc)))))
+  (with-designators ((loc-to-reach (location `((to place) (loc ,?loc)))))
     (with-failure-handling 
         ((place-failed (f)
            (declare (ignore f))

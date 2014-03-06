@@ -24,11 +24,11 @@
 
 (defun reference (loc)
   (cond
-   ;; Location to reach something
+    ;; Location to reach something
     ((eql (desig-prop-value loc 'to) 'reach)
-     (let* ((obj (desig-prop-value loc 'obj))
-            (coords (desig-prop-value obj 'coords)))
-       (make-pose `(,(- (nth 0 coords) *gap-object-robot*) ,(nth 1 coords) 0)
+     (let* ((loc2 (desig-prop-value loc 'loc))
+            (pose (reference loc2)))
+       (make-pose `(,(- (cl-tf:x pose) *gap-object-robot*) ,(cl-tf:y pose) 0)
                   '(0 0 0 1))))
     ;; Location to place something
     ((eql (desig-prop-value loc 'to) 'place)
@@ -56,7 +56,7 @@
           (nth *location-on-counter-nr*
                *locations-on-counter*)))))
     ;; Someone fucked up
-    (t nil)))
+    (t loc)))
 
 (defun next-solution (loc)
   (cond 
@@ -89,7 +89,7 @@
          (x (first coords))
          (y (second coords))
          (z (+ (third coords) (/ (third dims) 2)))
-         (locs (if (equal name *kitchen-table*)
+         (locs (if (equal name *table-name*)
                    *locations-on-table*
                    *locations-on-counter*)))
     (push (make-pose `(,x ,(+ y *gap-between-objects*) ,z) '(0 0 0 1)) locs)
@@ -99,9 +99,8 @@
 
 (defun get-furniture (name)
   (let ((gen (json-prolog:prolog-simple-1 (format nil
-                                                  "getKnowrobDimensions('~a',Out)"
+                                                  "getKnowrobDimension('~a',Out)"
                                                   name))))
-    (format t "f ~a" gen)
-    (first (suturo-planning-common::json-prolog->short-designators gen))))
+     (suturo-planning-common::json-prolog->short-designator gen)))
     
     
