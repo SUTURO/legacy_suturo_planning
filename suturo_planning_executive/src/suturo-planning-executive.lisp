@@ -47,5 +47,4 @@
 (def-cram-function place-gently-plan (object location)
   ""
   (format t "Iniciating plan.~%")
-  (format t "Achieving goal.~%")
   (achieve `(,object placed-gently ,location)))

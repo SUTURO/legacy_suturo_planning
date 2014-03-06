@@ -47,6 +47,26 @@
                 (info-out (suturo planlib) "Trying again")
                 (retry))))
          (perform take-home-pose)))))
+
+(def-goal (achieve (arm-at ?arm ?loc))
+  "Brings the specified arm `?arm' to the location `?loc'"
+  (format t "Achieving ~a at ~a~%" ?arm ?loc)
+  (with-retry-counters ((retry-counter 2))
+     (with-designators ((move (action 
+                               `((to move-arm)
+                                 (loc ,?loc)
+                                 (arm ,?arm)))))
+       (with-failure-handling 
+           ((move-arm-failed (f)
+              (declare (ignore f))
+              (error-out (suturo planlib) 
+                         "Failed to move ~a to location ~a~%"
+                         ?arm
+                         ?loc)
+              (do-retry retry-counter
+                (info-out (suturo planlib) "Trying again")
+                (retry))))
+         (perform move)))))
   
 
 (def-goal (achieve (in-gripper ?obj))

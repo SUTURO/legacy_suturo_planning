@@ -35,7 +35,11 @@
                      #:object-in-box
                      #:objects-in-appropriate-boxes
                      #:objects-perceived
+                     #:take-pose
+                     #:right-arm
+                     #:body-part
                      #:home-pose
+                     #:pose
                      #:empty-hand
                      #:placed-gently
                      #:hand-over
@@ -45,4 +49,6 @@
                      #:dimensions
                      #:location
                      #:frame
+                     #:action
+                     #:move-arm
                      #:coords))

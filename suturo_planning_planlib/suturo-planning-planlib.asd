@@ -8,6 +8,7 @@
                cram-language-designator-support
                cl-transforms
                suturo-planning-common
+               suturo-planning-pm-manipulation
                nav_msgs-msg
                ;location-costmap
                cram-json-prolog)
@@ -19,6 +20,6 @@
      (:file "suturo-planning-planlib" :depends-on ("package"))
      (:file "localize" :depends-on ("package"))
      (:file "achieve-on-in" :depends-on ("package" "suturo-planning-planlib" "localize"))
-     (:file "goals-manipulation" :depends-on ("package"))
+     (:file "goals-manipulation" :depends-on ("package" "localize" "suturo-planning-planlib"))
      (:file "goals-knowledge" :depends-on ("package" "localize" "suturo-planning-planlib"))
      (:file "goals" :depends-on ("package" "suturo-planning-planlib" "goals-knowledge" "goals-manipulation" "localize"))))))

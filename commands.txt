@@ -21,6 +21,9 @@
 (call-grasp-action cafe 'left-arm)
 (call-grasp-action corny 'right-arm)
 
+(call-initial-action 'left-arm)
+(call-initial-action 'right-arm)
+
 (call-move-arm-action (make-designator 'location '((frame "/odom_combined") (coords (0.00 0.65 1.15)) (pose (0.5 -0.5 0.5 0.5)))) 'left-arm)
 
 (suturo-planning-executive::place-gently-go cafe loc)

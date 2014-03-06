@@ -22,6 +22,7 @@
    #:objects-in-appropriate-boxes
    #:objects-perceived
    #:home-pose
+   #:arm-at
    #:empty-hand
    #:hand-over
    #:objects-and-boxes-perceived
@@ -43,7 +44,6 @@
    #:right-gripper
    #:all
    #:body-part
-   #:home-pose
    #:on
    #:at
    #:in

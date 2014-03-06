@@ -10,7 +10,7 @@ The location has to be reachable without having to move the robot's base."
   (let* (;(pose-stamped (reference ?loc))
          (pose-stamped (cl-tf:make-pose-stamped
                         "/base_link" 0.0
-                        (cl-transforms:make-3d-vector 0.5 -0.1 0.6)
+                        (cl-transforms:make-3d-vector 0.5 0.35 0.6)
                         (cl-transforms:make-quaternion 0 0 0 1)))
          (frame (cl-tf:frame-id pose-stamped))
          (vector (cl-tf:origin pose-stamped))
@@ -18,9 +18,9 @@ The location has to be reachable without having to move the robot's base."
          (y (cl-tf:y vector))
          (z (cl-tf:z vector))
          (object-dimensions (desig-prop-value ?obj 'dimensions))
-         (object-max-dimension (max (first object-dimensions)
+         (object-max-dimension (/ (max (first object-dimensions)
                                     (second object-dimensions)
-                                    (third object-dimensions)))
+                                    (third object-dimensions)) 2.0))
          (alternate-z (+ z (* object-max-dimension *inaccuracy-factor*)))
          (aa (format t "alternate-z: ~a~%" alternate-z))
          (lowest-possible-z )
@@ -40,7 +40,10 @@ The location has to be reachable without having to move the robot's base."
                                                ,(+ alternate-z (cl-transforms:z offset-loc))))
                                      (pose ,pose)))))
     (format t "Created variables~%")
-    (format t "Moving ~a over given location...~%" arm)
+    (format t "Moving ~a over given location: ~a~%" arm alternate-loc)
+    (achieve `(arm-at ,arm ,alternate-loc))
+
+    #|
     (with-retry-counters ((move-arm-over-loc-retry-counter 2))
       (with-failure-handling
           ((suturo-planning-common::move-arm-failed (f)
@@ -54,7 +57,10 @@ The location has to be reachable without having to move the robot's base."
         (with-designators ((move-arm (action `((to move-arm)
                                                (loc ,alternate-loc)
                                                (arm ,arm)))))
+          (format t "performing ~a~%" move-arm)
           (perform move-arm))))
+    |#
+
     (format t "Lowering arm...~%")
     (with-retry-counters ((lower-arm-counter 5))
       (with-failure-handling

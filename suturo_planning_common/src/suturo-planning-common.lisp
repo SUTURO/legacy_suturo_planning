@@ -59,24 +59,30 @@ If there isn't any `nil' is returned."
                     (cl-transforms:make-3d-vector
                      (cl-transforms:x offset-vector)
                      (* -1 (cl-transforms:y result))
-                     (* -1 (cl-transforms:z result)))))))))
+                     (* -1 (cl-transforms:z result)))))))
+    result))
 
 (defun transform (source-frame target-frame &key (timeout 5))
+  (format t "transforming from ~a to ~a~%" source-frame target-frame)
   (let ((time (roslisp:ros-time))
         (result nil)
         (intents 5))
     (loop while (and (not result) (> intents 0))
-          do (setf result
+          do (format t "looping result: ~a timeout: ~a~%" result timeout)
+             (sleep 1)
+             (setf result
                    (tf:wait-for-transform *tf*
                                           :timeout timeout
                                           :time time
                                           :source-frame source-frame
                                           :target-frame target-frame))
+             (format t "result: ~a~%" result)
              (if (not result)
                  (progn
                    (format t "No result. Result: ~a, *tf*: ~a. Retrying.~%" result *tf*)
                    (decf intents)
                    (setf time (roslisp:ros-time)))))
+    (format t "after loop~%")
     (if result
         (progn
           (cl-transforms:origin
