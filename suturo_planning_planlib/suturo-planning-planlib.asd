@@ -9,7 +9,7 @@
                cl-transforms
                suturo-planning-common
                nav_msgs-msg
-               location-costmap
+               ;location-costmap
                cram-json-prolog)
 
   :components

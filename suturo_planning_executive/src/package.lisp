@@ -14,10 +14,10 @@
         #:cram-language-designator-support
         #:suturo-planning-common
         #:suturo-planning-planlib
-        #:suturo-planning-pmd-manipulation
-        #:location-costmap)
-  (:import-from cram-reasoning #:<- #:def-fact-group)
-  (:import-from semantic-map-utils semantic-map-name)
+        #:suturo-planning-pmd-manipulation)
+        ;#:location-costmap)
+  ;(:import-from cram-reasoning #:<- #:def-fact-group)
+  ;(:import-from semantic-map-utils semantic-map-name)
   (:export place-gently-go)
   (:desig-properties #:to 
                      #:grasp 
