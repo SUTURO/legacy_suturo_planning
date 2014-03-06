@@ -1,7 +1,7 @@
 (in-package :cl-user)
 
 (desig-props:def-desig-package suturo-planning-pm-manipulation
- (:nicknames :suturo-pm-manipulation)
+ (:nicknames :sp-manipulation)
  (:use #:common-lisp
        #:crs
        #:cut

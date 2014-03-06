@@ -1,7 +1,7 @@
 (in-package :cl-user)
 
 (desig-props:def-desig-package suturo-planning-planlib
-  (:nicknames :s-p-planlib)
+  (:nicknames :sp-planlib)
   (:use #:roslisp
         #:cram-utilities
         #:designators-ros
@@ -12,6 +12,7 @@
         #:cram-plan-failures
         #:cram-plan-library
         #:cram-language-designator-support
+        #:cram-process-modules
         #:suturo-planning-common)
   (:import-from #:cram-reasoning #:<- #:def-fact-group)
   (:export init-localize)

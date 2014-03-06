@@ -1,7 +1,7 @@
 (in-package :cl-user)
 
 (desig-props:def-desig-package suturo-planning-pm-gripper-monitor
- (:nicknames :suturo-pm-gripper-monitor)
+ (:nicknames :sp-gripper-monitor)
  (:use #:common-lisp
        #:crs
        #:cut

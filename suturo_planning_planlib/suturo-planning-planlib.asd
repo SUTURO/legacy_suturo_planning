@@ -6,12 +6,16 @@
                cram-plan-failures
                cram-plan-knowledge
                cram-language-designator-support
-               cl-transforms
+               cl-tf
                suturo-planning-common
                suturo-planning-pm-manipulation
+               suturo-planning-pm-knowledge
+               suturo-planning-pm-gripper-monitor
+               suturo-planning-pm-utils
                nav_msgs-msg
-               ;location-costmap
-               cram-json-prolog)
+               location-costmap
+               cram-json-prolog
+               process-modules)
 
   :components
   ((:module "src"
@@ -20,6 +24,6 @@
      (:file "suturo-planning-planlib" :depends-on ("package"))
      (:file "localize" :depends-on ("package"))
      (:file "achieve-on-in" :depends-on ("package" "suturo-planning-planlib" "localize"))
-     (:file "goals-manipulation" :depends-on ("package" "localize" "suturo-planning-planlib"))
+     (:file "goals-manipulation" :depends-on ("package"))
      (:file "goals-knowledge" :depends-on ("package" "localize" "suturo-planning-planlib"))
      (:file "goals" :depends-on ("package" "suturo-planning-planlib" "goals-knowledge" "goals-manipulation" "localize"))))))

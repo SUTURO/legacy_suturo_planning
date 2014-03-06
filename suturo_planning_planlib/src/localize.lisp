@@ -39,18 +39,18 @@
     ((eql (desig-prop-value loc 'to) 'see)
      (let ((name (desig-prop-value loc 'name)))
        (cond 
-         ((equal name *kitchen-table*) *location-to-see-table*)
-         ((equal name *kitchen-counter*) *location-to-see-counter*)))) 
+         ((equal name *table-name*) *location-to-see-table*)
+         ((equal name *counter-name*) *location-to-see-counter*)))) 
     ;; Location on something
     ((desig-prop-value loc 'on)
      (let ((name (desig-prop-value loc 'name)))
        (cond 
-         ((equal name *kitchen-table*) 
+         ((equal name *table-name*) 
           (if (not *locations-on-table*)
               (generate-locations-on name))
           (nth *location-on-table-nr*
                *locations-on-table*))
-         ((equal name *kitchen-counter*) 
+         ((equal name *counter-name*) 
           (if (not *locations-on-counter*)
               (generate-locations-on name))
           (nth *location-on-counter-nr*
