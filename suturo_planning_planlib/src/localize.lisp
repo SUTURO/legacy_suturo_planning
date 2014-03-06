@@ -2,8 +2,8 @@
 
 (defvar *transform-listener* nil)
 
-(defvar *table-name* "kitchen_island")
-(defvar *counter-name* "kitchen_island_counter")
+(defvar *table-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top")
+(defvar *counter-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block_counter_top")
 
 (defvar *location-on-table-nr* 0)
 (defvar *location-on-counter-nr* 0)
@@ -24,7 +24,7 @@
 
 (defun reference (loc)
   (cond
-    ;; Location to reach something
+   dfg ;; Location to reach something
     ((eql (desig-prop-value loc 'to) 'reach)
      (let* ((obj (desig-prop-value loc 'obj))
             (coords (desig-prop-value obj 'coords)))
@@ -63,11 +63,11 @@
     ((desig-prop-value loc 'on)
      (let ((name (desig-prop-value loc 'name)))
        (cond
-         ((equal name *kitchen-table*) 
+         ((equal name *table-name*) 
           (incf *location-on-table-nr*)
           (nth *location-on-table-nr* 
                *locations-on-table*))
-         ((equal name *kitchen-counter*)
+         ((equal name *counter-name*)
           (incf *location-on-counter-nr*)
           (nth *location-on-counter-nr*
                *locations-on-counter*)))))))
@@ -99,8 +99,9 @@
 
 (defun get-furniture (name)
   (let ((gen (json-prolog:prolog-simple-1 (format nil
-                                                  "getDimensions('~a',Out)"
+                                                  "getKnowrobDimensions('~a',Out)"
                                                   name))))
+    (format t "f ~a" gen)
     (first (suturo-planning-common::json-prolog->short-designators gen))))
     
     

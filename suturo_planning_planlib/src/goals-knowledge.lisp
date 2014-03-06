@@ -1,9 +1,10 @@
 (in-package :suturo-planning-planlib)
 
 (def-goal (perceive (?obj))
-  (let ((objs (perform (make-designator 'action 
-                                        `((to get-objects-with-properties) 
-                                          (obj ,?obj))))))
+  (let ((objs (sp-knowledge::call-action 'get-objects-with-properties ?obj)))
+          ;;(perform (make-designator 'action 
+          ;;                              `((to get-objects-with-properties) 
+          ;;                                (obj ,?obj))))))
     (if (not objs)
       (let* ((loc (desig-prop-value ?obj 'at))
              (name (desig-prop-value loc 'name))
@@ -12,8 +13,9 @@
              (frame (desig-prop-value (desig-prop-value on-obj 'at) 'frame)))
         
         (setf (nth 2 coords) (+ (nth 2 coords) 0.6))
-        (achieve `(robot-at ,(make-designator 'location 
-                                              `((to see) (name ,name)))))
+        (setf (nth 1 coords) (+ (nth 1 coords) 0.4))
+        ;;(achieve `(robot-at ,(make-designator 'location 
+        ;;                                      `((to see) (name ,name)))))
         #|(perform (make-designator 'action 
                                   `((to move-head) 
                                     (loc ,(make-designator 'location
@@ -23,6 +25,16 @@
         (perform (make-designator 'action 
                                   `((to get-objects-with-properties) 
                                     (obj ,?obj)))))|#
+        (sp-knowledge::call-action 'move-head 
+                                   (make-designator 'location
+                                                    `((coords ,coords)
+                                                      (frame ,frame))))
+        (setf (nth 1 coords) (- (nth 1 coords) 0.8))
+        (sp-knowledge::call-action 'move-head 
+                                   (make-designator 'location
+                                                    `((coords ,coords)
+                                                      (frame ,frame))))
+        (setf (nth 1 coords) (+ (nth 1 coords) 0.4))
         (sp-knowledge::call-action 'move-head 
                                    (make-designator 'location
                                                     `((coords ,coords)
