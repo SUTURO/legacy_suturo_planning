@@ -150,7 +150,7 @@
                                          ((eql arm 'left-arm) 'left-gripper)
                                          ((eql arm 'right-arm) 'right-gripper)
                                          (t nil)))
-                                  (pose ,(suturo-pm-gripper-monitor:get-gripper-pose
+                                  (pose ,(sp-gripper-monitor:get-gripper-pose
                                           arm
                                           :target-frame frame)))
                                 (description loc-old))))

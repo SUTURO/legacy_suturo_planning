@@ -32,10 +32,12 @@
                          (t nil)))                        
          (time (roslisp:ros-time))
          (result nil)
-         (intents 5))
+         (intents 5)
+         (timeout 1))
     (loop while (and source-frame (not result) (> intents 0))
-          do (setf result (tf:wait-for-transform *tf*
-                                                 :timeout 1
+          do (setf timeout (* timeout 1.5))
+             (setf result (tf:wait-for-transform *tf*
+                                                 :timeout timeout
                                                  :time time
                                                  :source-frame source-frame
                                                  :target-frame target-frame))

@@ -36,6 +36,8 @@
                      #:objects-in-appropriate-boxes
                      #:objects-perceived
                      #:take-pose
+                     #:initial
+                     #:both-arms
                      #:right-arm
                      #:body-part
                      #:home-pose
@@ -48,6 +50,11 @@
                      #:in-gripper
                      #:dimensions
                      #:location
+                     #:all
+                     #:on
+                     #:edible
+                     #:name
+                     #:at
                      #:frame
                      #:action
                      #:move-arm

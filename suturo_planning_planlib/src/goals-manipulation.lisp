@@ -8,11 +8,13 @@
 The location has to be reachable without having to move the robot's base."
   (info-out (suturo planlib) "Placing object gently: ~a" ?obj)
   (sleep 1.0)
-  (let* (;(pose-stamped (reference ?loc))
+  (let* ((pose-stamped (reference ?loc))
+         #|
          (pose-stamped (cl-tf:make-pose-stamped
                         "/base_footprint" 0.0
-                        (cl-transforms:make-3d-vector 0.4 0.4 0.6)
+                        (cl-transforms:make-3d-vector 0.5 0.4 0.6)
                         (cl-transforms:make-quaternion 0 0 0 1)))
+         |#
          (frame (cl-tf:frame-id pose-stamped))
          (vector (cl-tf:origin pose-stamped))
          (x (cl-tf:x vector))
@@ -26,13 +28,8 @@ The location has to be reachable without having to move the robot's base."
                                   2.0))
          (object-offset (* object-max-dimension *inaccuracy-factor*))
          (ac (format t "object-offset: ~a~%" object-offset))
-         (lowest-possible-z )
          (pose (suturo-planning-common:get-last-gripper-pose ?obj))
          (arm (get-holding-arm ?obj))
-         (pov-frame (cond
-                      ((eq arm 'left-arm) "/l_wrist_roll_link")
-                      ((eq arm 'right-arm) "r_wrist_roll_link")
-                      (t (cpl:error 'suturo-planning-common::unhandled-body-part))))
          (obj-name (desig-prop-value ?obj 'name))
          (offset-loc (calc-gripper-offset arm obj-name))
          (alternate-x (+ x (cl-transforms:x offset-loc)))
@@ -67,23 +64,28 @@ The location has to be reachable without having to move the robot's base."
                                             ,alternate-z))
                                    (pose ,pose)))))
           (achieve `(arm-at ,arm ,location)))))
-           #|
-    (with-retry-counters ((place-retry-counter 2))
-      (let* ((arm (get-holding-arm ?obj)))
+    (format t "Trying to lower even more~%")
+    (let* ((distance (+ (- object-offset object-max-dimension) *put-over-offset*))
+           (step (/ distance 3.0))
+           (retries (floor(/ distance step))))
+      (with-retry-counters ((lower-arm-counter retries))
         (with-failure-handling
-            ((suturo-planning-common::place-failed (f)
+            ((suturo-planning-common::move-arm-failed (f)
                (declare (ignore f))
-               (error-out (suturo planlib) "Failed to place object gently on given location.")
-               (sleep 2.0)
-               (do-retry place-retry-counter
-                 (info-out (suturo planib) "Trying again.")
-                 (sleep 1.0)
+               (format t "Failed to lower arm.~%.")
+               (setf distance (- distance step))
+               (do-retry lower-arm-counter
+                 (format t "Trying again. This time a little bit higher.~%")
                  (retry))))
-          (with-designators ((open-hand (action `((to open-hand)
-                                                  (obj ,?obj)))))
-            (perform open-hand)))))
-    |#
-    (info-out (suturo planlib) "Droped, object")))
-
-
-;              (perform (make-designator 'action `((to move-arm) (loc ,loc-des) (arm ,arm))))
+          (with-designators             
+              ((location (location `((frame ,frame)
+                                     (coords (,alternate-x
+                                              ,alternate-y
+                                              ,(- alternate-z distance)))
+                                     (pose ,pose)))))
+            (loop while (> distance 0)
+                  do
+                     (achieve `(arm-at ,arm ,location))
+                     (set distance (- distance step)))))))
+    (achieve `(emtpy-hand ?obj))
+    (info-out (suturo planlib) "Droped, object~%")))

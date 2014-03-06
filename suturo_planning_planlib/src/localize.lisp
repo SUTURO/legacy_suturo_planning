@@ -24,7 +24,7 @@
 
 (defun reference (loc)
   (cond
-   dfg ;; Location to reach something
+   ;; Location to reach something
     ((eql (desig-prop-value loc 'to) 'reach)
      (let* ((obj (desig-prop-value loc 'obj))
             (coords (desig-prop-value obj 'coords)))
