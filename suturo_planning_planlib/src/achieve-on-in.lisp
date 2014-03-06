@@ -2,6 +2,7 @@
 
 (def-goal (achieve (all ?obj ?prep ?loc))
   "All objects matching the description of ?obj will be put on ?loc"
+  (format t "asdasd~a~a~a" ?obj ?prep ?loc)
   (with-perceived-objects ((objs ?obj))
     (if (not objs)
         (fail 'no-object-with-that-description))
