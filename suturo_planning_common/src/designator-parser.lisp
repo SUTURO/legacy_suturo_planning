@@ -97,7 +97,7 @@
 
 (defun json-prolog->short-designator (jj)
   "Converts a JSON-Prolog return value to object designators"
-  (let ((e (second (first (first jj)))))
+  (let ((e (subseq (first (first jj)) 1)))
     (eval `(bind-pattern (centroid dimensions) ,e
       (make-designator 'object `((at ,(make-designator 'location `((coords ,centroid)
                                                                    (frame "/map"))))
