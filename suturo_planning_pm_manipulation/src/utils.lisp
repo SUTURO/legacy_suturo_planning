@@ -83,3 +83,20 @@ When call-goal succeeds, `on-success-fn' will be executed."
     (t
      (roslisp:ros-info suturo-planning-pm-manipulation "Unhandled action answer.")
      (cpl:error 'suturo-planning-common::unhandled-action-answer))))
+
+#|
+(defun listen-man-topics ()
+  (roslisp:subscribe "/suturo_man_grasping" nil nil))
+|#
+
+(defun get-man-topic-result (msg)
+  (let ((res nil))
+    (roslisp:with-fields (result) msg
+      (if (not result)
+          (setf res (list result nil nil))
+          (roslisp:with-fields (succ) result
+            (if (not succ)
+                (setf res (list result succ nil))
+                (roslisp:with-fields (type) succ
+                  (setf res (list result succ type)))))))
+    res))
