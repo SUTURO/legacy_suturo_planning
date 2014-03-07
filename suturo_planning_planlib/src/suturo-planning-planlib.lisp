@@ -1,8 +1,8 @@
 (in-package :suturo-planning-planlib)
 
 (declare-goal achieve (occasion)
-  "Achieves `occasion' if it is not yet achieved."
-  (ros-info (suturo planlib) "Trying to achieve ~a" (generate-output occasion)))
+  "Achieves `occasion' if it is not yet achieved.")
+  ;(ros-info (suturo planlib) "Trying to achieve ~a" (generate-output occasion)))
   ;(when (holds occasion)
    ; (info-out (planlib) "Occasion '~a' already achieved." occasion)
     ;(return nil)))
@@ -38,8 +38,7 @@ equates it with a exact location"
   `(if (setf ,desig (next-solution ,desig))
        (retry)))
 
-(defun generate-output (occ) nil)
-#|
+(defun generate-output (occ)
   (let ((output nil))
     (map nil (lambda (item)
                (if (typep item 'object-designator)
@@ -48,7 +47,6 @@ equates it with a exact location"
                        (push item output))))
          occ)
     (reverse output)))
-|#
 
 (defun object-output (obj)
   (let ((name (desig-prop-value obj 'name)))

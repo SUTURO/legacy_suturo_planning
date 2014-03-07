@@ -220,17 +220,17 @@
 (defvar *action-client-move-arm* nil)
 
 (defun make-move-arm-goal (pose-stamped in-arm)
-  (format t "make-move-arm-goal pose-stamped: ~a~% arm:~a~%" pose-stamped in-arm)
+  ;(format t "make-move-arm-goal pose-stamped: ~a~% arm:~a~%" pose-stamped in-arm)
   (actionlib:make-action-goal *action-client-move-arm* 
     ps pose-stamped
     bodypart (roslisp:make-msg "suturo_manipulation_msgs/RobotBodyPart"
                                (bodyPart) in-arm)))
 
 (defun call-move-arm-action (location arm)
-  (format t "call-move-arm-action arm:~a~%" arm)
+  ;(format t "call-move-arm-action arm:~a~%" arm)
   (setf *action-client-move-arm* (get-action-client "suturo_man_move_arm_server"
                                                     "suturo_manipulation_msgs/suturo_manipulation_moveAction"))
-  (format t "getting frame and coords.~%")
+  ;(format t "getting frame and coords.~%")
   (let* ((frame (desig-prop-value location 'frame))
          (coords (desig-prop-value location 'coords))
          (pose (desig-prop-value location 'pose))
@@ -252,7 +252,7 @@
          (pose-stamped-msg (roslisp:make-msg "geometry_msgs/PoseStamped"
                                              (header) header-msg
                                              (pose) pose-msg)))
-    (format t "created helper messages.~%")
+    ;(format t "created helper messages.~%")
     (with-lost-in-resultation-workaround
       *action-client-move-arm*
       (make-move-arm-goal pose-stamped-msg (get-body-part-constant arm))

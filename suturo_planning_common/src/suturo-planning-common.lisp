@@ -36,7 +36,6 @@ If there isn't any `nil' is returned."
         (format t "Object is not being hold by any gripper.~%at: ~a~%in: ~a~%"
                 (desig-prop-value current-designator 'at)
                 (desig-prop-value (desig-prop-value current-designator 'at) 'in)))
-    (format t "get-last-gripper-pose result: ~a~%" result)
     result))
 
 (defun calc-gripper-offset (gripper offset-frame &key (target-frame "/base_link"))
@@ -63,14 +62,12 @@ If there isn't any `nil' is returned."
                      (* -1 (cl-transforms:z result)))))))
     result))
 
-(defun transform (source-frame target-frame &key (timeout 5))
-  (format t "transforming from ~a to ~a~%" source-frame target-frame)
+(defun transform (source-frame target-frame &key (timeout 2))
   (let ((time (roslisp:ros-time))
         (result nil)
         (intents 5))
     (loop while (and (not result) (> intents 0))
-          do (format t "looping result: ~a timeout: ~a~%" result timeout)
-             (sleep 1)
+          do (setf timeout (* timeout 1.5))
              (setf result
                    (tf:wait-for-transform *tf*
                                           :timeout timeout
@@ -83,7 +80,6 @@ If there isn't any `nil' is returned."
                    (format t "No result. Result: ~a, *tf*: ~a. Retrying.~%" result *tf*)
                    (decf intents)
                    (setf time (roslisp:ros-time)))))
-    (format t "after loop~%")
     (if result
         (progn
           (cl-transforms:origin

@@ -73,16 +73,20 @@
     (append-to-list parameter-list '("Out"))
     (concatenate 'string (list->camel function-name) (list->params parameter-list))))
 
+(defun parse-symbol-name (s)
+  (let ((ss (symbol-name s)))
+    (subseq ss 1 (- (length ss) 1))))
+
 (defun json-prolog->designators (jj)
   "Converts a JSON-Prolog return value to object designators"
   (mapcar (lambda (e)
     (eval `(bind-pattern (edible name centroid frame-id grip-force use dimensions pose) ,e
-      (make-designator 'object `((edible ,(equal "true" (symbol-name `,edible)))
-                                 (name ,(symbol-name `,name))
-                                 (use ,(if (equal (symbol-name `,use) "storage-for-food") 'storage-for-food 'storage-for-stuff))
+      (make-designator 'object `((edible ,(equal "true" (parse-symbol-name `,edible)))
+                                 (name ,(parse-symbol-name `,name))
+                                 (use ,(if (equal (parse-symbol-name `,use) "storage-for-food") 'storage-for-food 'storage-for-stuff))
                                  (grip-force ,grip-force)
                                  (at ,(make-designator 'location `((coords ,centroid)
-                                                                   (frame ,(symbol-name `,frame-id))
+                                                                   (frame ,(parse-symbol-name `,frame-id))
                                                                    (pose ,pose))))
                                  (dimensions ,dimensions))))))
     (subseq (first (first jj)) 1)))
@@ -93,7 +97,6 @@
 
 (defun json-prolog->short-designator (jj)
   "Converts a JSON-Prolog return value to object designators"
-  (format t "foobar ~a" jj)
   (let ((e (second (first (first jj)))))
     (eval `(bind-pattern (centroid dimensions) ,e
       (make-designator 'object `((at ,(make-designator 'location `((coords ,centroid)
