@@ -13,28 +13,32 @@
 (defvar *location-to-see-table* nil) 
 (defvar *location-to-see-counter* nil)
 
+(defvar *quaternion-table* '(0 0 1 0))
+(defvar *quaternion-counter* '(0 0 0 1))
+
 (defvar *gap-object-robot* 0.5)
 (defvar *gap-between-objects* 0.15)
 
 (defun init-localize ()
   (setf *location-to-see-table* (make-pose '(0 0 0)
-                                           '(0 0 0 1)))
+                                           *quaternion-table*))
   (setf *location-to-see-counter* (make-pose '(0 0 0)
-                                             '(0 0 0 1)))) 
+                                             *quaternion-counter*)))
 
 (defun reference (loc)
   (cond
     ;; Location to reach something
     ((eql (desig-prop-value loc 'to) 'reach)
      (let* ((loc2 (desig-prop-value loc 'loc))
-            (pose (reference loc2)))
-       (make-pose `(,(- (cl-tf:x pose) *gap-object-robot*) ,(cl-tf:y pose) 0)
-                  '(0 0 0 1))))
-    ;; Location to place something
-    ((eql (desig-prop-value loc 'to) 'place)
-     (let* ((pose (desig-prop-value loc 'pose)))
-       (make-pose `(,(+ (cl-tf:x pose) *gap-object-robot*) ,(cl-tf:y pose) 0)
-                  '(0 0 0 1))))
+            (pose (reference loc2))
+            (x (if (equal (desig-prop-value loc2 'name) *table-name*)
+                   (+ (cl-tf:x pose) *gap-object-robot*)
+                   (- (cl-tf:x pose) *gap-object-robot*)))
+            (quaternion (if (equal (desig-prop-value loc2 'name) *table-name*)
+                            *quaternion-table*
+                            *quaternion-counter*)))
+       (make-pose `(,x ,(cl-tf:y pose) 0)
+                  quaternion)))
     ;; Location to see something
     ((eql (desig-prop-value loc 'to) 'see)
      (let ((name (desig-prop-value loc 'name)))

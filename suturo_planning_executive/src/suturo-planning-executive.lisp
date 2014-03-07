@@ -47,10 +47,18 @@
                                             (name ,*trash-name*))))
                      (objs-inedible (object `((edible nil)
                                               (at ,loc-trash)))))
-    (sp-planlib::achieve `(all ,objs-edible on ,loc-counter))
-    (sp-planlib::achieve `(all ,objs-inedible in ,loc-trash))))
+    (achieve `(all ,objs-edible on ,loc-counter))
+    (achieve `(all ,objs-inedible in ,loc-trash))))
 
 (def-cram-function place-gently-plan (object location)
   ""
   (format t "Iniciating plan.~%")
   (achieve `(,object placed-gently ,location)))
+
+(def-cram-function test-plan ()
+  (with-process-modules
+      (with-designators ((loc-table (location `((on ,*table-name*)
+                                                (name ,*table-name*))))
+                         (objs-edible (object `((edible t) 
+                                                (at ,loc-table)))))
+        (achieve `(all ,objs-edible in ,loc-table)))))
