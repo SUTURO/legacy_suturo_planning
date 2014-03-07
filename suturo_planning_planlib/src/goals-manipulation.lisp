@@ -12,7 +12,7 @@ The location has to be reachable without having to move the robot's base."
                         ;"/map" 0.0
                         ;(cl-transforms:make-3d-vector -0.9595373 1.2592965 0.8609399)
                         "/base_footprint" 0.0
-                        (cl-transforms:make-3d-vector 0.45 -0.1 0.6)
+                        (cl-transforms:make-3d-vector 0.5 -0.1 0.63)
                         (cl-transforms:make-quaternion 0 0 0 1)))
          (frame (cl-tf:frame-id pose-stamped))
          (vector (cl-tf:origin pose-stamped))
@@ -21,7 +21,11 @@ The location has to be reachable without having to move the robot's base."
          (z (cl-tf:z vector))
          (object-dimensions (desig-prop-value ?obj 'dimensions))
          (object-max-dimension (/ (maximum object-dimensions) 2.0))
-         (object-second-max-dimension (/ (second (sort object-dimensions #'>)) 2.0))
+         (object-second-max-dimension (/ (second
+                                          (stable-sort
+                                           (copy-list object-dimensions)
+                                           #'>))
+                                         2.0))
          (object-offset object-max-dimension)
          (pose (suturo-planning-common:get-last-gripper-pose ?obj))
          (arm (get-holding-arm ?obj))

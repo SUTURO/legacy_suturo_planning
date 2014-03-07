@@ -26,8 +26,9 @@ When call-goal succeeds, `on-success-fn' will be executed."
                ;;(format t "calling goal: ~a~%client: ~a~%timeout: ~a~%" goal client timeout)
                (setf time-begin (roslisp:ros-time))
                (setf time-now (roslisp:ros-time))
-               (actionlib:call-goal client goal :timeout 1 :result-timeout 1)
-               (actionlib:call-goal client goal :timeout 1 :result-timeout 1)
+               (setf actionlib:*action-server-timeout* 100)
+               (actionlib:call-goal client goal :timeout 100 :result-timeout 100)
+               ;;(actionlib:call-goal client goal :timeout 1 :result-timeout 1)
                ;;(format t "before loop~%   *man-topic-result*: ~a~%   time passed: ~a~%"
                ;;        *man-topic-result* (< (- time-now time-begin) timeout))
                ;;(format t "man-topic-result-is-nil: ~a~%" (man-topic-result-is-nil))
