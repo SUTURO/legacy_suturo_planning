@@ -27,8 +27,7 @@
 
 (def-top-level-cram-function place-gently-go (obj loc)
   "Starts the plan"
-  (with-process-modules
-    (place-gently-plan obj loc)))
+    (place-gently-plan obj loc))
 
 (def-top-level-cram-function clean-table-dummy ()
   "Deprecated!!! Starts the plan with stubbed process modules"
@@ -53,7 +52,8 @@
 (def-cram-function place-gently-plan (object location)
   ""
   (format t "Iniciating plan.~%")
-  (achieve `(,object placed-gently ,location)))
+  (with-process-modules
+    (achieve `(,object placed-gently ,location))))
 
 (def-top-level-cram-function test-plan ()
   (with-process-modules

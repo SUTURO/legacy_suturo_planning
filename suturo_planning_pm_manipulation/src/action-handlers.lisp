@@ -40,13 +40,15 @@
 
 (defvar *move-head-timeout* 5.0)
 (defvar *initial-timeout* 10.0)
-(defvar *grasp-timeout* 15.0)
+(defvar *grasp-timeout* 18.0)
 (defvar *open-timeout* 7.0)
 (defvar *move-arm-timeout* 5.0)
 (defvar *move-base-timeout* 30.0)
 
 ; move-head
 (defvar *action-client-move-head* nil)
+(defvar *action-client-move-head-server* "suturo_man_move_head_server")
+(defvar *action-client-move-head-goal* "suturo_manipulation_msgs/suturo_manipulation_headAction")
 
 (defun make-move-head-goal (pose-stamped)
   (format t "make-move-head-goal pose-stamped: ~a~%" pose-stamped)
@@ -54,8 +56,7 @@
 
 (defun call-move-head-action (loc)
   (format t "call-move-head-action loc: ~a~%" loc)
-  (setf *action-client-move-head* (get-action-client "suturo_man_move_head_server"
-                                                     "suturo_manipulation_msgs/suturo_manipulation_headAction"))
+  (setf *action-client-move-head* (get-action-client 'move-head))
   (with-lost-in-resultation-workaround
       *action-client-move-head*
       (let* ((frame (desig-prop-value loc 'frame))
@@ -88,6 +89,8 @@
 
 ; initial-position
 (defvar *action-client-initial* nil)
+(defvar *action-client-initial-server* "suturo_man_move_home_server")
+(defvar *action-client-initial-goal* "suturo_manipulation_msgs/suturo_manipulation_homeAction")
 
 (defun make-initial-action-goal (body-part)
   (format t "make-initial-action-goal body-part: ~a~%" body-part)
@@ -95,8 +98,7 @@
     (roslisp:make-msg "suturo_manipulation_msgs/RobotBodyPart" bodyPart body-part)))
 
 (defun call-initial-action (body-part)
-  (setf *action-client-initial* (get-action-client "/suturo_man_move_home_server" 
-                                                   "suturo_manipulation_msgs/suturo_manipulation_homeAction"))
+  (setf *action-client-initial* (get-action-client 'initial))
   (with-lost-in-resultation-workaround
     *action-client-initial*
     (make-initial-action-goal (get-body-part-constant body-part))
@@ -107,6 +109,8 @@
 
 ; grasp
 (defvar *action-client-grasp* nil)
+(defvar *action-client-grasp-server* "suturo_man_grasping_server")
+(defvar *action-client-grasp-goal* "suturo_manipulation_msgs/suturo_manipulation_graspingAction")
 
 (defun make-grasp-action-goal (obj in-arm)
   (format t "make obj: ~a ~%in-arm:~a~%" obj in-arm)
@@ -135,8 +139,7 @@
       goal msg-goal)))
 
 (defun call-grasp-action (obj arm)
-  (setf *action-client-grasp*  (get-action-client "suturo_man_grasping_server"
-                                                  "suturo_manipulation_msgs/suturo_manipulation_graspingAction"))
+  (setf *action-client-grasp*  (get-action-client 'grasp))
   (with-lost-in-resultation-workaround
     *action-client-grasp*
     (make-grasp-action-goal obj (get-body-part-constant arm))
@@ -167,7 +170,6 @@
     (equate obj new-obj)))
 
 ; open-hand
-(defvar *action-client-open-hand* nil)
 
 (defun make-open-hand-goal (obj arm)
   (format t "make-open-hand-goal obj:~a~%" obj)
@@ -190,20 +192,19 @@
                         "suturo_manipulation_msgs/RobotBodyPart"
                         (bodyPart) (get-body-part-constant arm)))))
     (format t "msg: ~a~%" msg-goal)
-    (actionlib:make-action-goal *action-client-open-hand*
+    (actionlib:make-action-goal *action-client-grasp*
       goal msg-goal)))
 
 (defun call-open-hand-action (obj)
   (format t "call-open-hand-action obj: ~a~%" obj)
-  (setf *action-client-open-hand* (get-action-client "suturo_man_grasping_server"
-                                                     "suturo_manipulation_msgs/suturo_manipulation_graspingAction"))
+  (setf *action-client-grasp* (get-action-client 'grasp))
 
   (let* ((arm (if (eq (desig-prop-value (desig-prop-value obj 'at) 'in) 'left-gripper) 
                   'left-arm
                   'right-arm))
          (gripper-state (get-gripper-state arm)))   
     (with-lost-in-resultation-workaround
-      *action-client-open-hand*
+      *action-client-grasp*
       (make-open-hand-goal obj arm)
       *open-timeout*
       'suturo-planning-common::drop-failed
@@ -226,6 +227,8 @@
 
 ; move-arm
 (defvar *action-client-move-arm* nil)
+(defvar *action-client-move-arm-server* "suturo_man_move_arm_server")
+(defvar *action-client-move-arm-goal* "suturo_manipulation_msgs/suturo_manipulation_moveAction")
 
 (defun make-move-arm-goal (pose-stamped in-arm)
   ;(format t "make-move-arm-goal pose-stamped: ~a~% arm:~a~%" pose-stamped in-arm)
@@ -236,8 +239,7 @@
 
 (defun call-move-arm-action (location arm)
   ;(format t "call-move-arm-action arm:~a~%" arm)
-  (setf *action-client-move-arm* (get-action-client "suturo_man_move_arm_server"
-                                                    "suturo_manipulation_msgs/suturo_manipulation_moveAction"))
+  (setf *action-client-move-arm* (get-action-client 'move-arm))
   ;(format t "getting frame and coords.~%")
   (let* ((frame (desig-prop-value location 'frame))
          (coords (desig-prop-value location 'coords))
@@ -272,6 +274,8 @@
 ; move-base
 
 (defvar *action-client-move-base* nil)
+(defvar *action-client-move-base-server* "suturo_man_move_base_server")
+(defvar *action-client-move-base-goal* "suturo_manipulation_msgs/suturo_manipulation_baseAction")
 
 (defun make-move-base-goal (pose-stamped)
   (format t "make-move-base-goal pose-stamped: ~a~%" pose-stamped)
@@ -279,8 +283,7 @@
                               ps pose-stamped))
 
 (defun call-move-base-action (pose-stamped)
-  (setf *action-client-move-base* (get-action-client "suturo_man_move_base_server"
-                                                     "suturo_manipulation_msgs/suturo_manipulation_baseAction"))
+  (setf *action-client-move-base* (get-action-client 'move-base))
   (with-lost-in-resultation-workaround
     *action-client-move-base*
     (make-move-base-goal (cl-tf:pose-stamped->msg pose-stamped))
@@ -323,20 +326,41 @@
 
 (defun init-action-client (server goal)
   ;Initialises an action-client for the specified server and goal
-  (setf *action-client* (actionlib:make-action-client
+  (let ((client (actionlib:make-action-client
                          server
-                         goal))
-  (roslisp:ros-info (suturo-pm-manipulation action-client)
-                    "Waiting for action server ~a  ..." server)
-  (loop until
-        (actionlib:wait-for-server *action-client*))
-  (roslisp:ros-info (suturo-pm-manipulation action-client)
-                    "Action client for goal ~a created ..." goal))
+                         goal)))
+    (roslisp:ros-info (suturo-pm-manipulation action-client)
+                      "Waiting for action server ~a  ..." server)
+    (loop until
+          (actionlib:wait-for-server client))
+    (roslisp:ros-info (suturo-pm-manipulation action-client)
+                      "Action client for goal ~a created ..." goal)
+    client))
 
-(defun get-action-client (server goal)
+(defun get-action-client (type)
   "Returns an action-client for the specified server and goal"
-  (init-action-client server goal)
-  *action-client*)
+  (cond
+    ((eq type 'move-head)
+     (if *action-client-move-head*
+         *action-client-move-head*
+         (init-action-client *action-client-move-head-server* *action-client-move-head-goal*)))
+    ((eq type 'initial)
+     (if *action-client-initial*
+         *action-client-initial*
+         (init-action-client *action-client-initial-server* *action-client-initial-goal*)))
+    ((eq type 'grasp)
+     (if *action-client-grasp*
+         *action-client-grasp*
+         (init-action-client *action-client-grasp-server* *action-client-grasp-goal*)))
+    ((eq type 'move-arm)
+     (if *action-client-move-arm*
+         *action-client-move-arm*
+         (init-action-client *action-client-move-arm-server* *action-client-move-arm-goal*)))
+    ((eq type 'move-base)
+     (if *action-client-move-base*
+         *action-client-move-base*
+         (init-action-client *action-client-move-base-server* *action-client-move-base-goal*)))
+    (t nil)))
 
 (defun get-grasp-constant (action)
   (string-downcase

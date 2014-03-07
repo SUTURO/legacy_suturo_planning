@@ -11,8 +11,8 @@
        #:cram-process-modules
        #:cram-plan-failures
        #:cram-plan-knowledge
-       #:suturo-planning-common)
-       ;#:suturo-planning-executive)
+       #:suturo-planning-common
+       #:suturo-planning-executive)
   (:import-from alexandria ignore-some-conditions)
   (:export suturo-planning-pm-manipulation)
   (:desig-properties #:to

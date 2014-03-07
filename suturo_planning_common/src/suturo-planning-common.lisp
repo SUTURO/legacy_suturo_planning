@@ -58,8 +58,8 @@ If there isn't any `nil' is returned."
               (setf result
                     (cl-transforms:make-3d-vector
                      (cl-transforms:x offset-vector)
-                     (* -1 (cl-transforms:y result))
-                     (* -1 (cl-transforms:z result)))))))
+                     (* 1 (cl-transforms:y result))
+                     (* 1 (cl-transforms:z result)))))))
     result))
 
 (defun transform (source-frame target-frame &key (timeout 2))

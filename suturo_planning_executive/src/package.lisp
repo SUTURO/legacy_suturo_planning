@@ -31,6 +31,7 @@
                      #:clear-maps
                      #:get-container-objects
                      #:achieve
+                     #:object
                      #:object-in-hand
                      #:object-in-box
                      #:objects-in-appropriate-boxes
@@ -48,6 +49,7 @@
                      #:objects-and-boxes-perceived
                      #:get-holding-arm
                      #:in-gripper
+                     #:grip-force
                      #:dimensions
                      #:location
                      #:all

@@ -1,7 +1,7 @@
 (in-package :suturo-planning-planlib)
 
 ;(defvar *inaccuracy-factor* 1.05)
-(defvar *put-over-offset* 0.02)
+(defvar *put-over-offset* 0.03)
 
 (def-goal (achieve (?obj placed-gently ?loc))
   "Places an object `?obj' on a given location `loc'.
@@ -9,8 +9,10 @@ The location has to be reachable without having to move the robot's base."
   (format t "Placing object gently: ~a~%" ?obj)
   (let* (;(pose-stamped (reference ?loc))
          (pose-stamped (cl-tf:make-pose-stamped
-                        "/map" 0.0
-                        (cl-transforms:make-3d-vector -0.9595373 1.2592965 0.8609399)
+                        ;"/map" 0.0
+                        ;(cl-transforms:make-3d-vector -0.9595373 1.2592965 0.8609399)
+                        "/base_footprint" 0.0
+                        (cl-transforms:make-3d-vector 0.45 -0.1 0.6)
                         (cl-transforms:make-quaternion 0 0 0 1)))
          (frame (cl-tf:frame-id pose-stamped))
          (vector (cl-tf:origin pose-stamped))
@@ -45,39 +47,46 @@ The location has to be reachable without having to move the robot's base."
     (achieve `(arm-at ,arm ,alternate-loc))
     (format t "Lowering arm. Guessing z with object-second-max-dimension.~%")
     (let* ((guessed-z (+ z object-second-max-dimension (cl-transforms:z offset-loc))))
-      (with-retry-counters ((lower-arm-counter 3))
-        (with-failure-handling
-            ((suturo-planning-common::move-arm-failed (f)
-               (declare (ignore f))
-               (format t "Failed to lower arm.~%.")
-               (setf guessed-z (+ guessed-z 0.01))
-               (do-retry lower-arm-counter
-                 (format t "Trying again. This time a little bit higher. guessed-z: ~a~%" guessed-z)
-                 (retry))
-               (format t "Trying with object-max-dimension~%")
-               (let* ((guessed-z (+ z object-max-dimension (cl-transforms:z offset-loc))))
-                 (with-retry-counters ((lower-arm-counter 3))
-                   (with-failure-handling
-                       ((suturo-planning-common::move-arm-failed (f)
-                          (declare (ignore f))
-                          (format t "Failed to lower arm.~%.")
-                          (setf guessed-z (+ guessed-z 0.01))
-                          (do-retry lower-arm-counter
-                            (format t "Trying again. This time a little bit higher. guessed-z: ~a~%" guessed-z)
-                            (retry))))
-                     (with-designators
-                         ((location (location `((frame ,frame)
-                                                (coords (,alternate-x
-                                                         ,alternate-y
-                                                         ,guessed-z))
-                                                (pose ,pose)))))
-                       (achieve `(arm-at ,arm ,location))))))))
-          (with-designators
-              ((location (location `((frame ,frame)
-                                     (coords (,alternate-x
-                                              ,alternate-y
-                                              ,guessed-z))
-                                     (pose ,pose)))))
-            (achieve `(arm-at ,arm ,location))))))
-    (achieve `(emtpy-hand ?obj))
-    (info-out (suturo planlib) "Placed object gently as you requested, master!~%")))
+      (with-failure-handling
+          ((suturo-planning-common::move-arm-failed (g)
+             (declare (ignore g))
+             (format t "finally loosing object.~%")
+             (achieve `(emtpy-hand ?obj))
+             (return)))
+        (with-retry-counters ((lower-arm-counter 3))
+          (with-failure-handling
+              ((suturo-planning-common::move-arm-failed (f)
+                 (declare (ignore f))
+                 (format t "Failed to lower arm.~%.")
+                 (setf guessed-z (+ guessed-z 0.01))
+                 (do-retry lower-arm-counter
+                   (format t "Trying again. This time a little bit higher. guessed-z: ~a~%" guessed-z)
+                   (retry))
+                 (format t "Trying with object-max-dimension~%")
+                 (let* ((guessed-z (+ z object-max-dimension (cl-transforms:z offset-loc))))
+                   (with-retry-counters ((lower-arm-counter-2 3))
+                     (with-failure-handling
+                         ((suturo-planning-common::move-arm-failed (e)
+                            (declare (ignore e))
+                            (format t "Failed to lower arm.~%.")
+                            (setf guessed-z (+ guessed-z 0.01))
+                            (do-retry lower-arm-counter-2
+                              (format t "Trying again. This time a little bit higher. guessed-z: ~a~%" guessed-z)
+                              (retry))))
+                       (with-designators
+                           ((location (location `((frame ,frame)
+                                                  (coords (,alternate-x
+                                                           ,alternate-y
+                                                           ,guessed-z))
+                                                  (pose ,pose)))))
+                         (achieve `(arm-at ,arm ,location))
+                         (achieve `(emtpy-hand ?obj))))))))
+            (with-designators
+                ((location (location `((frame ,frame)
+                                       (coords (,alternate-x
+                                                ,alternate-y
+                                                ,guessed-z))
+                                       (pose ,pose)))))
+              (achieve `(arm-at ,arm ,location))
+              (achieve `(emtpy-hand ?obj)))))))
+      (info-out (suturo planlib) "Placed object gently as you requested, master!~%")))

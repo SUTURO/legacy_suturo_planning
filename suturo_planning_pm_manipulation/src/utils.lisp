@@ -14,30 +14,33 @@ If `on-timeout' returns t, the process will be repeated `max-retry-intents' time
 When call-goal fails or `max-retry-intents' is reached, `on-fail-fn' will be executed
 and `trowable' will be thrown.
 When call-goal succeeds, `on-success-fn' will be executed."
+  (setf *man-topic-result* '(nil nil nil))
   (let ((intents 1)
         (keep-looping t)
-        (time-begin (roslisp:ros-time))
-        (time-now (roslisp:ros-time))
+        (time-begin nil)
+        (time-now nil)
         (subscriber (subscribe-man-topic topic topic-type)))
     (loop while keep-looping                
           do (block continue
+               ;;(format t "waiting: ~a~%" (actionlib:wait-for-server client))
+               ;;(format t "calling goal: ~a~%client: ~a~%timeout: ~a~%" goal client timeout)
+               (setf time-begin (roslisp:ros-time))
                (setf time-now (roslisp:ros-time))
-               (format t "waiting: ~a~%" (actionlib:wait-for-server client))
-               (format t "calling goal: ~a~%client: ~a~%timeout: ~a~%" goal client timeout)
                (actionlib:call-goal client goal :timeout 1 :result-timeout 1)
-               (format t "*man-topic-result*: ~a~%time passed: ~a~%"
-                       *man-topic-result* (< (- time-now time-begin) timeout))
+               (actionlib:call-goal client goal :timeout 1 :result-timeout 1)
+               ;;(format t "before loop~%   *man-topic-result*: ~a~%   time passed: ~a~%"
+               ;;        *man-topic-result* (< (- time-now time-begin) timeout))
+               ;;(format t "man-topic-result-is-nil: ~a~%" (man-topic-result-is-nil))
                (loop while (and (man-topic-result-is-nil)
                                 (< (- time-now time-begin) timeout))
-                     do (format t "looping.~%   *man-topic-result*: ~a~%   time passed: ~a~%"
-                                *man-topic-result* (< (- time-now time-begin) timeout))
-                        (sleep 0.5)
+                     do (sleep 0.5)
                         (setf time-now (roslisp:ros-time)))
+               ;;(format t "after loop: *man-topic-result*: ~a~%" *man-topic-result*)
                (unsubscribe-man-topic subscriber)
                (let ((result (first *man-topic-result*))
                      (succ (second *man-topic-result*))
                      (type (third *man-topic-result*)))
-                 (format t "*man-topic-result*: ~a~%" *man-topic-result*)
+                 ;(format t "*man-topic-result*: ~a~%" *man-topic-result*)
                  (if (and
                       (not (or result succ type))
                       (>= (- time-now time-begin) timeout))
@@ -70,23 +73,28 @@ When call-goal succeeds, `on-success-fn' will be executed."
                                                "Action finished successfully.")
                              (funcall on-success-fn)
                              (return))))))))
-  (setf *man-topic-result* '(nil nil nil)))
+  (setf *man-topic-result* '(nil nil nil))
+  (format t "leaving workaround~%"))
 
 (defun subscribe-man-topic (topic topic-type)
+  ;;(format t "subscribing~%   topic: ~a~%   type: ~a~%" topic topic-type)
   (roslisp:subscribe topic topic-type #'(lambda (msg) (get-man-topic-result msg))))
 
 (defun unsubscribe-man-topic (subscriber)
+  ;;(format t "unsubscribing~%")
   (roslisp:unsubscribe subscriber))
 
 (defun man-topic-result-is-nil ()
-  (and
-   (not *man-topic-result*)
-   (not (first *man-topic-result*))
-   (not (second *man-topic-result*))
-   (not (third *man-topic-result*))))
+  (or (not *man-topic-result*)
+      (and
+       (not (first *man-topic-result*))
+       (not (second *man-topic-result*))
+       (not (third *man-topic-result*)))))
 
 
 (defun get-man-topic-result (msg)
+  (format t "calling get-man-topic-result~%")
+  ;;(format t "   msg: ~a~%" msg)
   (let ((res nil))
     (roslisp:with-fields (result) msg
       (if (not result)
