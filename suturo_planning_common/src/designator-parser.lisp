@@ -68,7 +68,7 @@
         (append-to-list function-name '("WITH"))
         (mapcar (lambda (l)
                   (append-to-list function-name `(,(cl-ppcre:regex-replace-all "-" (symbol-name l) "")))
-                  (append-to-list parameter-list `(,(param->string (desig-prop-value desig l)))))
+                  (append-to-list parameter-list `(,(cl-ppcre:regex-replace-all "\"" (param->string (desig-prop-value desig l) "'")))))
                 other-props)))
     (append-to-list parameter-list '("Out"))
     (concatenate 'string (list->camel function-name) (list->params parameter-list))))
