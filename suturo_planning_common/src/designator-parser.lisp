@@ -61,7 +61,7 @@
                         (append-to-list parameter-list `(,(param->string (desig-prop-value (desig-prop-value location-desig k) 'NAME))))
                         (append-to-list function-name '("OBJECT"))))
                     (t (append-to-list parameter-list `(,(param->string (desig-prop-value location-desig k)))))))
-                (remove-if (lambda (e) (eq e 'frame))
+                (remove-if (lambda (e) (or (eq e 'frame) (eq e 'name)))
                            (sorted-description location-desig)))))
     (if (not (null (remove-if (lambda (j) (eq j 'at)) (sorted-description desig))))
       (let ((other-props (remove-if (lambda (i) (eq i 'at)) (sorted-description desig))))
