@@ -2,11 +2,10 @@
 
 (def-goal (achieve (all ?obj ?prep ?loc))
   "All objects matching the description of ?obj will be put on ?loc"
-  (format t "asdasd~a~a~a" ?obj ?prep ?loc)
-  (with-perceived-objects ((objs ?obj))
-    (if (not objs)
-        (fail 'no-object-with-that-description))
-    (let ((obj nil))
+    (let ((objs (perceive `(,?obj)))
+          (obj nil))
+      (if (not objs)
+          (fail 'no-object-with-that-description))
       (with-retry-counters ((new-obj-counter 3))
         (with-failure-handling 
             ((simple-plan-failure (f)
@@ -22,22 +21,23 @@
                             (do-retry same-obj-counter
                               (retry))
                             (append `(,obj) objs)))
-                       (achieve `(the ,obj ,?prep ,?loc))))))))))
+                       (achieve `(the ,obj ,?prep ,?loc)))))))))
 
 (def-goal (achieve (a ?obj ?prep ?loc))
   "Puts the object described by ?obj on ?loc, fails if there are more
    than one object matching the description of ?obj"
-  (with-perceived-objects ((objs ?obj))
+  (let ((objs (perceive `(,?obj)))
+        (obj nil))
     (if (not objs)
         (fail 'no-object-with-that-description))
-    (let ((obj (pop objs)))
-      (with-failure-handling 
-          ((simple-plan-failure (f)
-             (declare (ignore f))
-             (when objs
-               (setf obj (pop objs))
-               (retry))))
-        (achieve `(the ,obj ,?prep ,?loc))))))
+    (setf obj (pop objs))
+    (with-failure-handling 
+        ((simple-plan-failure (f)
+           (declare (ignore f))
+           (when objs
+             (setf obj (pop objs))
+             (retry))))
+      (achieve `(the ,obj ,?prep ,?loc)))))
       
 
 (def-goal (achieve (the ?obj on ?loc))

@@ -47,8 +47,8 @@
                                             (name ,*trash-name*))))
                      (objs-inedible (object `((edible nil)
                                               (at ,loc-trash)))))
-    (achieve `(all ,objs-edible on ,loc-counter))
-    (achieve `(all ,objs-inedible in ,loc-trash))))
+    (sp-planlib::achieve `(all ,objs-edible on ,loc-counter))
+    (sp-planlib::achieve `(all ,objs-inedible in ,loc-trash))))
 
 (def-cram-function place-gently-plan (object location)
   ""
