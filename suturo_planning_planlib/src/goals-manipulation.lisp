@@ -1,14 +1,13 @@
 (in-package :suturo-planning-planlib)
 
 ;(defvar *inaccuracy-factor* 1.05)
-;(defvar *put-over-offset* 0.02)
+(defvar *put-over-offset* 0.02)
 
 (def-goal (achieve (?obj placed-gently ?loc))
   "Places an object `?obj' on a given location `loc'.
 The location has to be reachable without having to move the robot's base."
   (format t "Placing object gently: ~a~%" ?obj)
   (let* (;(pose-stamped (reference ?loc))
-         
          (pose-stamped (cl-tf:make-pose-stamped
                         "/map" 0.0
                         (cl-transforms:make-3d-vector -0.9595373 1.2592965 0.8609399)
@@ -64,9 +63,8 @@ The location has to be reachable without having to move the robot's base."
                           (format t "Failed to lower arm.~%.")
                           (setf guessed-z (+ guessed-z 0.01))
                           (do-retry lower-arm-counter
-                            (format t "Trying again. This time a little bit higher.guessed-z: ~a~%" guessed-z)
-                            (retry))
-                          ))
+                            (format t "Trying again. This time a little bit higher. guessed-z: ~a~%" guessed-z)
+                            (retry))))
                      (with-designators
                          ((location (location `((frame ,frame)
                                                 (coords (,alternate-x
@@ -82,4 +80,4 @@ The location has to be reachable without having to move the robot's base."
                                      (pose ,pose)))))
             (achieve `(arm-at ,arm ,location))))))
     (achieve `(emtpy-hand ?obj))
-    (info-out (suturo planlib) "Droped, object~%")))
+    (info-out (suturo planlib) "Placed object gently as you requested, master!~%")))

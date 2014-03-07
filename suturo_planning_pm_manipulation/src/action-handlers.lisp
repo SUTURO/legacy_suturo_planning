@@ -80,7 +80,9 @@
                                                  (pose) pose-msg)))
         (make-move-head-goal pose-stamped-msg))
       *move-head-timeout*
-      'suturo-planning-common::move-head-failed))
+      'suturo-planning-common::move-head-failed
+    "/suturo_man_move_head_server/result"
+    "suturo_manipulation_msgs/suturo_manipulation_headActionResult"))
            
 
 
@@ -99,7 +101,9 @@
     *action-client-initial*
     (make-initial-action-goal (get-body-part-constant body-part))
     *initial-timeout*
-    'suturo-planning-common::pose-not-reached))
+    'suturo-planning-common::pose-not-reached
+    "/suturo_man_move_home_server/result"
+    "suturo_manipulation_msgs/suturo_manipulation_homeActionResult"))
 
 ; grasp
 (defvar *action-client-grasp* nil)
@@ -138,6 +142,8 @@
     (make-grasp-action-goal obj (get-body-part-constant arm))
     *grasp-timeout*
     'suturo-planning-common::grasping-failed
+    "/suturo_man_grasping_server/result"
+    "suturo_manipulation_msgs/suturo_manipulation_graspingActionResult"
     :on-success-fn #'(lambda () (grasping-succeeded obj arm))))
   
 (defun grasping-succeeded (obj arm)
@@ -201,6 +207,8 @@
       (make-open-hand-goal obj arm)
       *open-timeout*
       'suturo-planning-common::drop-failed
+      "/suturo_man_grasping_server/result"
+      "suturo_manipulation_msgs/suturo_manipulation_graspingActionResult"
       :on-timeout-fn #'(lambda ()
                          (let* ((new-gripper-state (get-gripper-state arm))
                                 (gripper-difference (difference gripper-state new-gripper-state)))
@@ -257,7 +265,9 @@
       *action-client-move-arm*
       (make-move-arm-goal pose-stamped-msg (get-body-part-constant arm))
       *move-arm-timeout*
-      'suturo-planning-common::move-arm-failed)))
+      'suturo-planning-common::move-arm-failed
+      "/suturo_man_move_arm_server/result"
+      "suturo_manipulation_msgs/suturo_manipulation_moveActionResult")))
 
 ; move-base
 
@@ -271,12 +281,13 @@
 (defun call-move-base-action (pose-stamped)
   (setf *action-client-move-base* (get-action-client "suturo_man_move_base_server"
                                                      "suturo_manipulation_msgs/suturo_manipulation_baseAction"))
-    (with-lost-in-resultation-workaround
-        *action-client-move-base*
-      (make-move-base-goal (cl-tf:pose-stamped->msg pose-stamped))
-      *move-base-timeout*
-      'suturo-planning-common::move-base-failed))
-         
+  (with-lost-in-resultation-workaround
+    *action-client-move-base*
+    (make-move-base-goal (cl-tf:pose-stamped->msg pose-stamped))
+    *move-base-timeout*
+    'suturo-planning-common::move-base-failed
+    "/suturo_man_move_base_server/result"
+    "suturo_manipulation_msgs/suturo_manipulation_baseActionResult"))
      
 ; Helper functions for actions
 
