@@ -62,6 +62,7 @@
    #:pose
    #:move-head
    #:move-arm
+   #:move-base
    #:direction
    #:open-hand
    #:move-arm

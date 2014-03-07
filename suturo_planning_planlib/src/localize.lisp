@@ -2,8 +2,8 @@
 
 (defvar *transform-listener* nil)
 
-(defvar *table-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top")
-(defvar *counter-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block_counter_top")
+(defvar *table-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island")
+(defvar *counter-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block")
 
 (defvar *location-on-table-nr* 0)
 (defvar *location-on-counter-nr* 0)
@@ -16,7 +16,7 @@
 (defvar *quaternion-table* '(0 0 1 0))
 (defvar *quaternion-counter* '(0 0 0 1))
 
-(defvar *gap-object-robot* 0.5)
+(defvar *gap-object-robot* 0.9)
 (defvar *gap-between-objects* 0.15)
 
 (defun init-localize ()
@@ -26,19 +26,28 @@
                                              *quaternion-counter*)))
 
 (defun reference (loc)
+  (format t "reference ~a~%" loc)
   (cond
     ;; Location to reach something
     ((eql (desig-prop-value loc 'to) 'reach)
-     (let* ((loc2 (desig-prop-value loc 'loc))
-            (pose (reference loc2))
-            (x (if (equal (desig-prop-value loc2 'name) *table-name*)
-                   (+ (cl-tf:x pose) *gap-object-robot*)
-                   (- (cl-tf:x pose) *gap-object-robot*)))
-            (quaternion (if (equal (desig-prop-value loc2 'name) *table-name*)
-                            *quaternion-table*
+     (cond 
+       ((desig-prop-value loc 'loc)
+        (let* ((loc2 (desig-prop-value loc 'loc))
+               (pose (reference loc2))
+               (origin (cl-tf:origin pose))
+               (x (if (equal (desig-prop-value loc2 'name) *table-name*)
+                      (+ (cl-tf:x origin) *gap-object-robot*)
+                      (- (cl-tf:x origin) *gap-object-robot*)))
+               (quaternion (if (equal (desig-prop-value loc2 'name) *table-name*)
+                               *quaternion-table*
                             *quaternion-counter*)))
-       (make-pose `(,x ,(cl-tf:y pose) 0)
-                  quaternion)))
+          (make-pose `(,x ,(cl-tf:y origin) 0)
+                     quaternion)))
+       ((desig-prop-value loc 'obj)
+        (let* ((obj (desig-prop-value loc 'obj))
+               (coords (get-coords obj)))
+          (make-pose `(,(+ (nth 0 coords) *gap-object-robot*) ,(nth 1 coords) 0)
+                     *quaternion-table*)))))
     ;; Location to see something
     ((eql (desig-prop-value loc 'to) 'see)
      (let ((name (desig-prop-value loc 'name)))
@@ -87,18 +96,21 @@
                                             (nth 3 quaternion))))
 
 (defun generate-locations-on (name)
+  (format t "generate")
   (let* ((obj (get-furniture name))
          (dims (desig-prop-value obj 'dimensions))
          (coords (get-coords obj))
          (x (first coords))
          (y (second coords))
-         (z (+ (third coords) (/ (third dims) 2)))
-         (locs (if (equal name *table-name*)
-                   *locations-on-table*
-                   *locations-on-counter*)))
-    (push (make-pose `(,x ,(+ y *gap-between-objects*) ,z) '(0 0 0 1)) locs)
-    (push (make-pose `(,x ,(- y *gap-between-objects*) ,z) '(0 0 0 1)) locs)
-    (push (make-pose `(,x ,y ,z) '(0 0 0 1)) locs)))
+         (z (+ (third coords) (/ (third dims) 2))))
+    (when (equal name *table-name*)
+      (push (make-pose `(,x ,(+ y *gap-between-objects* -0.2) ,z) *quaternion-table*) *locations-on-table*)
+      (push (make-pose `(,x ,(- y *gap-between-objects* 0.2) ,z) *quaternion-table*) *locations-on-table*)
+      (push (make-pose `(,x ,(- y 0.2) ,z) *quaternion-table*) *locations-on-table*))
+    (when (equal name *counter-name*)
+      (push (make-pose `(,x ,(+ y *gap-between-objects* -0.2) ,z) *quaternion-counter*) *locations-on-counter*)
+      (push (make-pose `(,x ,(- y *gap-between-objects* 0.2) ,z) *quaternion-counter*) *locations-on-counter*)
+      (push (make-pose `(,x ,(- y 0.2) ,z) *quaternion-counter*) *locations-on-counter*))))
     
 
 (defun get-furniture (name)

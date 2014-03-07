@@ -269,14 +269,13 @@
                               ps pose-stamped))
 
 (defun call-move-base-action (pose-stamped)
-  (format t "call-move-base-action location:~a~%" location)
   (setf *action-client-move-base* (get-action-client "suturo_man_move_base_server"
                                                      "suturo_manipulation_msgs/suturo_manipulation_baseAction"))
-  (with-lost-in-resultation-workaround
-    *action-client-move-base*
-    (make-move-base-goal pose-stamped)
-    *move-base-timeout*
-    'suturo-planning-common::move-base-failed))
+    (with-lost-in-resultation-workaround
+        *action-client-move-base*
+      (make-move-base-goal (cl-tf:pose-stamped->msg pose-stamped))
+      *move-base-timeout*
+      'suturo-planning-common::move-base-failed))
          
      
 ; Helper functions for actions

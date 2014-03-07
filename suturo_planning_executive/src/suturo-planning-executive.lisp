@@ -1,8 +1,8 @@
 (in-package :suturo-planning-executive)
 
-(defvar *table-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top")
-(defvar *counter-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block_counter_top")
-(defvar *trash-name* "r_container")
+(defvar *table-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island")
+(defvar *counter-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block")
+(defvar *trash-name* "http://www.suturo.de/ontology/semantic#r_dumpster")
 
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
@@ -55,10 +55,11 @@
   (format t "Iniciating plan.~%")
   (achieve `(,object placed-gently ,location)))
 
-(def-cram-function test-plan ()
+(def-top-level-cram-function test-plan ()
   (with-process-modules
-      (with-designators ((loc-table (location `((on ,*table-name*)
+      (with-designators ((table (object `((name ,*table-name*))))
+                         (loc-table (location `((on ,table)
                                                 (name ,*table-name*))))
-                         (objs-edible (object `((edible t) 
-                                                (at ,loc-table)))))
+                         (objs-edible (object `((at ,loc-table)))))
+        (achieve '(home-pose))
         (achieve `(all ,objs-edible in ,loc-table)))))

@@ -12,6 +12,7 @@
                (declare (ignore f))
                (do-retry new-obj-counter
                  (retry))))
+          (format t "sdjkfgajk~%")
           (loop while objs
                 do (setf obj (pop objs))
                    (with-retry-counters ((same-obj-counter 1))
@@ -59,6 +60,7 @@
           ((move-arm-failed (f)
              (declare (ignore f))
              (retry-with-next-solution loc-to-reach)))
+        (format t "achieve the")
         (achieve `(in-gripper ,?obj))
         (achieve `(robot-at ,loc-to-reach))
         (achieve `(hand-over ,(make-designator 'object

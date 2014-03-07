@@ -21,6 +21,7 @@
   
 (def-goal (achieve (robot-at ?loc))
   "Moves the robot to a position described by ?loc"
+  (format t "move base~%")
   (with-failure-handling 
       ((move-base-failed (f)
          (declare (ignore f))
@@ -81,7 +82,7 @@
   (when (not (eql-or (desig-prop-value (desig-prop-value ?obj 'at) 'in)
                      'left-gripper
                      'right-gripper))
-    (let ((arm (get-best-arm ?obj))
+    (let ((arm 'left-arm)
           (loc-to-reach (make-designator 'location 
                                          `((to reach) (obj ,?obj))))
           (try-other-arm t))
