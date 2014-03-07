@@ -2,6 +2,7 @@
 
 (defvar *table-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top")
 (defvar *counter-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block_counter_top")
+(defvar *trash-name* "r_container")
 
 (defmacro with-process-modules (&body body)
   `(cpm:with-process-modules-running
@@ -41,8 +42,13 @@
                      (loc-counter (location `((on ,*counter-name*)
                                               (name ,*counter-name*))))
                      (objs-edible (object `((edible t) 
-                                            (at ,loc-table)))))
-    (achieve `(all ,objs-edible on ,loc-counter))))
+                                            (at ,loc-table))))
+                     (loc-trash (location `((in ,*trash-name*)
+                                            (name ,*trash-name*))))
+                     (objs-inedible (object `((edible nil)
+                                              (at ,loc-trash)))))
+    (achieve `(all ,objs-edible on ,loc-counter))
+    (achieve `(all ,objs-inedible in ,loc-trash))))
 
 (def-cram-function place-gently-plan (object location)
   ""

@@ -52,6 +52,7 @@
                      #:location
                      #:all
                      #:on
+                     #:in
                      #:edible
                      #:name
                      #:at
