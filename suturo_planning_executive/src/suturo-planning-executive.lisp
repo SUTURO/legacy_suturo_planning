@@ -62,4 +62,5 @@
                                                 (name ,*table-name*))))
                          (objs-edible (object `((at ,loc-table)))))
         (achieve '(home-pose))
+        (sp-planlib::init-localize)
         (achieve `(all ,objs-edible in ,loc-table)))))

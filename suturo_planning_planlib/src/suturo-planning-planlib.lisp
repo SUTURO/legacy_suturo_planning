@@ -85,6 +85,6 @@ equates it with a exact location"
 (defun switch-arms (?arm)
   "Returns the other arm"
   (if (eql ?arm 'left-arm)
-      'left-arm
-      'right-arm))
+      'right-arm
+      'left-arm))
 

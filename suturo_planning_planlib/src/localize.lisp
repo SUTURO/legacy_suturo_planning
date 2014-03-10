@@ -16,7 +16,7 @@
 (defvar *quaternion-table* '(0 0 1 0))
 (defvar *quaternion-counter* '(0 0 0 1))
 
-(defvar *gap-object-robot* 0.9)
+(defvar *gap-object-robot* 0.8)
 (defvar *gap-between-objects* 0.15)
 
 (defun init-localize ()

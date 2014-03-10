@@ -106,8 +106,7 @@
 
 (def-goal (achieve (object-in-hand ?obj ?arm))
   "Takes the object in one hand"
-  (info-out (suturo planlib) "Grasping object ~a with ~a" 
-            (object-output ?obj) ?arm)
+  (info-out (suturo planlib) "Grasping object with ~a" ?arm)
   (with-designators ((grasp-obj (action `((to grasp)
                                           (obj ,?obj)
                                           (arm ,?arm))))
@@ -120,8 +119,7 @@
 
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
-  (info-out (suturo planlib) "Moving, ~a, over, object, ~a"
-            ?arm (object-output ?obj))
+  (info-out (suturo planlib) "Moving ~a" ?arm)
   (with-retry-counters ((move-retry-counter 1))
     (with-failure-handling
         ((move-arm-failed (f)
