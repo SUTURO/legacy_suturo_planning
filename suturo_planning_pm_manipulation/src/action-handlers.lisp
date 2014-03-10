@@ -47,8 +47,16 @@
 
 ; move-head
 (defvar *action-client-move-head* nil)
-(defvar *action-client-move-head-server* "suturo_man_move_head_server")
-(defvar *action-client-move-head-goal* "suturo_manipulation_msgs/suturo_manipulation_headAction")
+(defvar *action-client-move-head-server*  "suturo_man_move_head_server")
+(defvar *action-client-move-head-goal*  "suturo_manipulation_msgs/suturo_manipulation_headAction")
+(defvar *move-head-cancel-topic-type*  "actionlib_msgs/GoalID")
+(defvar *move-head-feedback-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_headActionFeedback")
+(defvar *move-head-goal-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_headActionGoal")
+(defvar *move-head-result-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_headActionResult")
+(defvar *move-head-status-topic-type* "actionlib_msgs/GoalStatusArray")
 
 (defun make-move-head-goal (pose-stamped)
   (format t "make-move-head-goal pose-stamped: ~a~%" pose-stamped)
@@ -82,8 +90,7 @@
         (make-move-head-goal pose-stamped-msg))
       *move-head-timeout*
       'suturo-planning-common::move-head-failed
-    "/suturo_man_move_head_server/result"
-    "suturo_manipulation_msgs/suturo_manipulation_headActionResult"))
+    *action-client-move-head-server*))
            
 
 
@@ -91,6 +98,14 @@
 (defvar *action-client-initial* nil)
 (defvar *action-client-initial-server* "suturo_man_move_home_server")
 (defvar *action-client-initial-goal* "suturo_manipulation_msgs/suturo_manipulation_homeAction")
+(defvar *initial-cancel-topic-type*  "actionlib_msgs/GoalID")
+(defvar *initial-feedback-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_homeActionFeedback")
+(defvar *initial-goal-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_homeActionGoal")
+(defvar *initial-result-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_homeActionResult")
+(defvar *initial-status-topic-type* "actionlib_msgs/GoalStatusArray")
 
 (defun make-initial-action-goal (body-part)
   (format t "make-initial-action-goal body-part: ~a~%" body-part)
@@ -104,8 +119,7 @@
     (make-initial-action-goal (get-body-part-constant body-part))
     *initial-timeout*
     'suturo-planning-common::pose-not-reached
-    "/suturo_man_move_home_server/result"
-    "suturo_manipulation_msgs/suturo_manipulation_homeActionResult"))
+    *action-client-initial-server*))
 
 ; grasp
 (defvar *action-client-grasp* nil)
@@ -145,8 +159,7 @@
     (make-grasp-action-goal obj (get-body-part-constant arm))
     *grasp-timeout*
     'suturo-planning-common::grasping-failed
-    "/suturo_man_grasping_server/result"
-    "suturo_manipulation_msgs/suturo_manipulation_graspingActionResult"
+    *action-client-grasp-server*
     :on-success-fn #'(lambda () (grasping-succeeded obj arm))))
   
 (defun grasping-succeeded (obj arm)

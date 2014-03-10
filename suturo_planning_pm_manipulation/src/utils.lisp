@@ -3,7 +3,13 @@
 (defvar *man-topic-result* '(nil nil nil))
 
 (defun with-lost-in-resultation-workaround
-    (client goal timeout throwable topic topic-type
+    (client goal timeout throwable
+     topic
+     cancel-topic-type
+     feedback-topic-type
+     goal-topic-type
+     result-topic-type
+     status-topic-type
      &key (max-retry-intents 3)
        (on-timeout-fn #'(lambda () t))
        (on-fail-fn #'(lambda () t))
@@ -27,7 +33,8 @@ When call-goal succeeds, `on-success-fn' will be executed."
                (setf time-begin (roslisp:ros-time))
                (setf time-now (roslisp:ros-time))
                (setf actionlib:*action-server-timeout* 100)
-               (actionlib:call-goal client goal :timeout 100 :result-timeout 100)
+               (actionlib:send-goal client goal)
+               ;(actionlib:call-goal client goal :timeout 100 :result-timeout 100)
                ;;(actionlib:call-goal client goal :timeout 1 :result-timeout 1)
                ;;(format t "before loop~%   *man-topic-result*: ~a~%   time passed: ~a~%"
                ;;        *man-topic-result* (< (- time-now time-begin) timeout))
