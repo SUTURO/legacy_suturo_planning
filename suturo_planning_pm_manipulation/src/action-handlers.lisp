@@ -42,7 +42,7 @@
 (defvar *initial-timeout* 10.0)
 (defvar *grasp-timeout* 18.0)
 (defvar *open-timeout* 7.0)
-(defvar *move-arm-timeout* 5.0)
+(defvar *move-arm-timeout* 10.0)
 (defvar *move-base-timeout* 30.0)
 
 ; move-head
@@ -50,10 +50,6 @@
 (defvar *action-client-move-head-server*  "suturo_man_move_head_server")
 (defvar *action-client-move-head-goal*  "suturo_manipulation_msgs/suturo_manipulation_headAction")
 (defvar *move-head-cancel-topic-type*  "actionlib_msgs/GoalID")
-(defvar *move-head-feedback-topic-type*
-  "suturo_manipulation_msgs/suturo_manipulation_headActionFeedback")
-(defvar *move-head-goal-topic-type*
-  "suturo_manipulation_msgs/suturo_manipulation_headActionGoal")
 (defvar *move-head-result-topic-type*
   "suturo_manipulation_msgs/suturo_manipulation_headActionResult")
 (defvar *move-head-status-topic-type* "actionlib_msgs/GoalStatusArray")
@@ -90,7 +86,10 @@
         (make-move-head-goal pose-stamped-msg))
       *move-head-timeout*
       'suturo-planning-common::move-head-failed
-    *action-client-move-head-server*))
+    *action-client-move-head-server*
+    *move-head-cancel-topic-type*
+    *move-head-result-topic-type*
+    *move-head-status-topic-type*))
            
 
 
@@ -99,10 +98,6 @@
 (defvar *action-client-initial-server* "suturo_man_move_home_server")
 (defvar *action-client-initial-goal* "suturo_manipulation_msgs/suturo_manipulation_homeAction")
 (defvar *initial-cancel-topic-type*  "actionlib_msgs/GoalID")
-(defvar *initial-feedback-topic-type*
-  "suturo_manipulation_msgs/suturo_manipulation_homeActionFeedback")
-(defvar *initial-goal-topic-type*
-  "suturo_manipulation_msgs/suturo_manipulation_homeActionGoal")
 (defvar *initial-result-topic-type*
   "suturo_manipulation_msgs/suturo_manipulation_homeActionResult")
 (defvar *initial-status-topic-type* "actionlib_msgs/GoalStatusArray")
@@ -119,12 +114,19 @@
     (make-initial-action-goal (get-body-part-constant body-part))
     *initial-timeout*
     'suturo-planning-common::pose-not-reached
-    *action-client-initial-server*))
+    *action-client-initial-server*
+    *initial-cancel-topic-type*
+    *initial-result-topic-type*
+    *initial-status-topic-type*))
 
 ; grasp
 (defvar *action-client-grasp* nil)
 (defvar *action-client-grasp-server* "suturo_man_grasping_server")
 (defvar *action-client-grasp-goal* "suturo_manipulation_msgs/suturo_manipulation_graspingAction")
+(defvar *grasp-cancel-topic-type*  "actionlib_msgs/GoalID")
+(defvar *grasp-result-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_graspingActionResult")
+(defvar *grasp-status-topic-type* "actionlib_msgs/GoalStatusArray")
 
 (defun make-grasp-action-goal (obj in-arm)
   (format t "make obj: ~a ~%in-arm:~a~%" obj in-arm)
@@ -155,11 +157,14 @@
 (defun call-grasp-action (obj arm)
   (setf *action-client-grasp*  (get-action-client 'grasp))
   (with-lost-in-resultation-workaround
-    *action-client-grasp*
+      *action-client-grasp*
     (make-grasp-action-goal obj (get-body-part-constant arm))
     *grasp-timeout*
     'suturo-planning-common::grasping-failed
     *action-client-grasp-server*
+    *grasp-cancel-topic-type*
+    *grasp-result-topic-type*
+    *grasp-status-topic-type*
     :on-success-fn #'(lambda () (grasping-succeeded obj arm))))
   
 (defun grasping-succeeded (obj arm)
@@ -221,8 +226,10 @@
       (make-open-hand-goal obj arm)
       *open-timeout*
       'suturo-planning-common::drop-failed
-      "/suturo_man_grasping_server/result"
-      "suturo_manipulation_msgs/suturo_manipulation_graspingActionResult"
+      *action-client-grasp-server*
+      *grasp-cancel-topic-type*
+      *grasp-result-topic-type*
+      *grasp-status-topic-type*
       :on-timeout-fn #'(lambda ()
                          (let* ((new-gripper-state (get-gripper-state arm))
                                 (gripper-difference (difference gripper-state new-gripper-state)))
@@ -242,18 +249,22 @@
 (defvar *action-client-move-arm* nil)
 (defvar *action-client-move-arm-server* "suturo_man_move_arm_server")
 (defvar *action-client-move-arm-goal* "suturo_manipulation_msgs/suturo_manipulation_moveAction")
+(defvar *move-arm-cancel-topic-type*  "actionlib_msgs/GoalID")
+(defvar *move-arm-result-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_moveActionResult")
+(defvar *move-arm-status-topic-type* "actionlib_msgs/GoalStatusArray")
 
 (defun make-move-arm-goal (pose-stamped in-arm)
-  ;(format t "make-move-arm-goal pose-stamped: ~a~% arm:~a~%" pose-stamped in-arm)
+  ;;(format t "make-move-arm-goal pose-stamped: ~a~% arm:~a~%" pose-stamped in-arm)
   (actionlib:make-action-goal *action-client-move-arm* 
     ps pose-stamped
     bodypart (roslisp:make-msg "suturo_manipulation_msgs/RobotBodyPart"
                                (bodyPart) in-arm)))
 
 (defun call-move-arm-action (location arm)
-  ;(format t "call-move-arm-action arm:~a~%" arm)
+  ;;(format t "call-move-arm-action arm:~a~%" arm)
   (setf *action-client-move-arm* (get-action-client 'move-arm))
-  ;(format t "getting frame and coords.~%")
+  ;;(format t "getting frame and coords.~%")
   (let* ((frame (desig-prop-value location 'frame))
          (coords (desig-prop-value location 'coords))
          (pose (desig-prop-value location 'pose))
@@ -275,20 +286,26 @@
          (pose-stamped-msg (roslisp:make-msg "geometry_msgs/PoseStamped"
                                              (header) header-msg
                                              (pose) pose-msg)))
-    ;(format t "created helper messages.~%")
+                                        ;(format t "created helper messages.~%")
     (with-lost-in-resultation-workaround
-      *action-client-move-arm*
+        *action-client-move-arm*
       (make-move-arm-goal pose-stamped-msg (get-body-part-constant arm))
       *move-arm-timeout*
       'suturo-planning-common::move-arm-failed
-      "/suturo_man_move_arm_server/result"
-      "suturo_manipulation_msgs/suturo_manipulation_moveActionResult")))
+      *action-client-move-arm-server*
+      *move-arm-cancel-topic-type*
+      *move-arm-result-topic-type*
+      *move-arm-status-topic-type*)))
 
 ; move-base
 
 (defvar *action-client-move-base* nil)
 (defvar *action-client-move-base-server* "suturo_man_move_base_server")
 (defvar *action-client-move-base-goal* "suturo_manipulation_msgs/suturo_manipulation_baseAction")
+(defvar *move-base-cancel-topic-type*  "actionlib_msgs/GoalID")
+(defvar *move-base-result-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_baseActionResult")
+(defvar *move-base-status-topic-type* "actionlib_msgs/GoalStatusArray")
 
 (defun make-move-base-goal (pose-stamped)
   (format t "make-move-base-goal pose-stamped: ~a~%" pose-stamped)
@@ -298,12 +315,14 @@
 (defun call-move-base-action (pose-stamped)
   (setf *action-client-move-base* (get-action-client 'move-base))
   (with-lost-in-resultation-workaround
-    *action-client-move-base*
+      *action-client-move-base*
     (make-move-base-goal (cl-tf:pose-stamped->msg pose-stamped))
     *move-base-timeout*
     'suturo-planning-common::move-base-failed
-    "/suturo_man_move_base_server/result"
-    "suturo_manipulation_msgs/suturo_manipulation_baseActionResult"))
+    *action-client-move-base-server*
+    *move-base-cancel-topic-type*
+    *move-base-result-topic-type*
+    *move-base-status-topic-type*))
      
 ; Helper functions for actions
 
