@@ -13,6 +13,10 @@
 (defvar *location-to-see-table* nil) 
 (defvar *location-to-see-counter* nil)
 
+(defvar *locations-to-reach* nil)
+(defvar *location-to-reach-nr* 0)
+(defvar *location-to-reach-name* nil)
+
 (defvar *quaternion-table* '(0 0 1 0))
 (defvar *quaternion-counter* '(0 0 0 1))
 
@@ -45,9 +49,12 @@
                      quaternion)))
        ((desig-prop-value loc 'obj)
         (let* ((obj (desig-prop-value loc 'obj))
-               (coords (get-coords obj)))
-          (make-pose `(,(+ (nth 0 coords) *gap-object-robot*) ,(nth 1 coords) 0)
-                     *quaternion-table*)))))
+               (name (desig-prop-value obj 'name)))
+          (when (not (equal name *location-to-reach-name*))
+            (generate-locations-to-reach obj)
+            (setf *location-to-reach-name* name)
+            (setf *location-to-reach-nr* 0))
+          (nth *location-to-reach-nr* *locations-to-reach*)))))            
     ;; Location to see something
     ((eql (desig-prop-value loc 'to) 'see)
      (let ((name (desig-prop-value loc 'name)))
@@ -83,7 +90,12 @@
          ((equal name *counter-name*)
           (incf *location-on-counter-nr*)
           (nth *location-on-counter-nr*
-               *locations-on-counter*)))))))
+               *locations-on-counter*)))))
+    ((desig-prop-value loc 'obj)
+     (if (eql *location-to-reach-nr* (- (length *locations-to-reach*) 1))
+         (setf *location-to-reach-nr* 0)
+         (incf *location-to-reach*))
+     (nth *location-to-reach-nr* *locations-to-reach*))))
 
 (defun make-pose (vector quaternion)
   (tf:make-pose-stamped "/map" 0.0
@@ -94,6 +106,18 @@
                                             (nth 1 quaternion)
                                             (nth 2 quaternion)
                                             (nth 3 quaternion))))
+
+(defun generate-locations-to-reach (obj)
+  (let* ((coords (get-coords obj))
+         (x (+ (nth 0 coords) *gap-object-robot*))
+         (locations nil))
+    (setf *location-to-reach-name* (desig-prop-value obj 'name))
+    (push (make-pose `(,x ,(+ 0.1 (nth 1 coords)) 0) *quaternion-table*)  locations)
+    (push (make-pose `(,x ,(- 0.1 (nth 1 coords)) 0) *quaternion-table*)  locations)
+    (push (make-pose `(,x ,(+ 0.05 (nth 1 coords)) 0) *quaternion-table*)  locations)
+    (push (make-pose `(,x ,(- 0.05 (nth 1 coords)) 0) *quaternion-table*)  locations)
+    (push (make-pose `(,x ,(nth 1 coords) 0) *quaternion-table*)  locations)
+    (setf *locations-to-reach* locations)))
 
 (defun generate-locations-on (name)
   (format t "generate")

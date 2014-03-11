@@ -85,23 +85,23 @@
     (let ((arm 'left-arm)
           (loc-to-reach (make-designator 'location 
                                          `((to reach) (obj ,?obj))))
-          (try-other-arm t))
+          (retry-counter 1))
       (with-failure-handling 
           ((grasping-failed (f)
              (declare (ignore f))
-             (error-out (suturo planlib) 
-                        "Grasping failed retry with other arm")
-             (achieve `(home-pose ,arm))
-             (when try-other-arm
-               (setf arm (switch-arms arm))
-               (info-out (suturo planlib) "Trying again")
-               (retry))
-             (if try-other-arm
-                 (setf try-other-arm nil)
-                 (setf try-other-arm t))
-             (retry-with-next-solution loc-to-reach)))
-          (achieve `(robot-at ,loc-to-reach))
-          (achieve `(object-in-hand ,?obj ,arm))))))
+             (if (< retry-counter 8)
+                 (cond
+                   ((< (mod retry-counter 3) 2)
+                    (error-out (suturo planlib) 
+                               "Grasping failed retry with other arm")
+                    (achieve `(home-pose ,arm))
+                    (setf arm (switch-arms arm))
+                    (retry))
+                   ((eql (mod retry-counter 3) 2)
+                    (retry-with-next-solution loc-to-reach))))
+                 (achieve `(home-pose ,arm))))
+        (achieve `(robot-at ,loc-to-reach))
+        (achieve `(object-in-hand ,?obj ,arm))))))
   
 
 (def-goal (achieve (object-in-hand ?obj ?arm))
