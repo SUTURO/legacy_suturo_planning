@@ -7,13 +7,13 @@
   "Places an object `?obj' on a given location `loc'.
 The location has to be reachable without having to move the robot's base."
   (format t "Placing object gently: ~a~%" ?obj)
-  (let* (;(pose-stamped (reference ?loc))
+  (let* ((pose-stamped (reference ?loc))
+         #|
          (pose-stamped (cl-tf:make-pose-stamped
-                        ;"/map" 0.0
-                        ;(cl-transforms:make-3d-vector -0.9595373 1.2592965 0.8609399)
                         "/base_footprint" 0.0
-                        (cl-transforms:make-3d-vector 0.5 -0.1 0.63)
+                        (cl-transforms:make-3d-vector 0.5 0.3 0.63)
                         (cl-transforms:make-quaternion 0 0 0 1)))
+         |#
          (frame (cl-tf:frame-id pose-stamped))
          (vector (cl-tf:origin pose-stamped))
          (x (cl-tf:x vector))
@@ -49,13 +49,13 @@ The location has to be reachable without having to move the robot's base."
     (format t "alternate-z: ~a~%" alternate-z)    
     (format t "Moving ~a over given location: ~a~%" arm alternate-loc)
     (achieve `(arm-at ,arm ,alternate-loc))
-    (format t "Lowering arm. Guessing z with object-second-max-dimension.~%")
+    (format t "Lowering arm. Guessing z with object-second-max-dimension (horizontal).~%")
     (let* ((guessed-z (+ z object-second-max-dimension (cl-transforms:z offset-loc))))
       (with-failure-handling
           ((suturo-planning-common::move-arm-failed (g)
              (declare (ignore g))
              (format t "finally loosing object.~%")
-             (achieve `(emtpy-hand ?obj))
+             (achieve `(empty-hand ,?obj))
              (return)))
         (with-retry-counters ((lower-arm-counter 3))
           (with-failure-handling
@@ -66,7 +66,7 @@ The location has to be reachable without having to move the robot's base."
                  (do-retry lower-arm-counter
                    (format t "Trying again. This time a little bit higher. guessed-z: ~a~%" guessed-z)
                    (retry))
-                 (format t "Trying with object-max-dimension~%")
+                 (format t "Trying with object-max-dimension (vertical).~%")
                  (let* ((guessed-z (+ z object-max-dimension (cl-transforms:z offset-loc))))
                    (with-retry-counters ((lower-arm-counter-2 3))
                      (with-failure-handling
@@ -84,7 +84,7 @@ The location has to be reachable without having to move the robot's base."
                                                            ,guessed-z))
                                                   (pose ,pose)))))
                          (achieve `(arm-at ,arm ,location))
-                         (achieve `(emtpy-hand ?obj))))))))
+                         (achieve `(empty-hand ,?obj))))))))
             (with-designators
                 ((location (location `((frame ,frame)
                                        (coords (,alternate-x
@@ -92,5 +92,5 @@ The location has to be reachable without having to move the robot's base."
                                                 ,guessed-z))
                                        (pose ,pose)))))
               (achieve `(arm-at ,arm ,location))
-              (achieve `(emtpy-hand ?obj)))))))
+              (achieve `(empty-hand ,?obj)))))))
       (info-out (suturo planlib) "Placed object gently as you requested, master!~%")))

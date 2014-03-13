@@ -40,8 +40,8 @@
 
 (defvar *move-head-timeout* 5.0)
 (defvar *initial-timeout* 10.0)
-(defvar *grasp-timeout* 18.0)
-(defvar *open-timeout* 7.0)
+(defvar *grasp-timeout* 25.0)
+(defvar *open-timeout* 2.0)
 (defvar *move-arm-timeout* 10.0)
 (defvar *move-base-timeout* 30.0)
 
@@ -132,13 +132,11 @@
   (format t "make obj: ~a ~%in-arm:~a~%" obj in-arm)
   (let* ((time (roslisp:ros-time))
          (msg-header (roslisp:make-msg "std_msgs/Header"
-                                       (seq) 4
                                        (stamp) time
                                        (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
          (msg-arm (roslisp:make-msg "suturo_manipulation_msgs/RobotBodyPart"
                                     (bodyPart) in-arm))
          (msg-grasp-header (roslisp:make-msg "std_msgs/Header"
-                                       (seq) 4
                                        (stamp) time
                                        (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
          (msg-action (roslisp:make-msg "suturo_manipulation_msgs/GraspingAndDrop"
@@ -168,6 +166,7 @@
     :on-success-fn #'(lambda () (grasping-succeeded obj arm))))
   
 (defun grasping-succeeded (obj arm)
+  (format t "Calling grasping-succeeded.~%")
   (format t "Updating object's location and pose~%")
   (let* ((loc-old (desig-prop-value obj 'at))
          (frame (desig-prop-value loc-old 'frame))
@@ -191,11 +190,10 @@
 
 (defun make-open-hand-goal (obj arm)
   (format t "make-open-hand-goal obj:~a~%" obj)
-  (let* ((msg-header
-           (roslisp:make-msg "std_msgs/Header"
-                             (seq) 4
-                             (stamp) (roslisp:ros-time)
-                             (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
+  (let* ((time (roslisp:ros-time))
+         (msg-header (roslisp:make-msg "std_msgs/Header"
+                                       (stamp) time
+                                       (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
          (msg-action (roslisp:make-msg "suturo_manipulation_msgs/GraspingAndDrop"
                                        (header) msg-header
                                        (action) (get-grasp-constant 'grasp-action-drop)))
@@ -204,7 +202,6 @@
             "suturo_manipulation_msgs/suturo_manipulation_grasping_goal"
             (header) msg-header 
             (objectName) (desig-prop-value obj 'name)
-            (grasp) nil
             (action) msg-action
             (bodypart) (roslisp:make-msg
                         "suturo_manipulation_msgs/RobotBodyPart"
@@ -217,10 +214,12 @@
   (format t "call-open-hand-action obj: ~a~%" obj)
   (setf *action-client-grasp* (get-action-client 'grasp))
 
-  (let* ((arm (if (eq (desig-prop-value (desig-prop-value obj 'at) 'in) 'left-gripper) 
-                  'left-arm
-                  'right-arm))
-         (gripper-state (get-gripper-state arm)))   
+  (let* ((in-desig (desig-prop-value (desig-prop-value (current-desig obj) 'at) 'in))
+         (arm (cond
+                ((eq in-desig 'left-gripper) 'left-arm)
+                ((eq in-desig 'right-gripper) 'right-arm)
+                (t (cpl:error 'suturo-planning-common::unhandled-body-part))))
+         (gripper-state (get-gripper-state arm)))
     (with-lost-in-resultation-workaround
       *action-client-grasp*
       (make-open-hand-goal obj arm)
@@ -231,17 +230,14 @@
       *grasp-result-topic-type*
       *grasp-status-topic-type*
       :on-timeout-fn #'(lambda ()
-                         (let* ((new-gripper-state (get-gripper-state arm))
-                                (gripper-difference (difference gripper-state new-gripper-state)))
-                           (if (> gripper-difference *gripper-tolerance*)
+                         (let ((new-gripper-state (get-gripper-state arm)))
+                           (if (gripper-movement-significant? gripper-state new-gripper-state)
                                (progn
-                                 (format t "Gripper difference: ~a~%" gripper-difference)
                                  (format t "Gripper seems to have moved. Waiting until gripper stops.~%")
                                  (waiting-for-gripper arm)
                                  (format t "Gripper seems to have stopped moving. Assuming grasping succeeded.~%")
                                  nil)
                                (progn
-                                 (format t "Gripper difference: ~a~%" gripper-difference)
                                  (format t "Gripper doesn't seem to have moved.~%")
                                  t)))))))
 
@@ -286,7 +282,7 @@
          (pose-stamped-msg (roslisp:make-msg "geometry_msgs/PoseStamped"
                                              (header) header-msg
                                              (pose) pose-msg)))
-                                        ;(format t "created helper messages.~%")
+    ;;(format t "created helper messages.~%")
     (with-lost-in-resultation-workaround
         *action-client-move-arm*
       (make-move-arm-goal pose-stamped-msg (get-body-part-constant arm))
@@ -295,7 +291,8 @@
       *action-client-move-arm-server*
       *move-arm-cancel-topic-type*
       *move-arm-result-topic-type*
-      *move-arm-status-topic-type*)))
+      *move-arm-status-topic-type*
+      :intents 1)))
 
 ; move-base
 
@@ -313,6 +310,7 @@
                               ps pose-stamped))
 
 (defun call-move-base-action (pose-stamped)
+  (format t "call-move-base-action. pose-stamped:~a~%" pose-stamped)
   (setf *action-client-move-base* (get-action-client 'move-base))
   (with-lost-in-resultation-workaround
       *action-client-move-base*
@@ -333,26 +331,36 @@
 
 (defun difference (val-one val-two)
   "Calculates the difference between two values. 0 means no difference, 1 means 100% difference."
-  (format t "val-one: ~a, val-two: ~a~%" val-one val-two)
+  (format t "Calling difference.~%val-one: ~a, val-two: ~a~%" val-one val-two)
   (if (< val-one val-two)
       (let ((diff (- val-two val-one)))
-            (/ diff val-one))
+        (/ diff val-one))
       (let ((diff (- val-one val-two)))
-            (/ diff val-one))))
+        (/ diff val-one))))
 
 (defun waiting-for-gripper (arm)
   (loop
-    (format t "Entering loop.~%")
+    (format t "Waiting for gripper.~%")
     (let ((state-one (get-gripper-state arm)))
-      (sleep 10)
-      (let* ((state-two (get-gripper-state arm))
-             (diff (difference state-one state-two)))
-        (format t "Gripper difference ~a~%" diff)
-        (if (< diff *gripper-tolerance*)
+      (sleep 3)
+      (let ((state-two (get-gripper-state arm)))
+        (if (gripper-movement-significant? state-one state-two)
+            (format t "Gripper seems to be still moving.~%")
             (progn
-              (format t "EXITTING: diff < tolerance: ~a < ~a~%" diff *gripper-tolerance*)
-              (return))
-            (format t "LOOPING: diff > tolerance: ~a > ~a~%" diff *gripper-tolerance*))))))
+              (format t "Gripper seems to have stopped moving.~%")
+              (return)))))))
+
+(defun gripper-movement-significant? (val-one val-two)
+  "Determines if there is a significant difference between two gripper states."
+  (let ((absolute-diff (abs (- val-one val-two)))
+        (relative-diff (difference val-one val-two)))
+    (if (< absolute-diff 0.0001)
+        (progn
+          (format t "absolute-diff < 0.0001: ~a~%" absolute-diff)
+          nil)
+        (progn
+          (format t "relative-diff > *gripper-tolerance*?: ~a~%" (> relative-diff *gripper-tolerance*))
+          (> relative-diff *gripper-tolerance*)))))
 
 (defvar *action-client* nil) 
 
