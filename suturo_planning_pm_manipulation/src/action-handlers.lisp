@@ -41,7 +41,7 @@
 (defvar *move-head-timeout* 5.0)
 (defvar *initial-timeout* 10.0)
 (defvar *grasp-timeout* 25.0)
-(defvar *open-timeout* 2.0)
+(defvar *open-timeout* 10.0)
 (defvar *move-arm-timeout* 10.0)
 (defvar *move-base-timeout* 30.0)
 
