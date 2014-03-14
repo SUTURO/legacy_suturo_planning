@@ -135,11 +135,11 @@
                                                      (desig-prop-value ?obj 'at))
                           ?arm))))))
 
-(def-goal (achieve (empty-hand ?obj))
+(def-goal (achieve (empty-hand ?obj ?target-on))
   "Opens the hand of the given arm"
   (info-out (suturo planlib) "Opening, hand")
   (sleep 1.5)
-  (with-retry-counters ((open-retry-counter 2))
+  (with-retry-counters ((open-retry-counter 1))
     (with-failure-handling
         ((drop-failed (f)
            (declare (ignore f))
@@ -150,9 +150,10 @@
              (sleep 1.5)
              (retry))))
       (with-designators ((open-hand (action `((to open-hand)
-                                              (obj ,?obj)))))
+                                              (obj ,?obj)
+                                              (target-on ,?target-on)))))
         ;;(perform open-hand))))
-        (sp-manipulation::call-action 'open-hand ?obj))))
+        (sp-manipulation::call-action 'open-hand ?obj ?target-on))))
   (info-out (suturo planlib) "Dropped, object"))
 
 (def-goal (achieve (object-in-box ?obj ?box))

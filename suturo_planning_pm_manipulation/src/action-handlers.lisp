@@ -19,9 +19,9 @@
   "Moves arm to the object and grasps it."
   (call-grasp-action obj arm))
 
-(def-action-handler open-hand (obj)
+(def-action-handler open-hand (obj target-on)
   "Opens the hand containing the passed object and drops the object."
-  (call-open-hand-action obj))
+  (call-open-hand-action obj target-on))
 
 (def-action-handler move-arm (location arm)
   "Moves the specified arm to the location."
@@ -179,12 +179,12 @@
                                   (pose ,(sp-gripper-monitor:get-gripper-pose
                                           arm
                                           :target-frame frame)))
-                                (description loc-old))))
-         (new-obj (make-designator 'object
-                                   (update-designator-properties 
-                                    `((at ,loc))
-                                    (description obj)))))
-    (equate obj new-obj)))
+                                (description loc-old)))))
+    (make-designator 'object
+                     (update-designator-properties 
+                      `((at ,loc))
+                      (description obj))
+                     obj)))
 
 ; open-hand
 
@@ -196,12 +196,11 @@
                                        (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
          (msg-action (roslisp:make-msg "suturo_manipulation_msgs/GraspingAndDrop"
                                        (header) msg-header
-                                       (action) (get-grasp-constant 'grasp-action-drop)))
+                                       (action) (get-grasp-constant 'grasp-action-open)))
          (msg-goal
            (roslisp:make-msg
             "suturo_manipulation_msgs/suturo_manipulation_grasping_goal"
-            (header) msg-header 
-            (objectName) (desig-prop-value obj 'name)
+            (header) msg-header
             (action) msg-action
             (bodypart) (roslisp:make-msg
                         "suturo_manipulation_msgs/RobotBodyPart"
@@ -210,16 +209,14 @@
     (actionlib:make-action-goal *action-client-grasp*
       goal msg-goal)))
 
-(defun call-open-hand-action (obj)
+(defun call-open-hand-action (obj target-on)
   (format t "call-open-hand-action obj: ~a~%" obj)
   (setf *action-client-grasp* (get-action-client 'grasp))
-
   (let* ((in-desig (desig-prop-value (desig-prop-value (current-desig obj) 'at) 'in))
          (arm (cond
                 ((eq in-desig 'left-gripper) 'left-arm)
                 ((eq in-desig 'right-gripper) 'right-arm)
-                (t (cpl:error 'suturo-planning-common::unhandled-body-part))))
-         (gripper-state (get-gripper-state arm)))
+                (t (cpl:error 'suturo-planning-common::unhandled-body-part)))))
     (with-lost-in-resultation-workaround
       *action-client-grasp*
       (make-open-hand-goal obj arm)
@@ -229,17 +226,22 @@
       *grasp-cancel-topic-type*
       *grasp-result-topic-type*
       *grasp-status-topic-type*
-      :on-timeout-fn #'(lambda ()
-                         (let ((new-gripper-state (get-gripper-state arm)))
-                           (if (gripper-movement-significant? gripper-state new-gripper-state)
-                               (progn
-                                 (format t "Gripper seems to have moved. Waiting until gripper stops.~%")
-                                 (waiting-for-gripper arm)
-                                 (format t "Gripper seems to have stopped moving. Assuming grasping succeeded.~%")
-                                 nil)
-                               (progn
-                                 (format t "Gripper doesn't seem to have moved.~%")
-                                 t)))))))
+      :on-success-fn #'(lambda () (opening-hand-succeeded obj target-on)))))
+
+(defun opening-hand-succeeded (obj target-on)
+  (format t "Calling opening-hand-succeeded.~%")
+  (format t "Updating object's on-location to: ~a~%" target-on)
+  (let* ((loc-old (desig-prop-value obj 'at))
+         (loc (make-designator 'location 
+                               (update-designator-properties
+                                `((on ,target-on)
+                                  (in nil)) 
+                                (description loc-old)))))
+    (make-designator 'object
+                     (update-designator-properties 
+                      `((at ,loc))
+                      (description obj))
+                     obj)))
 
 ; move-arm
 (defvar *action-client-move-arm* nil)

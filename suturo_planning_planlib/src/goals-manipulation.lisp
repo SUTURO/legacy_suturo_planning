@@ -7,7 +7,8 @@
   "Places an object `?obj' on a given location `loc'.
 The location has to be reachable without having to move the robot's base."
   (format t "Placing object gently: ~a~%" ?obj)
-  (let* ((pose-stamped (reference ?loc))
+  (let* ((target-on (desig-prop-value ?loc 'on))
+         (pose-stamped (reference ?loc))
          #|
          (pose-stamped (cl-tf:make-pose-stamped
                         "/base_footprint" 0.0
@@ -55,7 +56,7 @@ The location has to be reachable without having to move the robot's base."
           ((suturo-planning-common::move-arm-failed (g)
              (declare (ignore g))
              (format t "finally loosing object.~%")
-             (achieve `(empty-hand ,?obj))
+             (achieve `(empty-hand ,?obj ,target-on))
              (return)))
         (with-retry-counters ((lower-arm-counter 3))
           (with-failure-handling
@@ -84,7 +85,7 @@ The location has to be reachable without having to move the robot's base."
                                                            ,guessed-z))
                                                   (pose ,pose)))))
                          (achieve `(arm-at ,arm ,location))
-                         (achieve `(empty-hand ,?obj))))))))
+                         (achieve `(empty-hand ,?obj ,target-on))))))))
             (with-designators
                 ((location (location `((frame ,frame)
                                        (coords (,alternate-x
@@ -92,5 +93,5 @@ The location has to be reachable without having to move the robot's base."
                                                 ,guessed-z))
                                        (pose ,pose)))))
               (achieve `(arm-at ,arm ,location))
-              (achieve `(empty-hand ,?obj)))))))
+              (achieve `(empty-hand ,?obj ,target-on)))))))
       (info-out (suturo planlib) "Placed object gently as you requested, master!~%")))
