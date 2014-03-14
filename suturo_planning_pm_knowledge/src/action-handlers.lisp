@@ -36,7 +36,7 @@
 
 (def-action-handler get-container-objects ()
   "Receives all containers from Knowledge Representation as a list."
-  (let* ((loc (make-designator 'location `((on ,(make-designator 'object `((name "kitchen_island_counter_top")))))))
+  (let* ((loc (make-designator 'location `((on ,(make-designator 'object `((name "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top")))))))
          (objs (call-action 'get-objects-with-properties (make-designator 'object `((type container) 
                                                                                     (at ,loc))))))
     (if objs
@@ -46,9 +46,8 @@
 
 (def-action-handler get-graspable-objects ()
   "Receives all graspable objects from Knowledge Representation as a list"
-  (let* ((loc (make-designator 'location `((on ,(make-designator 'object `((name "kitchen_island_counter_top")))))))
-         (objs (call-action 'get-objects-with-properties (make-designator 'object `((type graspable) 
-                                                                                    (at ,loc))))))
+  (let* ((loc (make-designator 'location `((on ,(make-designator 'object `((name "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top")))))))
+         (objs (call-action 'get-objects-with-properties (make-designator 'object `((at ,loc))))))
     (if objs
         objs
         (roslisp:ros-warn nil "Could not receive graspable objects."))))
