@@ -50,7 +50,6 @@
        ((desig-prop-value loc 'obj)
         (let* ((obj (desig-prop-value loc 'obj))
                (name (desig-prop-value obj 'name)))
-          (format t "asdasd")
           (when (not (equal name *location-to-reach-name*))
             (generate-locations-to-reach obj)
             (setf *location-to-reach-name* name)
@@ -110,7 +109,6 @@
 
 (defun generate-locations-to-reach (obj)
   (let* ((coords (get-coords obj))
-         (fgh   (format t "dfg ~a" coords))
          (x (+ (nth 0 coords) *gap-object-robot*))
          (locations nil))
     (format t "asd ~a" coords)
@@ -128,7 +126,6 @@
     (setf *locations-to-reach* locations)))
 
 (defun generate-locations-on (name)
-  (format t "generate")
   (let* ((obj (get-furniture name))
          (dims (desig-prop-value obj 'dimensions))
          (coords (get-coords obj))
