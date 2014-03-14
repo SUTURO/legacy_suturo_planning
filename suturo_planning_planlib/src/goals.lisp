@@ -58,7 +58,7 @@
 (def-goal (achieve (arm-at ?arm ?loc))
   "Brings the specified arm `?arm' to the location `?loc'"
   (format t "Achieving ~a at ~a~%" ?arm ?loc)
-  (with-retry-counters ((retry-counter 2))
+  (with-retry-counters ((retry-counter 1))
      (with-designators ((move (action 
                                `((to move-arm)
                                  (loc ,?loc)

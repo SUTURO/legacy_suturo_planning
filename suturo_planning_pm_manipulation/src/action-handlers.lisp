@@ -40,15 +40,19 @@
 
 (defvar *move-head-timeout* 5.0)
 (defvar *initial-timeout* 10.0)
-(defvar *grasp-timeout* 18.0)
-(defvar *open-timeout* 7.0)
-(defvar *move-arm-timeout* 5.0)
+(defvar *grasp-timeout* 25.0)
+(defvar *open-timeout* 10.0)
+(defvar *move-arm-timeout* 10.0)
 (defvar *move-base-timeout* 30.0)
 
 ; move-head
 (defvar *action-client-move-head* nil)
-(defvar *action-client-move-head-server* "suturo_man_move_head_server")
-(defvar *action-client-move-head-goal* "suturo_manipulation_msgs/suturo_manipulation_headAction")
+(defvar *action-client-move-head-server*  "suturo_man_move_head_server")
+(defvar *action-client-move-head-goal*  "suturo_manipulation_msgs/suturo_manipulation_headAction")
+(defvar *move-head-cancel-topic-type*  "actionlib_msgs/GoalID")
+(defvar *move-head-result-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_headActionResult")
+(defvar *move-head-status-topic-type* "actionlib_msgs/GoalStatusArray")
 
 (defun make-move-head-goal (pose-stamped)
   (format t "make-move-head-goal pose-stamped: ~a~%" pose-stamped)
@@ -82,8 +86,10 @@
         (make-move-head-goal pose-stamped-msg))
       *move-head-timeout*
       'suturo-planning-common::move-head-failed
-    "/suturo_man_move_head_server/result"
-    "suturo_manipulation_msgs/suturo_manipulation_headActionResult"))
+    *action-client-move-head-server*
+    *move-head-cancel-topic-type*
+    *move-head-result-topic-type*
+    *move-head-status-topic-type*))
            
 
 
@@ -91,6 +97,10 @@
 (defvar *action-client-initial* nil)
 (defvar *action-client-initial-server* "suturo_man_move_home_server")
 (defvar *action-client-initial-goal* "suturo_manipulation_msgs/suturo_manipulation_homeAction")
+(defvar *initial-cancel-topic-type*  "actionlib_msgs/GoalID")
+(defvar *initial-result-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_homeActionResult")
+(defvar *initial-status-topic-type* "actionlib_msgs/GoalStatusArray")
 
 (defun make-initial-action-goal (body-part)
   (format t "make-initial-action-goal body-part: ~a~%" body-part)
@@ -104,25 +114,29 @@
     (make-initial-action-goal (get-body-part-constant body-part))
     *initial-timeout*
     'suturo-planning-common::pose-not-reached
-    "/suturo_man_move_home_server/result"
-    "suturo_manipulation_msgs/suturo_manipulation_homeActionResult"))
+    *action-client-initial-server*
+    *initial-cancel-topic-type*
+    *initial-result-topic-type*
+    *initial-status-topic-type*))
 
 ; grasp
 (defvar *action-client-grasp* nil)
 (defvar *action-client-grasp-server* "suturo_man_grasping_server")
 (defvar *action-client-grasp-goal* "suturo_manipulation_msgs/suturo_manipulation_graspingAction")
+(defvar *grasp-cancel-topic-type*  "actionlib_msgs/GoalID")
+(defvar *grasp-result-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_graspingActionResult")
+(defvar *grasp-status-topic-type* "actionlib_msgs/GoalStatusArray")
 
 (defun make-grasp-action-goal (obj in-arm)
   (format t "make obj: ~a ~%in-arm:~a~%" obj in-arm)
   (let* ((time (roslisp:ros-time))
          (msg-header (roslisp:make-msg "std_msgs/Header"
-                                       (seq) 4
                                        (stamp) time
                                        (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
          (msg-arm (roslisp:make-msg "suturo_manipulation_msgs/RobotBodyPart"
                                     (bodyPart) in-arm))
          (msg-grasp-header (roslisp:make-msg "std_msgs/Header"
-                                       (seq) 4
                                        (stamp) time
                                        (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
          (msg-action (roslisp:make-msg "suturo_manipulation_msgs/GraspingAndDrop"
@@ -141,15 +155,18 @@
 (defun call-grasp-action (obj arm)
   (setf *action-client-grasp*  (get-action-client 'grasp))
   (with-lost-in-resultation-workaround
-    *action-client-grasp*
+      *action-client-grasp*
     (make-grasp-action-goal obj (get-body-part-constant arm))
     *grasp-timeout*
     'suturo-planning-common::grasping-failed
-    "/suturo_man_grasping_server/result"
-    "suturo_manipulation_msgs/suturo_manipulation_graspingActionResult"
+    *action-client-grasp-server*
+    *grasp-cancel-topic-type*
+    *grasp-result-topic-type*
+    *grasp-status-topic-type*
     :on-success-fn #'(lambda () (grasping-succeeded obj arm))))
   
 (defun grasping-succeeded (obj arm)
+  (format t "Calling grasping-succeeded.~%")
   (format t "Updating object's location and pose~%")
   (let* ((loc-old (desig-prop-value obj 'at))
          (frame (desig-prop-value loc-old 'frame))
@@ -173,11 +190,10 @@
 
 (defun make-open-hand-goal (obj arm)
   (format t "make-open-hand-goal obj:~a~%" obj)
-  (let* ((msg-header
-           (roslisp:make-msg "std_msgs/Header"
-                             (seq) 4
-                             (stamp) (roslisp:ros-time)
-                             (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
+  (let* ((time (roslisp:ros-time))
+         (msg-header (roslisp:make-msg "std_msgs/Header"
+                                       (stamp) time
+                                       (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
          (msg-action (roslisp:make-msg "suturo_manipulation_msgs/GraspingAndDrop"
                                        (header) msg-header
                                        (action) (get-grasp-constant 'grasp-action-drop)))
@@ -186,7 +202,6 @@
             "suturo_manipulation_msgs/suturo_manipulation_grasping_goal"
             (header) msg-header 
             (objectName) (desig-prop-value obj 'name)
-            (grasp) nil
             (action) msg-action
             (bodypart) (roslisp:make-msg
                         "suturo_manipulation_msgs/RobotBodyPart"
@@ -199,29 +214,30 @@
   (format t "call-open-hand-action obj: ~a~%" obj)
   (setf *action-client-grasp* (get-action-client 'grasp))
 
-  (let* ((arm (if (eq (desig-prop-value (desig-prop-value obj 'at) 'in) 'left-gripper) 
-                  'left-arm
-                  'right-arm))
-         (gripper-state (get-gripper-state arm)))   
+  (let* ((in-desig (desig-prop-value (desig-prop-value (current-desig obj) 'at) 'in))
+         (arm (cond
+                ((eq in-desig 'left-gripper) 'left-arm)
+                ((eq in-desig 'right-gripper) 'right-arm)
+                (t (cpl:error 'suturo-planning-common::unhandled-body-part))))
+         (gripper-state (get-gripper-state arm)))
     (with-lost-in-resultation-workaround
       *action-client-grasp*
       (make-open-hand-goal obj arm)
       *open-timeout*
       'suturo-planning-common::drop-failed
-      "/suturo_man_grasping_server/result"
-      "suturo_manipulation_msgs/suturo_manipulation_graspingActionResult"
+      *action-client-grasp-server*
+      *grasp-cancel-topic-type*
+      *grasp-result-topic-type*
+      *grasp-status-topic-type*
       :on-timeout-fn #'(lambda ()
-                         (let* ((new-gripper-state (get-gripper-state arm))
-                                (gripper-difference (difference gripper-state new-gripper-state)))
-                           (if (> gripper-difference *gripper-tolerance*)
+                         (let ((new-gripper-state (get-gripper-state arm)))
+                           (if (gripper-movement-significant? gripper-state new-gripper-state)
                                (progn
-                                 (format t "Gripper difference: ~a~%" gripper-difference)
                                  (format t "Gripper seems to have moved. Waiting until gripper stops.~%")
                                  (waiting-for-gripper arm)
                                  (format t "Gripper seems to have stopped moving. Assuming grasping succeeded.~%")
                                  nil)
                                (progn
-                                 (format t "Gripper difference: ~a~%" gripper-difference)
                                  (format t "Gripper doesn't seem to have moved.~%")
                                  t)))))))
 
@@ -229,18 +245,22 @@
 (defvar *action-client-move-arm* nil)
 (defvar *action-client-move-arm-server* "suturo_man_move_arm_server")
 (defvar *action-client-move-arm-goal* "suturo_manipulation_msgs/suturo_manipulation_moveAction")
+(defvar *move-arm-cancel-topic-type*  "actionlib_msgs/GoalID")
+(defvar *move-arm-result-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_moveActionResult")
+(defvar *move-arm-status-topic-type* "actionlib_msgs/GoalStatusArray")
 
 (defun make-move-arm-goal (pose-stamped in-arm)
-  ;(format t "make-move-arm-goal pose-stamped: ~a~% arm:~a~%" pose-stamped in-arm)
+  ;;(format t "make-move-arm-goal pose-stamped: ~a~% arm:~a~%" pose-stamped in-arm)
   (actionlib:make-action-goal *action-client-move-arm* 
     ps pose-stamped
     bodypart (roslisp:make-msg "suturo_manipulation_msgs/RobotBodyPart"
                                (bodyPart) in-arm)))
 
 (defun call-move-arm-action (location arm)
-  ;(format t "call-move-arm-action arm:~a~%" arm)
+  ;;(format t "call-move-arm-action arm:~a~%" arm)
   (setf *action-client-move-arm* (get-action-client 'move-arm))
-  ;(format t "getting frame and coords.~%")
+  ;;(format t "getting frame and coords.~%")
   (let* ((frame (desig-prop-value location 'frame))
          (coords (desig-prop-value location 'coords))
          (pose (desig-prop-value location 'pose))
@@ -262,20 +282,27 @@
          (pose-stamped-msg (roslisp:make-msg "geometry_msgs/PoseStamped"
                                              (header) header-msg
                                              (pose) pose-msg)))
-    ;(format t "created helper messages.~%")
+    ;;(format t "created helper messages.~%")
     (with-lost-in-resultation-workaround
-      *action-client-move-arm*
+        *action-client-move-arm*
       (make-move-arm-goal pose-stamped-msg (get-body-part-constant arm))
       *move-arm-timeout*
       'suturo-planning-common::move-arm-failed
-      "/suturo_man_move_arm_server/result"
-      "suturo_manipulation_msgs/suturo_manipulation_moveActionResult")))
+      *action-client-move-arm-server*
+      *move-arm-cancel-topic-type*
+      *move-arm-result-topic-type*
+      *move-arm-status-topic-type*
+      :intents 1)))
 
 ; move-base
 
 (defvar *action-client-move-base* nil)
 (defvar *action-client-move-base-server* "suturo_man_move_base_server")
 (defvar *action-client-move-base-goal* "suturo_manipulation_msgs/suturo_manipulation_baseAction")
+(defvar *move-base-cancel-topic-type*  "actionlib_msgs/GoalID")
+(defvar *move-base-result-topic-type*
+  "suturo_manipulation_msgs/suturo_manipulation_baseActionResult")
+(defvar *move-base-status-topic-type* "actionlib_msgs/GoalStatusArray")
 
 (defun make-move-base-goal (pose-stamped)
   (format t "make-move-base-goal pose-stamped: ~a~%" pose-stamped)
@@ -283,14 +310,17 @@
                               ps pose-stamped))
 
 (defun call-move-base-action (pose-stamped)
+  (format t "call-move-base-action. pose-stamped:~a~%" pose-stamped)
   (setf *action-client-move-base* (get-action-client 'move-base))
   (with-lost-in-resultation-workaround
-    *action-client-move-base*
+      *action-client-move-base*
     (make-move-base-goal (cl-tf:pose-stamped->msg pose-stamped))
     *move-base-timeout*
     'suturo-planning-common::move-base-failed
-    "/suturo_man_move_base_server/result"
-    "suturo_manipulation_msgs/suturo_manipulation_baseActionResult"))
+    *action-client-move-base-server*
+    *move-base-cancel-topic-type*
+    *move-base-result-topic-type*
+    *move-base-status-topic-type*))
      
 ; Helper functions for actions
 
@@ -301,26 +331,36 @@
 
 (defun difference (val-one val-two)
   "Calculates the difference between two values. 0 means no difference, 1 means 100% difference."
-  (format t "val-one: ~a, val-two: ~a~%" val-one val-two)
+  (format t "Calling difference.~%val-one: ~a, val-two: ~a~%" val-one val-two)
   (if (< val-one val-two)
       (let ((diff (- val-two val-one)))
-            (/ diff val-one))
+        (/ diff val-one))
       (let ((diff (- val-one val-two)))
-            (/ diff val-one))))
+        (/ diff val-one))))
 
 (defun waiting-for-gripper (arm)
   (loop
-    (format t "Entering loop.~%")
+    (format t "Waiting for gripper.~%")
     (let ((state-one (get-gripper-state arm)))
-      (sleep 10)
-      (let* ((state-two (get-gripper-state arm))
-             (diff (difference state-one state-two)))
-        (format t "Gripper difference ~a~%" diff)
-        (if (< diff *gripper-tolerance*)
+      (sleep 3)
+      (let ((state-two (get-gripper-state arm)))
+        (if (gripper-movement-significant? state-one state-two)
+            (format t "Gripper seems to be still moving.~%")
             (progn
-              (format t "EXITTING: diff < tolerance: ~a < ~a~%" diff *gripper-tolerance*)
-              (return))
-            (format t "LOOPING: diff > tolerance: ~a > ~a~%" diff *gripper-tolerance*))))))
+              (format t "Gripper seems to have stopped moving.~%")
+              (return)))))))
+
+(defun gripper-movement-significant? (val-one val-two)
+  "Determines if there is a significant difference between two gripper states."
+  (let ((absolute-diff (abs (- val-one val-two)))
+        (relative-diff (difference val-one val-two)))
+    (if (< absolute-diff 0.0001)
+        (progn
+          (format t "absolute-diff < 0.0001: ~a~%" absolute-diff)
+          nil)
+        (progn
+          (format t "relative-diff > *gripper-tolerance*?: ~a~%" (> relative-diff *gripper-tolerance*))
+          (> relative-diff *gripper-tolerance*)))))
 
 (defvar *action-client* nil) 
 
