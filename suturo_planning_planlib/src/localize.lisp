@@ -30,6 +30,9 @@
                                              *quaternion-counter*)))
 
 (defmethod reference ((loc location-designator) &optional (role *default-role*))
+  123)
+
+(defmethod reference :around ((loc location-designator) &optional (role *default-role*))
   (format t "reference ~a~%" loc)
   (cond
     ;; Location to reach something
