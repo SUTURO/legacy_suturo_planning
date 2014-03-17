@@ -1,4 +1,3 @@
-
 (in-package :suturo-planning-pmd-knowledge)
 
 (def-fact-group suturo-knowledge-dummy-designators (action-desig)
@@ -14,15 +13,7 @@
   
   (<- (action-desig ?desig (get-objects-with-properties ?obj))
     (desig-prop ?desig (to get-objects-with-properties))
-    (desig-prop ?desig (obj ?obj)))
-
-  (<- (action-desig ?desig (get-container-objects))
-    ;;Action designator for action to get information about objects.
-    (desig-prop ?desig (to get-container-objects)))
-  
-  (<- (action-desig ?desig (get-graspable-objects))
-    ;;Action designator for action to get information about objects.
-    (desig-prop ?desig (to get-graspable-objects))))
+    (desig-prop ?desig (obj ?obj))))
 
 (def-fact-group suturo-planning-pmd-knowledge (matching-process-module
                                                available-process-module)
@@ -30,9 +21,7 @@
   (<- (matching-process-module ?designator suturo-planning-pmd-knowledge)
     (or (desig-prop ?designator (to update-semantic-map))
         (desig-prop ?designator (to placed-object-in-box))
-        (desig-prop ?designator (to get-objects-with-properties))
-        (desig-prop ?designator (to get-container-objects))
-        (desig-prop ?designator (to get-graspable-objects))))
+        (desig-prop ?designator (to get-objects-with-properties))))
   
   (<- (available-process-module suturo-planning-pmd-knowledge)
     (symbol-value cram-projection:*projection-environment* nil)))

@@ -29,7 +29,7 @@
   (setf *location-to-see-counter* (make-pose '(0 0 0)
                                              *quaternion-counter*)))
 
-(defun reference (loc)
+(defmethod reference ((loc location-designator) &optional (role *default-role*))
   (format t "reference ~a~%" loc)
   (cond
     ;; Location to reach something
