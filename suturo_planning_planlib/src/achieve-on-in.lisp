@@ -67,5 +67,5 @@
         (achieve `(hand-over ,(make-designator 'object
                                                `((at ,?loc)))
                              ,(get-holding-arm (current-desig ?obj))))
-        (achieve `(empty-hand ,(current-desig ?obj))))))
+        (achieve `(empty-hand ,(current-desig ?obj) ?loc)))))
 

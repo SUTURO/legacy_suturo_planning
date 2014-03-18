@@ -85,10 +85,11 @@
     (let ((arm 'left-arm)
           (loc-to-reach (make-designator 'location 
                                          `((to reach) (obj ,?obj))))
-          (retry-counter 1))
+          (retry-counter 0))
       (with-failure-handling 
           ((grasping-failed (f)
              (declare (ignore f))
+             (incf retry-counter)
              (if (< retry-counter 8)
                  (cond
                    ((< (mod retry-counter 3) 2)
@@ -98,8 +99,10 @@
                     (setf arm (switch-arms arm))
                     (retry))
                    ((eql (mod retry-counter 3) 2)
+                    (format t "Move around~%")
                     (retry-with-next-solution loc-to-reach))))
                  (achieve `(home-pose ,arm))))
+        (format t "asd ~a ~a" (reference loc-to-reach) arm)
         (achieve `(robot-at ,loc-to-reach))
         (achieve `(object-in-hand ,?obj ,arm))))))
   
@@ -128,12 +131,16 @@
            (do-retry move-retry-counter
              (info-out (suturo planlib) "Trying again.")
              (retry))))
-      (with-designators 
-          ((get-loc-over-obj (action `((to get-location-over)
-                                       (loc ,(desig-prop-value ?obj 'at))))))
-        (achieve `(arm-at ,(sp-pm-utils::call-action 'get-location-over 
-                                                     (desig-prop-value ?obj 'at))
-                          ?arm))))))
+      (let* ((loc (desig-prop-value ?obj 'at))
+             (loc-pose-stamp (reference loc))
+             (loc-origin (cl-tf:origin loc-pose-stamp))
+             (coords-over `(,(cl-tf:x loc-origin) ,(cl-tf:y loc-origin) 
+                                                  ,(+ (cl-tf:z loc-origin) 0)))
+             (loc-over (make-designator 'location (update-designator-properties `((coords ,coords-over)
+                                                                                  (frame "/map")
+                                                                                  (pose (0 0 1 0)))
+                                                                                (description loc)))))
+        (achieve `(arm-at ,?arm ,loc-over))))))
 
 (def-goal (achieve (empty-hand ?obj ?target-on))
   "Opens the hand of the given arm"

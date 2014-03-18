@@ -26,7 +26,7 @@
         (perform (make-designator 'action 
         `((to get-objects-with-properties) 
         (obj ,?obj)))))|#
-        (sp-manipulation::call-action 'move-head 
+        #|(sp-manipulation::call-action 'move-head 
                                       (make-designator 'location
                                                        `((coords ,coords)
                                                          (frame ,frame))))
@@ -39,7 +39,7 @@
         (sp-manipulation::call-action 'move-head 
                                       (make-designator 'location
                                                        `((coords ,coords)
-                                                         (frame ,frame))))
+                                                         (frame ,frame))))|#
         (sp-knowledge::call-action 'update-semantic-map)
         (sp-knowledge::call-action 'get-objects-with-properties ?obj))
       objs)))

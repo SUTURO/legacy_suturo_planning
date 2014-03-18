@@ -148,7 +148,7 @@ workaround exits without raising any condition"
             do (roslisp:with-fields ((id (id goal_id)) status) s
                  (if (equal id *current-goal-id*)
                      (progn
-                       (format t "Goal: ~a~% status: ~a~%" id status)
+                       (format t "G:~a " status)
                        (cond
                          ((eq status (roslisp-msg-protocol:symbol-code 'actionlib_msgs-msg:GoalStatus :PENDING)) )
                          ((eq status (roslisp-msg-protocol:symbol-code 'actionlib_msgs-msg:GoalStatus :ACTIVE)) )

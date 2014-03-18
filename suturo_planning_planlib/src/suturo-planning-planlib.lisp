@@ -1,8 +1,8 @@
 (in-package :suturo-planning-planlib)
 
 (declare-goal achieve (occasion)
-  "Achieves `occasion' if it is not yet achieved.")
-  ;(ros-info (suturo planlib) "Trying to achieve ~a" (generate-output occasion)))
+  "Achieves `occasion' if it is not yet achieved."
+  (ros-info (suturo planlib) "Trying to achieve ~a" occasion))
   ;(when (holds occasion)
    ; (info-out (planlib) "Occasion '~a' already achieved." occasion)
     ;(return nil)))
@@ -35,7 +35,7 @@ equates it with a exact location"
     result))
 
 (defmacro retry-with-next-solution (desig)
-  `(if (setf ,desig (next-solution ,desig))
+  `(if (next-solution ,desig)
        (retry)))
 
 (defun generate-output (occ)
