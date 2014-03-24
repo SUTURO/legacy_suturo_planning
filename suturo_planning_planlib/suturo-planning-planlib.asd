@@ -8,15 +8,10 @@
                cram-language-designator-support
                cl-tf
                suturo-planning-common
-               suturo-planning-pm-manipulation
-               suturo-planning-pm-knowledge
-               suturo-planning-pm-gripper-monitor
-               suturo-planning-pm-utils
                nav_msgs-msg
                location-costmap
                cram-json-prolog
                process-modules)
-
   :components
   ((:module "src"
     :components

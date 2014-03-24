@@ -25,10 +25,6 @@
   (with-process-modules
     (clean-table-plan)))
 
-(def-top-level-cram-function place-gently-go (obj loc)
-  "Starts the plan"
-    (place-gently-plan obj loc))
-
 (def-top-level-cram-function clean-table-dummy ()
   "Deprecated!!! Starts the plan with stubbed process modules"
   (with-dummy-process-modules
@@ -49,7 +45,7 @@
     (achieve `(all ,objs-edible on ,loc-counter))
     (achieve `(all ,objs-inedible in ,loc-trash))))
 
-(def-cram-function place-gently-plan (object location)
+(def-top-level-cram-function place-gently-plan (object location)
   ""
   (format t "Iniciating plan.~%")
   (with-process-modules
@@ -64,3 +60,6 @@
         (achieve '(home-pose))
         (sp-planlib::init-localize)
         (achieve `(all ,objs-edible in ,loc-table)))))
+
+(defun how-do-i-reach-these-thiiiiiiiiiiings ()
+  (test-plan))

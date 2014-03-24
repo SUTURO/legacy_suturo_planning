@@ -1,10 +1,9 @@
 (in-package :suturo-planning-planlib)
 
 (def-goal (perceive (?obj))
-  (let ((objs (sp-knowledge::call-action 'get-objects-with-properties ?obj)))
-          ;;(perform (make-designator 'action 
-          ;;                              `((to get-objects-with-properties) 
-          ;;                                (obj ,?obj))))))
+  (let ((objs (perform (make-designator 'action 
+                                        `((to get-objects-with-properties) 
+                                          (obj ,?obj))))))
     (format t "Hier: ~a~%" objs)
     (if (not objs)
       (let* ((loc (desig-prop-value ?obj 'at))
@@ -21,27 +20,11 @@
         `((to move-head) 
         (loc ,(make-designator 'location
         `((coords ,coords)
-        (frame ,frame)))))))
+        (frame ,frame)))))))|#
         (perform (make-designator 'action '((to update-semantic-map))))
         (perform (make-designator 'action 
-        `((to get-objects-with-properties) 
-        (obj ,?obj)))))|#
-        #|(sp-manipulation::call-action 'move-head 
-                                      (make-designator 'location
-                                                       `((coords ,coords)
-                                                         (frame ,frame))))
-        (setf (nth 1 coords) (- (nth 1 coords) 0.8))
-        (sp-manipulation::call-action 'move-head 
-                                      (make-designator 'location
-                                                       `((coords ,coords)
-                                                         (frame ,frame))))
-        (setf (nth 1 coords) (+ (nth 1 coords) 0.4))
-        (sp-manipulation::call-action 'move-head 
-                                      (make-designator 'location
-                                                       `((coords ,coords)
-                                                         (frame ,frame))))|#
-        (sp-knowledge::call-action 'update-semantic-map)
-        (sp-knowledge::call-action 'get-objects-with-properties ?obj))
+                                  `((to get-objects-with-properties) 
+                                    (obj ,?obj)))))
       objs)))
 ; get objs from knwoledge
 ; if not objs

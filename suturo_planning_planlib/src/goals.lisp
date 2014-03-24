@@ -1,6 +1,7 @@
 (in-package :suturo-planning-planlib)
 
-(define-policy dont-drop-object (arm)
+ ;;(define-policy dont-drop-object (arm))
+#|
   "Monitors the griper of the given arm and checks if it closes
    completely"
   (:init ;;(perform (make-designator 'action 
@@ -17,7 +18,7 @@
             (cpl:fail 'dropped-object))
   (:clean-up ;;(perform (make-designator 'action 
              ;;                          '((to end-monitoring-gripper))))))
-   (sp-gripper-monitor::call-action 'end-monitoring-gripper)))
+   (sp-gripper-monitor::call-action 'end-monitoring-gripper))) |#
   
 (def-goal (achieve (robot-at ?loc))
   "Moves the robot to a position described by ?loc"
@@ -26,9 +27,9 @@
       ((move-base-failed (f)
          (declare (ignore f))
          (retry-with-next-solution ?loc)))
-    ;;(perform (make-designator 'action `((to move) 
-    ;;                                    (pose ,(reference ?loc)))))))
-    (sp-manipulation::call-action 'move-base (reference ?loc))))
+    (perform (make-designator 'action `((to move) 
+                                        (pose ,(reference ?loc)))))))
+ 
                      
 (def-goal (achieve (home-pose))
   "Moves the robot in the initial position"
@@ -52,8 +53,7 @@
               (do-retry retry-counter
                 (info-out (suturo planlib) "Trying again")
                 (retry))))
-         ;;(perform take-home-pose)))))
-         (sp-manipulation::call-action 'take-pose 'initial ?body-part)))))
+         (perform take-home-pose)))))
 
 (def-goal (achieve (arm-at ?arm ?loc))
   "Brings the specified arm `?arm' to the location `?loc'"
@@ -73,8 +73,8 @@
               (do-retry retry-counter
                 (info-out (suturo planlib) "Trying again")
                 (retry))))
-         ;;(perform move)))))
-         (sp-manipulation::call-action 'move-arm ?loc ?arm)))))
+         (perform move)))))
+
   
 
 (def-goal (achieve (in-gripper ?obj))
@@ -115,10 +115,10 @@
                                           (arm ,?arm))))
                      (monitor-gripper (action `((to monitor-gripper)
                                                 (arm ,?arm)))))
-    ;;(perform grasp-obj)
-    ;;(if (perform monitor-gripper) 
-    ;;    (cpl:fail 'grasping-failed))))
-    (sp-manipulation::call-action 'grasp ?obj ?arm)))
+    (perform grasp-obj)
+    (if (perform monitor-gripper) 
+        (cpl:fail 'grasping-failed))))
+  
 
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
@@ -159,8 +159,7 @@
       (with-designators ((open-hand (action `((to open-hand)
                                               (obj ,?obj)
                                               (target-on ,?target-on)))))
-        ;;(perform open-hand))))
-        (sp-manipulation::call-action 'open-hand ?obj ?target-on))))
+        (perform open-hand))))
   (info-out (suturo planlib) "Dropped, object"))
 
 (def-goal (achieve (object-in-box ?obj ?box))
@@ -172,15 +171,14 @@
            (declare (ignore f))
            (achieve `(empty-hand ,?obj))
            (achieve '(home-pose))))
-      (with-named-policy 'dont-drop-object (arm)
-        (achieve `(hand-over ,?box ,arm))))
+      ;;(with-named-policy 'dont-drop-object (arm)
+        (achieve `(hand-over ,?box ,arm)))
     (achieve `(empty-hand ,?obj))
     (with-designators ((placed-object-in-box 
                           (action `((to placed-object-in-box) 
                                     (obj ,?obj) 
                                     (container ,?box)))))
-      ;;(perform placed-object-in-box))))
-      (sp-knowledge::call-action 'placed-object-in-box ?obj ?box))))
+      (perform placed-object-in-box))))
 
 (def-goal (achieve (face-loc ?loc))
   "Let the Head point to the given Location"
@@ -192,8 +190,4 @@
              (retry))))
       (with-designators ((move-head (action `((to move-head)
                                               (loc ,?loc)))))
-        ;;(perform move-head)))))
-        (sp-manipulation::call-action 'move-head ?loc)))))
-
-
-
+        (perform move-head)))))
