@@ -57,15 +57,14 @@
   "Drops a object matching the description of ?obj in ?loc"
   (with-designators ((loc-to-reach (location `((to reach) (loc ,?loc)))))
       (with-failure-handling 
-          ((move-arm-failed (f)
-             (declare (ignore f))
-             (retry-with-next-solution loc-to-reach)))
+          ()
         (format t "achieve the")
-        (achieve `(in-gripper ,?obj))
-        (achieve '(home-pose both-arms))
+        ;(achieve `(in-gripper ,?obj))
+        ;(achieve '(home-pose both-arms))
         (achieve `(robot-at ,loc-to-reach))
         (achieve `(hand-over ,(make-designator 'object
                                                `((at ,?loc)))
                              ,(get-holding-arm (current-desig ?obj))))
-        (achieve `(empty-hand ,(current-desig ?obj) ?loc)))))
+        (achieve `(empty-hand ,(current-desig ?obj) ?loc))
+        (format t "END"))))
 

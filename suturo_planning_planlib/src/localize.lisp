@@ -20,8 +20,9 @@
 (defvar *quaternion-table* '(0 0 1 0))
 (defvar *quaternion-counter* '(0 0 0 1))
 
-(defvar *gap-object-robot* 0.8)
-(defvar *gap-between-objects* 0.15)
+(defparameter *gap-object-robot* 0.5)
+(defparameter *gap-between-objects* 0.15)
+(defparameter *gap-table-center-robot* 1)
 
 (defun init-localize ()
   (setf *location-to-see-table* (make-pose '(0 0 0)
@@ -43,8 +44,8 @@
                (pose (reference loc2))
                (origin (cl-tf:origin pose))
                (x (if (equal (desig-prop-value loc2 'name) *table-name*)
-                      (+ (cl-tf:x origin) *gap-object-robot*)
-                      (- (cl-tf:x origin) *gap-object-robot*)))
+                      (+ (cl-tf:x origin) *gap-table-center-robot*)
+                      (- (cl-tf:x origin) *gap-table-center-robot*)))
                (quaternion (if (equal (desig-prop-value loc2 'name) *table-name*)
                                *quaternion-table*
                             *quaternion-counter*)))
@@ -134,7 +135,7 @@
          (coords (get-coords obj))
          (x (first coords))
          (y (second coords))
-         (z (+ (third coords) (/ (third dims) 2))))
+         (z (* (third dims) 2)))
     (when (equal name *table-name*)
       (push (make-pose `(,x ,(+ y *gap-between-objects* -0.2) ,z) *quaternion-table*) *locations-on-table*)
       (push (make-pose `(,x ,(- y *gap-between-objects* 0.2) ,z) *quaternion-table*) *locations-on-table*)

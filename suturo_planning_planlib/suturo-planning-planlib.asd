@@ -11,6 +11,7 @@
                nav_msgs-msg
                location-costmap
                cram-json-prolog
+               suturo-planning-pm-manipulation
                process-modules)
   :components
   ((:module "src"

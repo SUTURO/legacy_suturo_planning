@@ -27,8 +27,10 @@
       ((move-base-failed (f)
          (declare (ignore f))
          (retry-with-next-solution ?loc)))
-    (perform (make-designator 'action `((to move) 
-                                        (pose ,(reference ?loc)))))))
+    (format t "Performing move")
+    (sp-manipulation::call-action 'move-base (reference ?loc))))
+    ;(perform (make-designator 'action `((to move-base) 
+    ;                                    (pose ,(reference ?loc)))))))
  
                      
 (def-goal (achieve (home-pose))
