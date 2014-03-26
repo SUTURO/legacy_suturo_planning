@@ -89,3 +89,16 @@ If there isn't any `nil' is returned."
                                  :source-frame source-frame
                                  :target-frame target-frame))))
         nil)))
+
+(defun roll-pitch-yaw->quaternion (roll pitch yaw)
+  "Converts roll, pitch and yaw angles to a (w x y z) quaternion"
+  (let ((sinr (sin (/ roll 2)))
+        (cosr (cos (/ roll 2)))
+        (sinp (sin (/ pitch 2)))
+        (cosp (cos (/ pitch 2)))
+        (siny (sin (/ yaw 2)))
+        (cosy (cos (/ yaw 2))))
+    `(,(+ (* cosr cosp cosy) (* sinr sinp siny))
+      ,(- (* sinr cosp cosy) (* cosr sinp siny))
+      ,(+ (* cosr sinp cosy) (* sinr cosp siny))
+      ,(- (* cosr cosp siny) (* sinr sinp cosy)))))
