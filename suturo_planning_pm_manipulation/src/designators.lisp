@@ -22,7 +22,8 @@
   (<- (action-desig ?desig (open-hand ?obj)) ; 
     ;;Action designator for action to open the hand of the specified arm.
     (desig-prop ?desig (to open-hand))
-    (desig-prop ?desig (obj ?obj)))
+    (desig-prop ?desig (obj ?obj))
+    (desig-prop ?desig (target-on ?target-on)))
   
   (<- (action-desig ?desig (move-arm ?location ?arm)) ; pose arm coorsystem
     ;;Action designator for action to move the specified arm with the hand over the specified box.

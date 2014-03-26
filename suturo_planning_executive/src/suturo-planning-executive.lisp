@@ -45,6 +45,11 @@
     (achieve `(all ,objs-edible on ,loc-counter))
     (achieve `(all ,objs-inedible in ,loc-trash))))
 
+
+
+
+;;;;;;;;;;;;;;; things to make testing easier
+
 (def-top-level-cram-function place-gently-plan (object location)
   ""
   (format t "Iniciating plan.~%")
@@ -59,9 +64,30 @@
                          (loc-counter (location `((on ,*counter-name*)
                                               (name ,*counter-name*))))
                          (objs-edible (object `((at ,loc-table)))))
-        ;(achieve '(home-pose))
+        (achieve '(home-pose))
         (sp-planlib::init-localize)
-        (achieve `(all ,objs-edible in ,loc-counter)))))
+        (achieve `(all ,objs-edible in ,loc-table)))))
 
 (defun how-do-i-reach-these-thiiiiiiiiiiings ()
   (test-plan))
+
+(defun drop-opj (gripper)
+  (top-level
+        (with-process-modules
+          (achieve `(desig-props:empty-hand ,(make-designator 'object `((desig-props:at ,(make-designator 'location `((desig-props:in ,gripper)))))) boden)))))
+
+(def-top-level-cram-function home-pose ()
+  (with-process-modules
+        (achieve '(home-pose))))
+
+(defun clear-perceived ()
+  (json-prolog:prolog-simple-1 "clearPerceived"))
+
+(defun update-perception ()
+  (json-prolog:prolog-simple-1 "updatePerception(O)"))
+
+(defun on-table ()
+  (json-prolog:prolog-simple-1 "onObject('http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island', Out)"))
+
+(defun publish-sematic-map ()
+  (json-prolog:prolog-simple-1 "publishSemanticMap"))

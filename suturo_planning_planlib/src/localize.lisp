@@ -20,7 +20,7 @@
 (defvar *quaternion-table* '(0 0 1 0))
 (defvar *quaternion-counter* '(0 0 0 1))
 
-(defparameter *gap-object-robot* 0.5)
+(defparameter *gap-object-robot* 0.4)
 (defparameter *gap-between-objects* 0.15)
 (defparameter *gap-table-center-robot* 1)
 
@@ -80,7 +80,7 @@
           (nth *location-on-counter-nr*
                *locations-on-counter*)))))
     ;; Someone fucked up
-    (t loc)))
+    (t (make-pose (desig-prop-value loc 'coords) (desig-prop-value loc 'pose)))))
 
 (defun next-solution (loc)
   (cond 
@@ -135,11 +135,11 @@
          (coords (get-coords obj))
          (x (first coords))
          (y (second coords))
-         (z (* (third dims) 2)))
+         (z (second dims)))
     (when (equal name *table-name*)
-      (push (make-pose `(,x ,(+ y *gap-between-objects* -0.2) ,z) *quaternion-table*) *locations-on-table*)
-      (push (make-pose `(,x ,(- y *gap-between-objects* 0.2) ,z) *quaternion-table*) *locations-on-table*)
-      (push (make-pose `(,x ,(- y 0.2) ,z) *quaternion-table*) *locations-on-table*))
+      (push (make-pose `(,(+ x 0.2) ,(+ y *gap-between-objects* -0.2) ,z) *quaternion-table*) *locations-on-table*)
+      (push (make-pose `(,(+ x 0.2) ,(- y *gap-between-objects* 0.2) ,z) *quaternion-table*) *locations-on-table*)
+      (push (make-pose `(,(+ x 0.2) ,(- y 0.2) ,z) *quaternion-table*) *locations-on-table*))
     (when (equal name *counter-name*)
       (push (make-pose `(,x ,(+ y *gap-between-objects* -0.2) ,z) *quaternion-counter*) *locations-on-counter*)
       (push (make-pose `(,x ,(- y *gap-between-objects* 0.2) ,z) *quaternion-counter*) *locations-on-counter*)

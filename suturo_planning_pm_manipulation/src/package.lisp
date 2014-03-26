@@ -49,4 +49,5 @@
                      #:grip-force
                      #:grasping-action-grasp
                      #:grasping-action-drop
-                     #:grasping-action-open))
+                     #:grasping-action-open
+                     #:target-on))

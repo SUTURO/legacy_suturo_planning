@@ -105,7 +105,7 @@
                     (retry-with-next-solution loc-to-reach))))
                  (achieve `(home-pose ,arm))))
         (format t "asd ~a ~a" (reference loc-to-reach) arm)
-        (achieve `(robot-at ,loc-to-reach))
+        ;(achieve `(robot-at ,loc-to-reach))
         (achieve `(object-in-hand ,?obj ,arm))))))
   
 
@@ -135,12 +135,13 @@
              (retry))))
       (let* ((loc (desig-prop-value ?obj 'at))
              (loc-pose-stamp (reference loc))
+             (test (format t "~a~%" loc-pose-stamp))
              (loc-origin (cl-tf:origin loc-pose-stamp))
              (coords-over `(,(cl-tf:x loc-origin) ,(cl-tf:y loc-origin) 
-                                                  ,(+ (cl-tf:z loc-origin) 0)))
+                                                  ,(+ (cl-tf:z loc-origin) 0.4)))
              (loc-over (make-designator 'location (update-designator-properties `((coords ,coords-over)
                                                                                   (frame "/map")
-                                                                                  (pose (0 0 1 0)))
+                                                                                  (pose (1 0 0 0)))
                                                                                 (description loc)))))
         (achieve `(arm-at ,?arm ,loc-over))))))
 
@@ -161,7 +162,8 @@
       (with-designators ((open-hand (action `((to open-hand)
                                               (obj ,?obj)
                                               (target-on ,?target-on)))))
-        (perform open-hand))))
+        ;(perform open-hand))))
+        (sp-manipulation::call-open-hand-action ?obj ?target-on))))
   (info-out (suturo planlib) "Dropped, object"))
 
 (def-goal (achieve (object-in-box ?obj ?box))

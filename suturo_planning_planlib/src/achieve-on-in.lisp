@@ -8,20 +8,20 @@
           (fail 'no-object-with-that-description))
       (with-retry-counters ((new-obj-counter 3))
         (with-failure-handling 
-            ((simple-plan-failure (f)
-               (declare (ignore f))
-               (do-retry new-obj-counter
-                 (retry))))
+            () ;(simple-plan-failure (f)
+               ;(declare (ignore f))
+               ;(do-retry new-obj-counter
+               ;  (retry))))
           (format t "sdjkfgajk~%")
           (loop while objs
                 do (setf obj (pop objs))
                    (with-retry-counters ((same-obj-counter 1))
                      (with-failure-handling 
-                         ((simple-plan-failure (f)
-                            (declare (ignore f))
-                            (do-retry same-obj-counter
-                              (retry))
-                            (append `(,obj) objs)))
+                         () ;(simple-plan-failure (f)
+                            ;(declare (ignore f))
+                            ;(do-retry same-obj-counter
+                            ;  (retry))
+                            ;(append `(,obj) objs)))
                        (achieve `(the ,obj ,?prep ,?loc)))))))))
 
 (def-goal (achieve (a ?obj ?prep ?loc))
@@ -53,18 +53,24 @@
       (achieve `(robot-at ,loc-to-reach))
       (achieve `(,?obj placed ,?loc)))))
 
+(defparameter *last-seen* nil)
+
 (def-goal (achieve (the ?obj in ?loc))
   "Drops a object matching the description of ?obj in ?loc"
   (with-designators ((loc-to-reach (location `((to reach) (loc ,?loc)))))
       (with-failure-handling 
           ()
         (format t "achieve the")
-        ;(achieve `(in-gripper ,?obj))
-        ;(achieve '(home-pose both-arms))
+        (setf *last-seen* ?obj)
+        (achieve `(in-gripper ,?obj))
+        ;(achieve `(hand-over ,?obj
+        ;                     ,(get-holding-arm (current-desig ?obj))))
+        (achieve '(home-pose both-arms))
         (achieve `(robot-at ,loc-to-reach))
         (achieve `(hand-over ,(make-designator 'object
                                                `((at ,?loc)))
                              ,(get-holding-arm (current-desig ?obj))))
-        (achieve `(empty-hand ,(current-desig ?obj) ?loc))
+        (achieve `(empty-hand ,(current-desig ?obj) ,?loc))
         (format t "END"))))
+
 

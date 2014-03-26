@@ -83,4 +83,5 @@
    #:get-best-arm
    #:get-location-over
    #:storage-for-food
-   #:storage-for-stuff))
+   #:storage-for-stuff
+   #:target-on))
