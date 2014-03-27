@@ -56,17 +56,39 @@
   (with-process-modules
     (achieve `(,object placed-gently ,location))))
 
-(def-top-level-cram-function test-plan ()
+(def-top-level-cram-function from-table-to-box ()
   (with-process-modules
       (with-designators ((table (object `((name ,*table-name*))))
                          (loc-table (location `((on ,table)
                                                 (name ,*table-name*))))
-                         (loc-counter (location `((on ,*counter-name*)
-                                              (name ,*counter-name*))))
+                         (loc-box (location `((on ,*trash-name*)
+                                              (name ,*trash-name*))))
                          (objs-edible (object `((at ,loc-table)))))
         (achieve '(home-pose))
         (sp-planlib::init-localize)
-        (achieve `(all ,objs-edible in ,loc-table)))))
+        (achieve `(all ,objs-edible in ,loc-box)))))
+
+(def-top-level-cram-function from-island-to-sink ()
+  (with-process-modules
+    (with-designators ((table (object `((name ,*table-name*))))
+                       (loc-table (location `((on ,table)
+                                              (name ,*table-name*))))
+                       (loc-counter (location `((on ,*counter-name*)
+                                                (name ,*counter-name*))))
+                       (objs (object `((at ,loc-table)))))
+      (achieve '(home-pose))
+      (sp-planlib::init-localize)
+      (achieve `(all ,objs in ,loc-counter)))))
+
+(def-top-level-cram-function test-plan ()
+  (with-process-modules
+    (with-designators ((table (object `((name ,*table-name*))))
+                       (loc-table (location `((on ,table)
+                                              (name ,*table-name*))))
+                       (objs (object `((at ,loc-table)))))
+      (achieve '(home-pose))
+      (sp-planlib::init-localize)
+      (achieve `(all ,objs in ,loc-table)))))
 
 (defun how-do-i-reach-these-thiiiiiiiiiiings ()
   (test-plan))

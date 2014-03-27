@@ -12,7 +12,6 @@
                ;(declare (ignore f))
                ;(do-retry new-obj-counter
                ;  (retry))))
-          (format t "sdjkfgajk~%")
           (loop while objs
                 do (setf obj (pop objs))
                    (with-retry-counters ((same-obj-counter 1))
