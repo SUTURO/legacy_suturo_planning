@@ -18,6 +18,10 @@
     (desig-prop ?desig (to get-objects-with-properties))
     (desig-prop ?desig (obj ?obj)))
 
+  (<- (action-desig ?desig (update-objects-on ?name))
+    (desig-prop ?desig (to update-objects-on))
+    (desig-prop ?desig (name ?name)))
+
   (<- (action-desig ?desig (get-container-objects))
     ;;Action designator for action to get information about objects.
     (desig-prop ?desig (to get-container-objects)))
@@ -34,6 +38,7 @@
         (desig-prop ?designator (to clear-maps))
         (desig-prop ?designator (to placed-object-in-box))
         (desig-prop ?designator (to get-objects-with-properties))
+        (desig-prop ?designator (to update-objects-on))
         (desig-prop ?designator (to get-container-objects))
         (desig-prop ?designator (to get-graspable-objects))))
   

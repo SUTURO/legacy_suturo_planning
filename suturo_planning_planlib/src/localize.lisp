@@ -2,7 +2,7 @@
 
 (defvar *transform-listener* nil)
 
-(defvar *table-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island")
+(defvar *table-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top")
 (defvar *counter-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block")
 
 (defvar *location-on-table-nr* 0)

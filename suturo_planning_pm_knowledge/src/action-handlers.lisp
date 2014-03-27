@@ -34,6 +34,11 @@
       (suturo-planning-common:json-prolog->designators gen)
       (roslisp:ros-warn nil "Could not find any matching objects."))))
 
+(def-action-handler update-objects-on (object-name)
+  "Retrieves objects that match the given designator"
+  (let ((gen (json-prolog:prolog-simple-1 (format nil "updatePerception('~a', Out)" object-name))))
+    (format t "generated function-call: ~a~%" gen)))
+
 (def-action-handler get-container-objects ()
   "Receives all containers from Knowledge Representation as a list."
   (let* ((loc (make-designator 'location `((on ,(make-designator 'object `((name "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top")))))))

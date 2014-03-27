@@ -104,7 +104,7 @@
                     (format t "Move around~%")
                     (retry-with-next-solution loc-to-reach))))
                  (achieve `(home-pose ,arm))))
-        (format t "asd ~a ~a" (reference loc-to-reach) arm)
+        ;(format t "asd ~a ~a" (reference loc-to-reach) arm)
         ;(achieve `(robot-at ,loc-to-reach))
         (achieve `(object-in-hand ,?obj ,arm))))))
   

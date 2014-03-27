@@ -78,6 +78,7 @@
    #:get-container-objects
    #:get-graspable-objects
    #:get-objects-with-properties
+   #:update-objects-on
    #:placed-object-in-box
    #:placed-gently
    #:get-best-arm

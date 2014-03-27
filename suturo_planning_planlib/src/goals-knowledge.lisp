@@ -21,10 +21,10 @@
         (loc ,(make-designator 'location
         `((coords ,coords)
         (frame ,frame)))))))|#
-        (perform (make-designator 'action '((to update-semantic-map))))
+        ;(perform (make-designator 'action '((to update-semantic-map))))
         (perform (make-designator 'action 
-                                  `((to get-objects-with-properties) 
-                                    (obj ,?obj)))))
+                                  `((to update-objects-on) 
+                                    (name ,name)))))
       objs)))
 ; get objs from knwoledge
 ; if not objs

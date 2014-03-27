@@ -29,5 +29,6 @@
                      #:clear-maps
                      #:placed-object-in-box
                      #:get-objects-with-properties
+                     #:update-objects-on
                      #:get-container-objects
                      #:get-graspable-objects))

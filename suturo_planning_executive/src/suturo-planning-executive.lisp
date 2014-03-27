@@ -1,6 +1,6 @@
 (in-package :suturo-planning-executive)
 
-(defvar *table-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island")
+(defvar *table-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top")
 (defvar *counter-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block")
 (defvar *trash-name* "http://www.suturo.de/ontology/semantic#r_dumpster")
 
