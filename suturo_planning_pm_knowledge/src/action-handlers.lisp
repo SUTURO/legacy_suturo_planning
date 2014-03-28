@@ -26,7 +26,7 @@
                                                   (desig-prop-value object 'name)
                                                   (desig-prop-value box 'name)))))))
 
-(def-action-handler get-objects-with-properties (object)
+(def-action-handler get-objects-with-properties (object props)
   "Retrieves objects that match the given designator"
   (let ((gen (json-prolog:prolog-simple-1 (suturo-planning-common:designator->string object))))
     (format t "generated function-call: ~a~%" gen)
@@ -52,7 +52,7 @@
 (def-action-handler get-graspable-objects ()
   "Receives all graspable objects from Knowledge Representation as a list"
   (let* ((loc (make-designator 'location `((on ,(make-designator 'object `((name "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top")))))))
-         (objs (call-action 'get-objects-with-properties (make-designator 'object `((at ,loc))))))
+         (objs (call-action 'get-objects-with-properties (make-designator 'object `((at ,loc))) '(on))))
     (if objs
         objs
         (roslisp:ros-warn nil "Could not receive graspable objects."))))

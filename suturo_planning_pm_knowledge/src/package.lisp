@@ -20,6 +20,7 @@
                      #:frame
                      #:edible
                      #:obj
+                     #:props
                      #:use
                      #:grip-force
                      #:storage-for-stuff
