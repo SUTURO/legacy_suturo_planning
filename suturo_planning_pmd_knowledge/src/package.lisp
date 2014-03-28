@@ -23,6 +23,7 @@
                      #:at
                      #:edible
                      #:use
+                     #:props
                      #:storage-for-food
                      #:storage-for-stuff
                      #:update-semantic-map

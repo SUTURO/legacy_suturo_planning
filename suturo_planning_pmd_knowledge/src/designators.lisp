@@ -11,8 +11,9 @@
     (desig-prop ?desig (obj ?obj))
     (desig-prop ?desig (container ?container)))
   
-  (<- (action-desig ?desig (get-objects-with-properties ?obj))
+  (<- (action-desig ?desig (get-objects-with-properties ?obj ?props))
     (desig-prop ?desig (to get-objects-with-properties))
+    (desig-prop ?desig (props ?props))
     (desig-prop ?desig (obj ?obj))))
 
 (def-fact-group suturo-planning-pmd-knowledge (matching-process-module

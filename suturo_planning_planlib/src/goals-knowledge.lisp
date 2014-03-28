@@ -3,7 +3,8 @@
 (def-goal (perceive (?obj))
   (let ((objs (perform (make-designator 'action 
                                         `((to get-objects-with-properties) 
-                                          (obj ,?obj))))))
+                                          (obj ,?obj)
+                                          (props (on)))))))
     (format t "Hier: ~a~%" objs)
     (if (not objs)
       (let* ((loc (desig-prop-value ?obj 'at))

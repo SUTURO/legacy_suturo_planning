@@ -60,6 +60,7 @@
    #:grasp 
    #:take-pose
    #:pose
+   #:props
    #:move-head
    #:move-arm
    #:move-base
