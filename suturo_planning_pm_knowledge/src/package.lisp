@@ -31,5 +31,6 @@
                      #:placed-object-in-box
                      #:get-objects-with-properties
                      #:update-objects-on
+                     #:get-static-object
                      #:get-container-objects
                      #:get-graspable-objects))

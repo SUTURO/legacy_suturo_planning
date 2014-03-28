@@ -79,6 +79,7 @@
    #:get-container-objects
    #:get-graspable-objects
    #:get-objects-with-properties
+   #:get-static-object
    #:update-objects-on
    #:placed-object-in-box
    #:placed-gently

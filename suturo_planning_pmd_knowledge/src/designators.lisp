@@ -10,6 +10,10 @@
     (desig-prop ?desig (to placed-object-in-box))
     (desig-prop ?desig (obj ?obj))
     (desig-prop ?desig (container ?container)))
+
+  (<- (action-desig ?desig (get-static-object ?name))
+    (desig-prop ?desig (to get-static-object))
+    (desig-prop ?desig (name ?name)))
   
   (<- (action-desig ?desig (get-objects-with-properties ?obj ?props))
     (desig-prop ?desig (to get-objects-with-properties))
@@ -22,6 +26,7 @@
   (<- (matching-process-module ?designator suturo-planning-pmd-knowledge)
     (or (desig-prop ?designator (to update-semantic-map))
         (desig-prop ?designator (to placed-object-in-box))
+        (desig-prop ?designator (to get-static-object))
         (desig-prop ?designator (to get-objects-with-properties))))
   
   (<- (available-process-module suturo-planning-pmd-knowledge)

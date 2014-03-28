@@ -56,3 +56,11 @@
     (if objs
         objs
         (roslisp:ros-warn nil "Could not receive graspable objects."))))
+
+(def-action-handler get-static-object (object-name)
+  "Returns a object designator of the object in the semantic map with the
+   given name."
+  (let ((gen (json-prolog:prolog-simple-1 (format nil
+                                                  "getKnowrobDimension('~a',Out)"
+                                                  name))))
+     (suturo-planning-common::json-prolog->short-designator gen)))

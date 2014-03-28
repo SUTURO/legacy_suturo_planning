@@ -147,9 +147,7 @@
     
 
 (defun get-furniture (name)
-  (let ((gen (json-prolog:prolog-simple-1 (format nil
-                                                  "getKnowrobDimension('~a',Out)"
-                                                  name))))
-     (suturo-planning-common::json-prolog->short-designator gen)))
+  (perform (make-designator 'action `((to get-static-object)
+                                      (name ,name)))))
     
     

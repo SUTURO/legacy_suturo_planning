@@ -60,4 +60,8 @@
 (def-action-handler get-objects-with-properties (object props)
   (declare (ignore object props))
   `(,*test-obj1* ,*test-obj2* ,*test-obj3*))
+
+(def-action-handler get-static-object (object-name)
+  (make-designator 'object `((name ,object-name) (dim (0.85 0.8 2.45))
+                             (at ,(make-designator 'location '((coords 1 1 1) (frame "/map")))))))
       

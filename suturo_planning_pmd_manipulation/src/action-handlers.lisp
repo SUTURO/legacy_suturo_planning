@@ -1,10 +1,10 @@
 (in-package :suturo-planning-pmd-manipulation)
 
-(defvar *move-fails* 0)
-(defvar *move-head-fails* 0)
-(defvar *move-arm-fails* 0)
-(defvar *grasp-fails* 0)
-(defvar *open-fails* 0)
+(defparameter *move-fails* 0)
+(defparameter *move-head-fails* 0)
+(defparameter *move-arm-fails* 0)
+(defparameter *grasp-fails* 2)
+(defparameter *open-fails* 0)
 
 (defmacro def-action-handler (name args &body body)
   (alexandria:with-gensyms (action-sym params)

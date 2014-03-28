@@ -23,6 +23,10 @@
     (desig-prop ?desig (to update-objects-on))
     (desig-prop ?desig (name ?name)))
 
+  (<- (action-desig ?desig (get-static-object ?name))
+    (desig-prop ?desig (to get-static-object))
+    (desig-prop ?desig (name ?name)))
+
   (<- (action-desig ?desig (get-container-objects))
     ;;Action designator for action to get information about objects.
     (desig-prop ?desig (to get-container-objects)))
@@ -41,6 +45,7 @@
         (desig-prop ?designator (to get-objects-with-properties))
         (desig-prop ?designator (to update-objects-on))
         (desig-prop ?designator (to get-container-objects))
+        (desig-prop ?designator (to get-static-object))
         (desig-prop ?designator (to get-graspable-objects))))
   
   (<- (available-process-module suturo-planning-pm-knowledge)
