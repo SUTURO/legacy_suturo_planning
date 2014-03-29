@@ -49,6 +49,7 @@
            (retry-with-next-solution ?loc)
            (retry-with-next-solution loc-to-reach)))
       (achieve `(in-gripper ,?obj))
+      (achieve '(home-pose both-arms))
       (achieve `(robot-at ,loc-to-reach))
       (achieve `(,?obj placed ,?loc)))))
 
@@ -56,20 +57,21 @@
 
 (def-goal (achieve (the ?obj in ?loc))
   "Drops a object matching the description of ?obj in ?loc"
-  (with-designators ((loc-to-reach (location `((to reach) (loc ,?loc)))))
+  (with-designators ((loc-to-reach (location `((to reach) (loc ,?loc))))
+                     (remove-object (action `((to placed-object-in-box)
+                                              (obj ,?obj)
+                                              (container ,?loc)))))
       (with-failure-handling 
           ()
-        (format t "achieve the")
         (setf *last-seen* ?obj)
         (achieve `(in-gripper ,?obj))
-        ;(achieve `(hand-over ,?obj
-        ;                     ,(get-holding-arm (current-desig ?obj))))
         (achieve '(home-pose both-arms))
         (achieve `(robot-at ,loc-to-reach))
         (achieve `(hand-over ,(make-designator 'object
                                                `((at ,?loc)))
                              ,(get-holding-arm (current-desig ?obj))))
         (achieve `(empty-hand ,(current-desig ?obj) ,?loc))
+        (perform remove-object)
         (format t "END"))))
 
 

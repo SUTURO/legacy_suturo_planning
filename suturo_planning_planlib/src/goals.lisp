@@ -90,7 +90,7 @@
                      
 (def-goal (achieve (home-pose))
   "Moves the robot in the initial position"
-  (info-out (suturo planlib) "Taking home pose")
+  (info-out (suturo planlib) "Taking hoe pose")
   (achieve '(home-pose both-arms))
   (achieve '(home-pose head)))
 
@@ -140,6 +140,7 @@
   (when (not (eql-or (desig-prop-value (desig-prop-value ?obj 'at) 'in)
                      'left-gripper
                      'right-gripper))
+    (achieve (achieve '(home-pose both-arms)))
     (let ((arm 'left-arm)
           (loc-to-reach (make-designator 'location 
                                          `((to reach) (obj ,?obj))))
@@ -150,17 +151,16 @@
              (incf retry-counter)
              (if (< retry-counter 8)
                  (cond
-                   ((< (mod retry-counter 3) 2)
+                   ((eql (mod retry-counter 2) 1)
                     (error-out (suturo planlib) 
                                "Grasping failed retry with other arm")
                     (achieve `(home-pose ,arm))
                     (setf arm (switch-arms arm))
                     (retry))
-                   ((eql (mod retry-counter 3) 2)
+                   ((eql (mod retry-counter 2) 0)
                     (format t "Move around~%")
                     (retry-with-next-solution loc-to-reach))))
-                 (achieve `(home-pose ,arm))))
-        (format t "asd ~a ~a" (reference loc-to-reach) arm)
+             (achieve `(home-pose ,arm))))
         (achieve `(robot-at ,loc-to-reach))
         (achieve `(object-in-hand ,?obj ,arm))))))
   
@@ -191,14 +191,15 @@
              (retry))))
       (let* ((loc (desig-prop-value ?obj 'at))
              (loc-pose-stamp (reference loc))
-             (test (format t "~a~%" loc-pose-stamp))
              (loc-origin (cl-tf:origin loc-pose-stamp))
              (coords-over `(,(cl-tf:x loc-origin) ,(cl-tf:y loc-origin) 
-                                                  ,(+ (cl-tf:z loc-origin) 0.4)))
-             (loc-over (make-designator 'location (update-designator-properties `((coords ,coords-over)
-                                                                                  (frame "/map")
-                                                                                  (pose (1 0 0 0)))
-                                                                                (description loc)))))
+                                                  ,(+ (cl-tf:z loc-origin) 0.3)))
+             (loc-over (make-designator 'location 
+                                        (update-designator-properties 
+                                         `((coords ,coords-over)
+                                           (frame "/map")
+                                           (pose (1 0 0 0)))
+                                         (description loc)))))
         (achieve `(arm-at ,?arm ,loc-over))))))
 
 (def-goal (achieve (empty-hand ?obj ?target-on))
@@ -219,7 +220,7 @@
                                               (obj ,?obj)
                                               (target-on ,?target-on)))))
         ;(perform open-hand))))
-        (sp-manipulation::call-open-hand-action ?obj ?target-on))))
+        (sp-manipulation::call-open-hand-action ?obj ?target-on))))      
   (info-out (suturo planlib) "Dropped, object"))
 
 (def-goal (achieve (object-in-box ?obj ?box))

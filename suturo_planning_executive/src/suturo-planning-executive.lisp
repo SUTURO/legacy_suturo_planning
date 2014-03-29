@@ -64,8 +64,6 @@
                          (loc-box (location `((on ,*trash-name*)
                                               (name ,*trash-name*))))
                          (objs-edible (object `((at ,loc-table)))))
-        (achieve '(home-pose))
-        (sp-planlib::init-localize)
         (achieve `(all ,objs-edible in ,loc-box)))))
 
 (def-top-level-cram-function from-island-to-sink ()
@@ -76,9 +74,6 @@
                        (loc-counter (location `((on ,*counter-name*)
                                                 (name ,*counter-name*))))
                        (objs (object `((at ,loc-table)))))
-      (achieve '(home-pose))
-      (achieve `(desig-props:robot-at ,loc-table))
-      (sp-planlib::init-localize)
       (achieve `(all ,objs in ,loc-counter)))))
 
 (def-top-level-cram-function test-plan ()
@@ -87,17 +82,15 @@
                        (loc-table (location `((on ,table)
                                               (name ,*table-name*))))
                        (objs (object `((at ,loc-table)))))
-      ;(achieve '(home-pose))
-      (sp-planlib::init-localize)
       (achieve `(all ,objs in ,loc-table)))))
 
 (defun how-do-i-reach-these-thiiiiiiiiiiings ()
   (test-plan))
 
-(defun drop-obj (gripper)
+(defun drop-obj (side)
   (top-level
-        (with-process-modules
-          (achieve `(desig-props:empty-hand ,(make-designator 'object `((desig-props:at ,(make-designator 'location `((desig-props:in ,gripper)))))) boden)))))
+    (with-process-modules
+      (achieve `(desig-props:empty-hand ,(make-designator 'object `((desig-props:at ,(make-designator 'location `((desig-props:in ,(if (eql side left) desig-props:left-gripper desig-props:right-gripper))))))) boden)))))
 
 (def-top-level-cram-function home-pose ()
   (with-process-modules

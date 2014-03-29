@@ -13,8 +13,12 @@
 (defvar *locations-on-counter* nil)
 (defvar *locations-on-red-box* nil)
 
-(defvar *location-to-see-table* nil) 
-(defvar *location-to-see-counter* nil)
+(defparameter *location-to-see-table* 
+  (make-pose '(0.4 1.4 0)
+             *quaternion-table*)) 
+(defparameter *location-to-see-counter* 
+  (make-pose '(0 0 0)
+             *quaternion-counter*))
 
 (defvar *locations-to-reach* nil)
 (defvar *location-to-reach-nr* 0)
@@ -26,12 +30,6 @@
 (defparameter *gap-object-robot* 0.4)
 (defparameter *gap-between-objects* 0.15)
 (defparameter *gap-table-center-robot* 0.5)
-
-(defun init-localize ()
-  (setf *location-to-see-table* (make-pose '(0 0 0)
-                                           *quaternion-table*))
-  (setf *location-to-see-counter* (make-pose '(0 0 0)
-                                             *quaternion-counter*)))
 
 (defmethod reference ((loc location-designator) &optional (role *default-role*))
   123)
