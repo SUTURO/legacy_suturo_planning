@@ -19,16 +19,71 @@
   (:clean-up ;;(perform (make-designator 'action 
              ;;                          '((to end-monitoring-gripper))))))
    (sp-gripper-monitor::call-action 'end-monitoring-gripper))) |#
+ 
+(defun publish-visualization-marker (pose-stamped &key type)
+  (let ((origin (cl-tf:origin pose-stamped))
+        (orientation (cl-tf:orientation pose-stamped)))
+    (publish (advertise "/visualization_marker" "visualization_msgs/Marker")
+             (make-message "visualization_msgs/Marker"
+                           (frame_id header) "/map"
+                           (stamp header)  (ros-time)
+                           ns "my_ns"
+                           id 0
+                           type (if type type 0)
+                           action 0
+                           (x position pose) (cl-tf:x origin)
+                           (y position pose) (cl-tf:y origin)
+                           (z position pose) 1.5
+                           (x orientation pose) (cl-tf:x orientation)
+                           (y orientation pose) (cl-tf:y orientation)
+                           (z orientation pose) (cl-tf:z orientation)
+                           (w orientation pose) (cl-tf:w orientation)
+                           (x scale) 0.3
+                           (y scale) 0.15
+                           (z scale) 0.15
+                           (a color) 1
+                           (r color) 1
+                           (g color) 0
+                           (b color) 1
+                           lifetime 50))))
+
+(defun publish-visualization-marker2 (loc)
+  (let ((origin (desig-prop-value loc 'coords))
+        (orientation (desig-prop-value loc 'pose)))
+    (publish (advertise "/visualization_marker" "visualization_msgs/Marker")
+             (make-message "visualization_msgs/Marker"
+                           (frame_id header) "/map"
+                           (stamp header)  (ros-time)
+                           ns "my_ns"
+                           id 0
+                           type 0
+                           action 0
+                           (x position pose) (first origin)
+                           (y position pose) (second origin)
+                           (z position pose) (third origin)
+                           (x orientation pose) (first orientation)
+                           (y orientation pose) (second orientation)
+                           (z orientation pose) (third orientation)
+                           (w orientation pose) (fourth orientation)
+                           (x scale) 0.2
+                           (y scale) 0.15
+                           (z scale) 0.15
+                           (a color) 1
+                           (r color) 0
+                           (g color) 1
+                           (b color) 1
+                           lifetime 50))))
   
 (def-goal (achieve (robot-at ?loc))
   "Moves the robot to a position described by ?loc"
-  (format t "move base~%")
   (with-failure-handling 
       ((move-base-failed (f)
          (declare (ignore f))
          (retry-with-next-solution ?loc)))
-    (format t "Performing move")
-    (sp-manipulation::call-action 'move-base (reference ?loc))))
+    (format t "Performing move~%")
+    (let ((pose-stamped (reference ?loc)))
+      (publish-visualization-marker pose-stamped)
+      (sp-manipulation::call-action 'move-base pose-stamped))))
     ;(perform (make-designator 'action `((to move-base) 
     ;                                    (pose ,(reference ?loc)))))))
  
@@ -75,6 +130,7 @@
               (do-retry retry-counter
                 (info-out (suturo planlib) "Trying again")
                 (retry))))
+         (publish-visualization-marker2 ?loc)
          (perform move)))))
 
   
@@ -104,8 +160,8 @@
                     (format t "Move around~%")
                     (retry-with-next-solution loc-to-reach))))
                  (achieve `(home-pose ,arm))))
-        ;(format t "asd ~a ~a" (reference loc-to-reach) arm)
-        ;(achieve `(robot-at ,loc-to-reach))
+        (format t "asd ~a ~a" (reference loc-to-reach) arm)
+        (achieve `(robot-at ,loc-to-reach))
         (achieve `(object-in-hand ,?obj ,arm))))))
   
 

@@ -15,17 +15,13 @@
         (format t "Hier auch ~a~a~a~a~a" loc name on-obj coords frame)
         (setf (nth 2 coords) (+ (nth 2 coords) 0.6))
         (setf (nth 1 coords) (+ (nth 1 coords) 0.4))
-        ;;(achieve `(robot-at ,(make-designator 'location 
-        ;;                                      `((to see) (name ,name)))))
-        #|(perform (make-designator 'action 
-        `((to move-head) 
-        (loc ,(make-designator 'location
-        `((coords ,coords)
-        (frame ,frame)))))))|#
-        ;(perform (make-designator 'action '((to update-semantic-map))))
         (perform (make-designator 'action 
                                   `((to update-objects-on) 
-                                    (name ,name)))))
+                                    (name ,name))))
+        (perform (make-designator 'action 
+                                  `((to get-objects-with-properties) 
+                                    (obj ,?obj)
+                                    (props (on))))))
       objs)))
 ; get objs from knwoledge
 ; if not objs
@@ -37,3 +33,13 @@
 ;     get objs from knowledge
 ;   else fail
 ;     
+
+
+        ;;(achieve `(robot-at ,(make-designator 'location 
+        ;;                                      `((to see) (name ,name)))))
+        #|(perform (make-designator 'action 
+        `((to move-head) 
+        (loc ,(make-designator 'location
+        `((coords ,coords)
+        (frame ,frame)))))))|#
+        ;(perform (make-designator 'action '((to update-semantic-map))))

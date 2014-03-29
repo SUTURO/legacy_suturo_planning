@@ -77,6 +77,7 @@
                                                 (name ,*counter-name*))))
                        (objs (object `((at ,loc-table)))))
       (achieve '(home-pose))
+      (achieve `(desig-props:robot-at ,loc-table))
       (sp-planlib::init-localize)
       (achieve `(all ,objs in ,loc-counter)))))
 
@@ -86,14 +87,14 @@
                        (loc-table (location `((on ,table)
                                               (name ,*table-name*))))
                        (objs (object `((at ,loc-table)))))
-      (achieve '(home-pose))
+      ;(achieve '(home-pose))
       (sp-planlib::init-localize)
       (achieve `(all ,objs in ,loc-table)))))
 
 (defun how-do-i-reach-these-thiiiiiiiiiiings ()
   (test-plan))
 
-(defun drop-opj (gripper)
+(defun drop-obj (gripper)
   (top-level
         (with-process-modules
           (achieve `(desig-props:empty-hand ,(make-designator 'object `((desig-props:at ,(make-designator 'location `((desig-props:in ,gripper)))))) boden)))))
@@ -109,7 +110,10 @@
   (json-prolog:prolog-simple-1 "updatePerception(O)"))
 
 (defun on-table ()
-  (json-prolog:prolog-simple-1 "onObject('http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island', Out)"))
+  (json-prolog:prolog-simple-1 "onObject('http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top', Out)"))
 
 (defun publish-sematic-map ()
   (json-prolog:prolog-simple-1 "publishSemanticMap"))
+
+(defun update-on-table ()
+  (json-prolog:prolog-simple-1 "updatePerception('http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top', Out)"))

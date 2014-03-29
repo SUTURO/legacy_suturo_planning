@@ -4,11 +4,14 @@
 
 (defvar *table-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top")
 (defvar *counter-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block")
+(defvar *red-box-name* "http://www.suturo.de/ontology/semantic#r_dumpster")
 
 (defvar *location-on-table-nr* 0)
 (defvar *location-on-counter-nr* 0)
+(defvar *location-on-red-box-nr* 0)
 (defvar *locations-on-table* nil)
 (defvar *locations-on-counter* nil)
+(defvar *locations-on-red-box* nil)
 
 (defvar *location-to-see-table* nil) 
 (defvar *location-to-see-counter* nil)
@@ -22,7 +25,7 @@
 
 (defparameter *gap-object-robot* 0.4)
 (defparameter *gap-between-objects* 0.15)
-(defparameter *gap-table-center-robot* 1)
+(defparameter *gap-table-center-robot* 0.5)
 
 (defun init-localize ()
   (setf *location-to-see-table* (make-pose '(0 0 0)
@@ -74,11 +77,16 @@
               (generate-locations-on name))
           (nth *location-on-table-nr*
                *locations-on-table*))
-         ((equal name *counter-name*) 
+          ((equal name *counter-name*) 
           (if (not *locations-on-counter*)
               (generate-locations-on name))
           (nth *location-on-counter-nr*
-               *locations-on-counter*)))))
+               *locations-on-counter*))
+         ((equal name *red-box-name*) 
+          (if (not *locations-on-red-box*)
+              (generate-locations-on name))
+          (nth *location-on-red-box-nr*
+               *locations-on-red-box*)))))
     ;; Someone fucked up
     (t (make-pose (desig-prop-value loc 'coords) (desig-prop-value loc 'pose)))))
 
@@ -135,19 +143,28 @@
          (coords (get-coords obj))
          (x (first coords))
          (y (second coords))
-         (z (second dims)))
-    (when (equal name *table-name*)
-      (push (make-pose `(,(+ x 0.2) ,(+ y *gap-between-objects* -0.2) ,z) *quaternion-table*) *locations-on-table*)
-      (push (make-pose `(,(+ x 0.2) ,(- y *gap-between-objects* 0.2) ,z) *quaternion-table*) *locations-on-table*)
-      (push (make-pose `(,(+ x 0.2) ,(- y 0.2) ,z) *quaternion-table*) *locations-on-table*))
-    (when (equal name *counter-name*)
-      (push (make-pose `(,x ,(+ y *gap-between-objects* -0.2) ,z) *quaternion-counter*) *locations-on-counter*)
-      (push (make-pose `(,x ,(- y *gap-between-objects* 0.2) ,z) *quaternion-counter*) *locations-on-counter*)
-      (push (make-pose `(,x ,(- y 0.2) ,z) *quaternion-counter*) *locations-on-counter*))))
+         (z (+ (third coords) (/ (first dims) 2))))
+    (cond 
+      ((equal name *table-name*)
+       (push (make-pose `(,(+ x 0.2) ,(+ y *gap-between-objects* -0.2) ,z) *quaternion-table*) *locations-on-table*)
+       (push (make-pose `(,(+ x 0.2) ,(- y *gap-between-objects* 0.2) ,z) *quaternion-table*) *locations-on-table*)
+       (push (make-pose `(,(+ x 0.2) ,(- y 0.2) ,z) *quaternion-table*) *locations-on-table*))
+      ((equal name *counter-name*)
+       (push (make-pose `(,(- x 0.15) ,(+ y *gap-between-objects* -0.2) ,z) *quaternion-counter*) *locations-on-counter*)
+       (push (make-pose `(,(- x 0.15) ,(- y *gap-between-objects* 0.2) ,z) *quaternion-counter*) *locations-on-counter*)
+       (push (make-pose `(,(- x 0.15) ,(- y 0.2) ,z) *quaternion-counter*) *locations-on-counter*))
+      ((equal name *red-box-name*)
+       (push (make-pose `(,x ,(+ y *gap-between-objects*) ,z) *quaternion-table*) *locations-on-red-box*)
+       (push (make-pose `(,x ,(- y *gap-between-objects*) ,z) *quaternion-table*) *locations-on-red-box*)
+       (push (make-pose `(,x ,y ,z) *quaternion-table*) *locations-on-red-box*)))))
     
-
 (defun get-furniture (name)
-  (perform (make-designator 'action `((to get-static-object)
-                                      (name ,name)))))
+  (let ((gen (json-prolog:prolog-simple-1 (format nil
+                                                  "getKnowrobDimension('~a',Out)"
+                                                  name))))
+     (suturo-planning-common::json-prolog->short-designator gen)))
+
+; (perform (make-designator 'action `((to get-static-object)
+;                                      (name ,name)))))
     
     

@@ -28,7 +28,7 @@
 
 (def-action-handler get-objects-with-properties (object props)
   "Retrieves objects that match the given designator"
-  (let ((gen (json-prolog:prolog-simple-1 (suturo-planning-common:designator->string object))))
+  (let ((gen (json-prolog:prolog-simple-1 (suturo-planning-common:designator->string object props))))
     (format t "generated function-call: ~a~%" gen)
     (if gen
       (suturo-planning-common:json-prolog->designators gen)
@@ -62,5 +62,5 @@
    given name."
   (let ((gen (json-prolog:prolog-simple-1 (format nil
                                                   "getKnowrobDimension('~a',Out)"
-                                                  name))))
+                                                  object-name))))
      (suturo-planning-common::json-prolog->short-designator gen)))
