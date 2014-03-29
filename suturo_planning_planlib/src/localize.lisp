@@ -13,13 +13,6 @@
 (defvar *locations-on-counter* nil)
 (defvar *locations-on-red-box* nil)
 
-(defparameter *location-to-see-table* 
-  (make-pose '(0.4 1.4 0)
-             *quaternion-table*)) 
-(defparameter *location-to-see-counter* 
-  (make-pose '(0 0 0)
-             *quaternion-counter*))
-
 (defvar *locations-to-reach* nil)
 (defvar *location-to-reach-nr* 0)
 (defvar *location-to-reach-name* nil)
@@ -30,6 +23,14 @@
 (defparameter *gap-object-robot* 0.4)
 (defparameter *gap-between-objects* 0.15)
 (defparameter *gap-table-center-robot* 0.5)
+
+(defun location-to-see-table ()
+    (make-pose '(0.4 1.4 0)
+             *quaternion-table*))
+
+(defun loaction-to-see-counter () 
+  (make-pose '(0 0 0)
+             *quaternion-counter*))
 
 (defmethod reference ((loc location-designator) &optional (role *default-role*))
   123)
@@ -64,8 +65,8 @@
     ((eql (desig-prop-value loc 'to) 'see)
      (let ((name (desig-prop-value loc 'name)))
        (cond 
-         ((equal name *table-name*) *location-to-see-table*)
-         ((equal name *counter-name*) *location-to-see-counter*)))) 
+         ((equal name *table-name*) (location-to-see-table))
+         ((equal name *counter-name*) (location-to-see-counter)))) )
     ;; Location on something
     ((desig-prop-value loc 'on)
      (let ((name (desig-prop-value loc 'name)))
