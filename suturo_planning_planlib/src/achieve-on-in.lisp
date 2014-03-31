@@ -1,9 +1,12 @@
 (in-package :suturo-planning-planlib)
 
+(defparameter *last-seen* nil)
+
 (def-goal (achieve (all ?obj ?prep ?loc))
   "All objects matching the description of ?obj will be put on ?loc"
     (let ((objs (perceive `(,?obj)))
-          (obj nil))
+          (obj nil)
+          (first-obj nil))
       (if (not objs)
           (fail 'no-object-with-that-description))
       (with-retry-counters ((new-obj-counter 3))
@@ -14,6 +17,7 @@
                ;  (retry))))
           (loop while objs
                 do (setf obj (pop objs))
+                   (if (not first-obj) (next-solution ?loc))
                    (with-retry-counters ((same-obj-counter 1))
                      (with-failure-handling 
                          () ;(simple-plan-failure (f)
@@ -39,7 +43,6 @@
              (retry))))
       (achieve `(the ,obj ,?prep ,?loc)))))
       
-
 (def-goal (achieve (the ?obj on ?loc))
   "Puts one object matching the description of ?obj on ?loc"
   (with-designators ((loc-to-reach (location `((to reach) (loc ,?loc)))))
@@ -48,12 +51,11 @@
            (declare (ignore f))
            (retry-with-next-solution ?loc)
            (retry-with-next-solution loc-to-reach)))
+      (setf *last-seen* ?obj)
       (achieve `(in-gripper ,?obj))
       (achieve '(home-pose both-arms))
       (achieve `(robot-at ,loc-to-reach))
-      (achieve `(,?obj placed ,?loc)))))
-
-(defparameter *last-seen* nil)
+      (achieve `(,?obj placed-gently ,?loc)))))
 
 (def-goal (achieve (the ?obj in ?loc))
   "Drops a object matching the description of ?obj in ?loc"

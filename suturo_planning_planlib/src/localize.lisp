@@ -28,7 +28,7 @@
     (make-pose '(0.4 1.4 0)
              *quaternion-table*))
 
-(defun loaction-to-see-counter () 
+(defun location-to-see-counter () 
   (make-pose '(0 0 0)
              *quaternion-counter*))
 
@@ -45,12 +45,12 @@
         (let* ((loc2 (desig-prop-value loc 'loc))
                (pose (reference loc2))
                (origin (cl-tf:origin pose))
-               (x (if (equal (desig-prop-value loc2 'name) *table-name*)
-                      (+ (cl-tf:x origin) *gap-table-center-robot*)
-                      (- (cl-tf:x origin) *gap-table-center-robot*)))
-               (quaternion (if (equal (desig-prop-value loc2 'name) *table-name*)
-                               *quaternion-table*
-                            *quaternion-counter*)))
+               (x (if (equal (desig-prop-value loc2 'name) *counter-name*)
+                      (- (cl-tf:x origin) *gap-table-center-robot*)
+                      (+ (cl-tf:x origin) *gap-table-center-robot*)))
+               (quaternion (if (equal (desig-prop-value loc2 'name) *counter-name*)
+                               *quaternion-counter*
+                               *quaternion-table*)))
           (make-pose `(,x ,(cl-tf:y origin) 0)
                      quaternion)))
        ((desig-prop-value loc 'obj)

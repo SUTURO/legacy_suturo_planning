@@ -90,7 +90,7 @@
 (defun drop-obj (side)
   (top-level
     (with-process-modules
-      (achieve `(desig-props:empty-hand ,(make-designator 'object `((desig-props:at ,(make-designator 'location `((desig-props:in ,(if (eql side left) desig-props:left-gripper desig-props:right-gripper))))))) boden)))))
+      (achieve `(desig-props:empty-hand ,(make-designator 'object `((desig-props:at ,(make-designator 'location `((desig-props:in ,(if (eql side 'left) 'desig-props:left-gripper 'desig-props:right-gripper))))))) boden)))))
 
 (def-top-level-cram-function home-pose ()
   (with-process-modules

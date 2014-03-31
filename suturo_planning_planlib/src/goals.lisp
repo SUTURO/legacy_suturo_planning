@@ -140,11 +140,12 @@
   (when (not (eql-or (desig-prop-value (desig-prop-value ?obj 'at) 'in)
                      'left-gripper
                      'right-gripper))
-    (achieve (achieve '(home-pose both-arms)))
+    (achieve '(home-pose both-arms))
     (let ((arm 'left-arm)
           (loc-to-reach (make-designator 'location 
                                          `((to reach) (obj ,?obj))))
           (retry-counter 0))
+      (format t "Grasp position0~%")
       (with-failure-handling 
           ((grasping-failed (f)
              (declare (ignore f))
@@ -161,7 +162,9 @@
                     (format t "Move around~%")
                     (retry-with-next-solution loc-to-reach))))
              (achieve `(home-pose ,arm))))
+        (format t "Grasp position~%")
         (achieve `(robot-at ,loc-to-reach))
+        (format t "Grasping~%")
         (achieve `(object-in-hand ,?obj ,arm))))))
   
 
