@@ -133,8 +133,6 @@
          (publish-visualization-marker2 ?loc)
          (perform move)))))
 
-  
-
 (def-goal (achieve (in-gripper ?obj))
   "Grasps the object with one gripper"
   (when (not (eql-or (desig-prop-value (desig-prop-value ?obj 'at) 'in)
@@ -145,7 +143,6 @@
           (loc-to-reach (make-designator 'location 
                                          `((to reach) (obj ,?obj))))
           (retry-counter 0))
-      (format t "Grasp position0~%")
       (with-failure-handling 
           ((grasping-failed (f)
              (declare (ignore f))
@@ -184,26 +181,27 @@
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
   (info-out (suturo planlib) "Moving ~a" ?arm)
-  (with-retry-counters ((move-retry-counter 1))
-    (with-failure-handling
-        ((move-arm-failed (f)
-           (declare (ignore f))
-           (error-out (suturo planlib) "Failed to move arm")
-           (do-retry move-retry-counter
-             (info-out (suturo planlib) "Trying again.")
-             (retry))))
-      (let* ((loc (desig-prop-value ?obj 'at))
-             (loc-pose-stamp (reference loc))
-             (loc-origin (cl-tf:origin loc-pose-stamp))
-             (coords-over `(,(cl-tf:x loc-origin) ,(cl-tf:y loc-origin) 
-                                                  ,(+ (cl-tf:z loc-origin) 0.3)))
-             (loc-over (make-designator 'location 
-                                        (update-designator-properties 
-                                         `((coords ,coords-over)
-                                           (frame "/map")
-                                           (pose (1 0 0 0)))
-                                         (description loc)))))
-        (achieve `(arm-at ,?arm ,loc-over))))))
+  (let ((loc (desig-prop-value ?obj 'at)))
+    (with-retry-counters ((move-arm-retry-counter 9))
+      (with-failure-handling
+          ((move-arm-failed (f)
+             (declare (ignore f))
+             (error-out (suturo planlib) "Failed to move arm")
+             (do-retry move-arm-retry-counter
+               (when (next-solution loc)
+                 (info-out (suturo planlib) "Trying again")
+                 (retry)))))
+        (let* ((loc-pose-stamp (reference loc))
+               (loc-origin (cl-tf:origin loc-pose-stamp))
+               (coords-over `(,(cl-tf:x loc-origin) ,(cl-tf:y loc-origin) 
+                              ,(+ (cl-tf:z loc-origin) 0.3)))
+               (loc-over (make-designator 'location 
+                                          (update-designator-properties 
+                                           `((coords ,coords-over)
+                                             (frame "/map")
+                                             (pose (1 0 0 0)))
+                                           (description loc)))))
+          (achieve `(arm-at ,?arm ,loc-over)))))))
 
 (def-goal (achieve (empty-hand ?obj ?target-on))
   "Opens the hand of the given arm"
