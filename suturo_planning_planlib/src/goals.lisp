@@ -124,9 +124,8 @@
            ((move-arm-failed (f)
               (declare (ignore f))
               (error-out (suturo planlib) 
-                         "Failed to move ~a to location ~a~%"
-                         ?arm
-                         ?loc)
+                         "Failed to move ~a"
+                         ?arm)
               (do-retry retry-counter
                 (info-out (suturo planlib) "Trying again")
                 (retry))))

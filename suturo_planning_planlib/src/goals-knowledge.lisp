@@ -17,13 +17,18 @@
     (achieve `(robot-at ,loc))
     ;(loop for loc-to-face in (get-location-to-face)
     ;      do (achieve `(face-loc ,loc-to-face))
-    (perform (make-designator 'action 
-                              `((to update-objects-on) 
-                                (name ,name))));)
-    (setf objs (perform (make-designator 'action 
-                                         `((to get-objects-with-properties) 
-                                           (obj ,?obj)
-                                           (props (on))))))
+    (setf objs 
+          (json-prolog->designators (json-prolog:prolog-simple-1 (format nil "onObject('~a',Out)" name))))
+    (when (not objs)
+      (perform (make-designator 'action 
+                                `((to update-objects-on) 
+                                  (name ,name))));)
+                                        ;(setf objs (perform (make-designator 'action 
+                                        ;                                     `((to get-objects-with-properties) 
+                                        ;                                       (obj ,?obj)
+                                        ;                                       (props (on))))))
+      (setf objs 
+            (json-prolog->designators (json-prolog:prolog-simple-1 (format nil "onObject('~a',Out)" name)))))
     (setf objs (remove-if (lambda (desig) 
                             (not (eql (desig-prop-value desig 'edible) 
                                       edible)))

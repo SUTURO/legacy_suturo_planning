@@ -38,12 +38,14 @@
                                               (name ,*counter-name*))))
                      (objs-edible (object `((edible t) 
                                             (at ,loc-table))))
-                     (loc-trash (location `((in ,*trash-name*)
+                     (loc-trash (location `((on ,*trash-name*)
                                             (name ,*trash-name*))))
                      (objs-inedible (object `((edible nil)
-                                              (at ,loc-trash)))))
-    (achieve `(all ,objs-edible on ,loc-counter))
-    (achieve `(all ,objs-inedible in ,loc-trash))))
+                                              (at ,loc-table)))))
+    (achieve `(all ,objs-inedible in ,loc-trash))
+    (achieve `(all ,objs-edible in ,loc-counter))
+    (home-pose)
+    (info-out (suturo executive) "Yeah!!! I've done it.")))
 
 
 
