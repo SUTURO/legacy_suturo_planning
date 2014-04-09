@@ -20,12 +20,12 @@
 (defvar *quaternion-table* '(0 0 1 0))
 (defvar *quaternion-counter* '(0 0 0 1))
 
-(defparameter *gap-object-robot* 0.4)
+(defparameter *gap-object-robot* 0.6)
 (defparameter *gap-between-objects* 0.15)
-(defparameter *gap-table-center-robot* 0.5)
+(defparameter *gap-table-center-robot* 0.7)
 
 (defun location-to-see-table ()
-    (make-pose '(0.4 1.4 0)
+  (make-pose '(0.4 1.4 0)
              *quaternion-table*))
 
 (defun location-to-see-counter () 
@@ -70,13 +70,15 @@
     ;; Location on something
     ((desig-prop-value loc 'on)
      (let ((name (desig-prop-value loc 'name)))
+       (format t "sad")
        (cond 
          ((equal name *table-name*) 
+          (format t "sad")
           (if (not *locations-on-table*)
               (generate-locations-on name))
           (nth *location-on-table-nr*
                *locations-on-table*))
-          ((equal name *counter-name*) 
+         ((equal name *counter-name*) 
           (if (not *locations-on-counter*)
               (generate-locations-on name))
           (nth *location-on-counter-nr*
@@ -95,11 +97,21 @@
      (let ((name (desig-prop-value loc 'name)))
        (cond
          ((equal name *table-name*) 
-          (incf *location-on-table-nr*)
+          (if (eql (incf *location-on-table-nr*)
+                   (length *locations-on-table*))
+              (setf *location-on-table-nr* 0))
           (nth *location-on-table-nr* 
                *locations-on-table*))
+         ((equal name *red-box-name*) 
+          (if (eql (incf *location-on-red-box-nr*)
+                   (length *locations-on-red-box*))
+              (setf *location-on-red-box-nr* 0))
+          (nth *location-on-red-box-nr* 
+               *locations-on-red-box*))
          ((equal name *counter-name*)
-          (incf *location-on-counter-nr*)
+          (if (eql (incf *location-on-counter-nr*)
+                   (length *locations-on-counter*))
+              (setf *location-on-counter-nr* 0))
           (nth *location-on-counter-nr*
                *locations-on-counter*)))))
     ((eql (desig-prop-value loc 'to) 'reach)
@@ -119,6 +131,7 @@
                                             (nth 3 quaternion))))
 
 (defun generate-locations-to-reach (obj)
+  (format t "asdasdjk")
   (let* ((coords (get-coords obj))
          (x (+ (nth 0 coords) *gap-object-robot*))
          (locations nil))
@@ -148,19 +161,19 @@
        (push (make-pose `(,(+ x 0.2) ,(- y *gap-between-objects* 0.2) ,z) *quaternion-table*) *locations-on-table*)
        (push (make-pose `(,(+ x 0.2) ,(- y 0.2) ,z) *quaternion-table*) *locations-on-table*))
       ((equal name *counter-name*)
-       (push (make-pose `(,(- x 0.15) ,(+ y *gap-between-objects* 0.1) ,z) *quaternion-counter*) *locations-on-counter*)
-       (push (make-pose `(,(- x 0.15) ,(- y *gap-between-objects* -0.1) ,z) *quaternion-counter*) *locations-on-counter*)
-       (push (make-pose `(,(- x 0.15) ,(- y -0.1) ,z) *quaternion-counter*) *locations-on-counter*))
+       (push (make-pose `(,(- x 0.18) ,(+ y *gap-between-objects* 0.1) ,z) *quaternion-counter*) *locations-on-counter*)
+       (push (make-pose `(,(- x 0.18) ,(- y *gap-between-objects* -0.1) ,z) *quaternion-counter*) *locations-on-counter*)
+       (push (make-pose `(,(- x 0.18) ,(- y -0.1) ,z) *quaternion-counter*) *locations-on-counter*))
       ((equal name *red-box-name*)
-       (push (make-pose `(,(- x 0.05) ,(+ y *gap-between-objects*) ,(- z 0.05)) *quaternion-table*) *locations-on-red-box*)
-       (push (make-pose `(,(- x 0.05) ,(- y *gap-between-objects*) ,(- z 0.05)) *quaternion-table*) *locations-on-red-box*)
-       (push (make-pose `(,(- x 0.05) ,y ,(- z 0.05)) *quaternion-table*) *locations-on-red-box*)
-       (push (make-pose `(,(- x 0.05) ,(+ y *gap-between-objects*) ,(+ z 0.05)) *quaternion-table*) *locations-on-red-box*)
-       (push (make-pose `(,(- x 0.05) ,(- y *gap-between-objects*) ,(- z 0.05)) *quaternion-table*) *locations-on-red-box*)
-       (push (make-pose `(,(- x 0.05) ,y ,(- z 0.05)) *quaternion-table*) *locations-on-red-box*)
-       (push (make-pose `(,(- x 0.05) ,(+ y *gap-between-objects*) ,z) *quaternion-table*) *locations-on-red-box*)
-       (push (make-pose `(,(- x 0.05) ,(- y *gap-between-objects*) ,z) *quaternion-table*) *locations-on-red-box*)
-       (push (make-pose `(,(- x 0.05) ,y ,z) *quaternion-table*) *locations-on-red-box*)))))
+       (push (make-pose `(,(+ x 0) ,(+ y *gap-between-objects*) ,(- z 0.05)) *quaternion-table*) *locations-on-red-box*)
+       (push (make-pose `(,(+ x 0) ,(- y *gap-between-objects*) ,(- z 0.05)) *quaternion-table*) *locations-on-red-box*)
+       (push (make-pose `(,(+ x 0) ,y ,(- z 0.05)) *quaternion-table*) *locations-on-red-box*)
+       (push (make-pose `(,(+ x 0) ,(+ y *gap-between-objects*) ,(+ z 0.05)) *quaternion-table*) *locations-on-red-box*)
+       (push (make-pose `(,(+ x 0) ,(- y *gap-between-objects*) ,(+ z 0.05)) *quaternion-table*) *locations-on-red-box*)
+       (push (make-pose `(,(+ x 0) ,y ,(+ z 0.05)) *quaternion-table*) *locations-on-red-box*)
+       (push (make-pose `(,(+ x 0) ,(+ y *gap-between-objects*) ,z) *quaternion-table*) *locations-on-red-box*)
+       (push (make-pose `(,(+ x 0) ,(- y *gap-between-objects*) ,z) *quaternion-table*) *locations-on-red-box*)
+       (push (make-pose `(,(+ x 0) ,y ,z) *quaternion-table*) *locations-on-red-box*)))))
     
 (defun get-furniture (name)
   (let ((gen (json-prolog:prolog-simple-1 (format nil

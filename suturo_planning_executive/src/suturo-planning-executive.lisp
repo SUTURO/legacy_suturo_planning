@@ -44,7 +44,7 @@
                                               (at ,loc-table)))))
     (achieve `(all ,objs-inedible in ,loc-trash))
     (achieve `(all ,objs-edible in ,loc-counter))
-    (home-pose)
+    (achieve '(home-pose))
     (info-out (suturo executive) "Yeah!!! I've done it.")))
 
 

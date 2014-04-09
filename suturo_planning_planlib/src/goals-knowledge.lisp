@@ -11,10 +11,11 @@
 (def-goal (perceive (?obj))
   (let* ((objs nil)
          (loc (desig-prop-value ?obj 'at))
+         (loc-to-see (make-designator 'location `((to reach) (loc ,loc))))
          (name (desig-prop-value loc 'name))
          (edible (desig-prop-value ?obj 'edible)))
     (achieve '(home-pose))
-    (achieve `(robot-at ,loc))
+    (achieve `(robot-at ,loc-to-see))
     ;(loop for loc-to-face in (get-location-to-face)
     ;      do (achieve `(face-loc ,loc-to-face))
     (setf objs 

@@ -33,7 +33,7 @@
                            action 0
                            (x position pose) (cl-tf:x origin)
                            (y position pose) (cl-tf:y origin)
-                           (z position pose) 1.5
+                           (z position pose) (if (< (cl-tf:z origin) 0.2) 1.4 (cl-tf:z origin))
                            (x orientation pose) (cl-tf:x orientation)
                            (y orientation pose) (cl-tf:y orientation)
                            (z orientation pose) (cl-tf:z orientation)
@@ -191,6 +191,9 @@
                  (info-out (suturo planlib) "Trying again")
                  (retry)))))
         (let* ((loc-pose-stamp (reference loc))
+               (orientation (cl-tf:orientation loc-pose-stamp))
+               (loc-pose `(,(cl-tf:x orientation) ,(cl-tf:y orientation) 
+                                                  ,(cl-tf:z orientation) ,(cl-tf:w orientation)))
                (loc-origin (cl-tf:origin loc-pose-stamp))
                (coords-over `(,(cl-tf:x loc-origin) ,(cl-tf:y loc-origin) 
                               ,(+ (cl-tf:z loc-origin) 0.3)))
@@ -198,7 +201,7 @@
                                           (update-designator-properties 
                                            `((coords ,coords-over)
                                              (frame "/map")
-                                             (pose (1 0 0 0)))
+                                             (pose ,loc-pose))
                                            (description loc)))))
           (achieve `(arm-at ,?arm ,loc-over)))))))
 
