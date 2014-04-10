@@ -3,7 +3,7 @@
 ;(defvar *inaccuracy-factor* 1.05)
 (defvar *put-over-offset* 0.03)
 
-(def-goal (achieve (?obj placed-gently-reference ?loc))
+(def-goal (achieve (?obj placed-gently ?loc))
     (let* ((pose-stamped (reference ?loc))
            (target-on (desig-prop-value ?loc 'on))
            (vector (cl-tf:origin pose-stamped))
@@ -15,7 +15,7 @@
                                   (on ,target-on)))))
       (achieve `(,?obj placed-gently ,location))))
 
-(def-goal (achieve (?obj placed-gently ?loc))
+(def-goal (achieve (?obj placed-gently-location ?loc))
   "Places an object `?obj' on a given location `loc'.
 The location has to be reachable without having to move the robot's base."
   (format t "Placing object gently: ~a~%" ?obj)

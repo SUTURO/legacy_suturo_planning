@@ -83,7 +83,7 @@
    #:placed-object-in-box
    #:know-unknown-object
    #:placed-gently
-   #:placed-gently-reference
+   #:placed-gently-location
    #:get-best-arm
    #:get-location-over
    #:storage-for-food

@@ -128,15 +128,11 @@ If there isn't any `nil' is returned."
                                :target-frame target-frame))
         nil)))
 
-(defun roll-pitch-yaw->quaternion (roll pitch yaw)
-  "Converts roll, pitch and yaw angles to a (w x y z) quaternion"
-  (let ((sinr (sin (/ roll 2)))
-        (cosr (cos (/ roll 2)))
-        (sinp (sin (/ pitch 2)))
-        (cosp (cos (/ pitch 2)))
-        (siny (sin (/ yaw 2)))
-        (cosy (cos (/ yaw 2))))
-    `(,(+ (* cosr cosp cosy) (* sinr sinp siny))
-      ,(- (* sinr cosp cosy) (* cosr sinp siny))
-      ,(+ (* cosr sinp cosy) (* sinr cosp siny))
-      ,(- (* cosr cosp siny) (* sinr sinp cosy)))))
+(defun cl-transforms-euler-degree->quaternion (&key (ax 0.0) (ay 0.0) (az 0.0))
+ "Converts roll, pitch and yaw angles (in degree) to a (x y z w) quaternion"
+ (let ((fac (/ pi 180.0)))
+   (cl-transforms:euler->quaternion :ax (* ax fac) :ay (* ay fac) :az (* az fac))))
+ 
+(defun cl-transforms-euler-degree->quaternion-as-list (&key (ax 0.0) (ay 0.0) (az 0.0))
+ (let ((quat (cl-transforms-euler-degree->quaternion :ax ax :ay ay :az az)))
+   (list (cl-transforms:x quat) (cl-transforms:y quat) (cl-transforms:z quat) (cl-transforms:w quat))))

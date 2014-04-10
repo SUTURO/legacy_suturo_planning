@@ -45,7 +45,7 @@
                      #:pose
                      #:empty-hand
                      #:placed-gently
-                     #:placed-gently-reference
+                     #:placed-gently-location
                      #:know-unknown-object
                      #:hand-over
                      #:objects-and-boxes-perceived
