@@ -32,7 +32,10 @@
            get-holding-gripper
            get-last-gripper-pose
            no-object-with-that-description
-           calc-gripper-offset)
+           calc-gripper-offset
+           object-not-hold-by-any-gripper
+           cl-transforms-euler-degree->quaternion
+           cl-transforms-euler-degree->quaternion-as-list)
   (:desig-properties 
    #:left
    #:right

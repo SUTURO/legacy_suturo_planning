@@ -8,13 +8,12 @@
 The location has to be reachable without having to move the robot's base."
   (format t "Placing object gently: ~a~%" ?obj)
   (let* ((target-on (desig-prop-value ?loc 'on))
-         (pose-stamped (reference ?loc))
-         #|
+         (coords (desig-prop-value ?loc 'coords))
+         (quat (desig-prop-value ?loc 'pose))
          (pose-stamped (cl-tf:make-pose-stamped
-                        "/base_footprint" 0.0
-                        (cl-transforms:make-3d-vector 0.5 0.3 0.63)
-                        (cl-transforms:make-quaternion 0 0 0 1)))
-         |#
+                        (desig-prop-value ?loc 'frame) 0.0
+                        (cl-transforms:make-3d-vector (first coords) (second coords) (third coords))
+                        (cl-transforms:make-quaternion (first quat) (second quat) (third quat) (fourth quat)))) 
          (frame (cl-tf:frame-id pose-stamped))
          (vector (cl-tf:origin pose-stamped))
          (x (cl-tf:x vector))
@@ -47,9 +46,11 @@ The location has to be reachable without having to move the robot's base."
     (format t "z: ~a~%" z)
     (format t "object-offset: ~a~%" object-offset)
     (format t "offset-loc: ~a~%" offset-loc)
-    (format t "alternate-z: ~a~%" alternate-z)    
+    (format t "alternate-z: ~a~%" alternate-z)
+    #|
     (format t "Moving ~a over given location: ~a~%" arm alternate-loc)
     (achieve `(arm-at ,arm ,alternate-loc))
+    |#
     (format t "Lowering arm. Guessing z with object-second-max-dimension (horizontal).~%")
     (let* ((guessed-z (+ z object-second-max-dimension (cl-transforms:z offset-loc))))
       (with-failure-handling

@@ -22,6 +22,7 @@
    #:object-in-box
    #:objects-in-appropriate-boxes
    #:objects-perceived
+   #:know-unknown-object
    #:home-pose
    #:arm-at
    #:empty-hand
