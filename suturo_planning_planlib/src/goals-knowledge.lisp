@@ -21,6 +21,7 @@
     (setf objs 
           (json-prolog->designators (json-prolog:prolog-simple-1 (format nil "onObject('~a',Out)" name))))
     (when (not objs)
+      (sleep 1)
       (perform (make-designator 'action 
                                 `((to update-objects-on) 
                                   (name ,name))));)
