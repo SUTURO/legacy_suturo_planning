@@ -81,6 +81,7 @@
    #:get-objects-with-properties
    #:update-objects-on
    #:placed-object-in-box
+   #:know-unknown-object
    #:placed-gently
    #:get-best-arm
    #:get-location-over

@@ -10,6 +10,17 @@ Otherwise returns `nil'"
       ((eq loc 'right-gripper) 'right-gripper)
       (t nil))))
 
+(defun get-gripper-frame (x)
+  (cond
+    ((eq x 'left-gripper) "/l_wrist_roll_link")
+    ((eq x 'left-arm) "/l_wrist_roll_link")
+    ((eq x 'right-gripper) "/r_wrist_roll_link")
+    ((eq x 'right-arm) "/r_wrist_roll_link")
+    (t (let ((gripper (get-holding-gripper x)))
+         (if gripper
+             (get-gripper-frame gripper)
+             nil)))))
+
 (defun get-last-gripper-pose (obj)
   "Returns the gripper's grasping pose of the gripper which is containing `obj'.
 If there isn't any `nil' is returned."
@@ -50,8 +61,8 @@ If there isn't any `nil' is returned."
                      ((position gripper '(left-gripper left-arm)) "l_wrist_roll_link")
                      ((position gripper '(right-gripper right-arm)) "r_wrist_roll_link")
                      (t (cpl:error 'suturo-planning-common::unhandled-body-part)))))
-    (if (and (setf gripper-vector (transform pov-frame target-frame))
-             (setf offset-vector (transform offset-frame target-frame)))          
+    (if (and (setf gripper-vector (transform->origin pov-frame target-frame))
+             (setf offset-vector (transform->origin offset-frame target-frame)))          
         (progn
           (setf result (cl-transforms:v- offset-vector gripper-vector))
           (if (position gripper '(right-gripper right-arm))
@@ -61,6 +72,35 @@ If there isn't any `nil' is returned."
                      (* 1 (cl-transforms:y result))
                      (* 1 (cl-transforms:z result)))))))
     result))
+
+(defun transform->pose (source-frame target-frame &key (timeout 2))
+  (cl-transforms:transform->pose (transform source-frame target-frame :timeout timeout)))
+
+(defun transform->origin (source-frame target-frame &key (timeout 2))
+  (cl-transforms:origin (transform->pose source-frame target-frame :timeout timeout)))
+
+(defun transform->origin-as-list (source-frame target-frame &key (timeout 2))
+  (let ((origin (transform->origin source-frame target-frame :timeout timeout)))
+    (list (cl-transforms:x origin) (cl-transforms:y origin) (cl-transforms:z origin))))
+
+(defun transform->matrix (source-frame target-frame &key (timeout 2))
+  (cl-transforms:transform->matrix (transform source-frame target-frame :timeout timeout)))
+
+(defun transform->quaternion (source-frame target-frame &key (timeout 2))
+  (cl-transforms:matrix->quaternion (transform->matrix source-frame target-frame :timeout timeout)))
+
+(defun transform->quaternion-as-list (source-frame target-frame &key (timeout 2))
+  (let ((quat (transform->quaternion source-frame target-frame :timeout timeout)))
+    (list (cl-transforms:x quat) (cl-transforms:y quat) (cl-transforms:z quat) (cl-transforms:w quat))))
+
+(defun transform-coords-to-frame (source-frame target-frame coords &key (timeout 2))
+  (let* ((offset (transform->origin source-frame target-frame :timeout timeout))
+         (new-coords (list
+                      (+ (first coords) (cl-transforms:x offset))
+                      (+ (second coords) (cl-transforms:y offset))
+                      (+ (third coords) (cl-transforms:z offset)))))
+    (format t "Transformed ~a in ~a to ~a in ~a.~%" coords source-frame new-coords target-frame)
+    new-coords))
 
 (defun transform (source-frame target-frame &key (timeout 2))
   (let ((time (roslisp:ros-time))
@@ -82,12 +122,10 @@ If there isn't any `nil' is returned."
                    (setf time (roslisp:ros-time)))))
     (if result
         (progn
-          (cl-transforms:origin
-           (cl-transforms:transform->pose
-            (tf:lookup-transform *tf*
-                                 :time time
-                                 :source-frame source-frame
-                                 :target-frame target-frame))))
+          (tf:lookup-transform *tf*
+                               :time time
+                               :source-frame source-frame
+                               :target-frame target-frame))
         nil)))
 
 (defun roll-pitch-yaw->quaternion (roll pitch yaw)

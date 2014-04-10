@@ -10,15 +10,13 @@ The location has to be reachable without having to move the robot's base."
   (let* ((target-on (desig-prop-value ?loc 'on))
          (coords (desig-prop-value ?loc 'coords))
          (quat (desig-prop-value ?loc 'pose))
-         (pose-stamped (cl-tf:make-pose-stamped
-                        (desig-prop-value ?loc 'frame) 0.0
-                        (cl-transforms:make-3d-vector (first coords) (second coords) (third coords))
-                        (cl-transforms:make-quaternion (first quat) (second quat) (third quat) (fourth quat)))) 
-         (frame (cl-tf:frame-id pose-stamped))
-         (vector (cl-tf:origin pose-stamped))
-         (x (cl-tf:x vector))
-         (y (cl-tf:y vector))
-         (z (cl-tf:z vector))
+         (pose (cond
+                 (quat quat)
+                 (t (suturo-planning-common:get-last-gripper-pose ?obj))))
+         (frame (desig-prop-value ?loc 'frame))
+         (x (first coords))
+         (y (second coords))
+         (z (third coords))
          (object-dimensions (desig-prop-value ?obj 'dimensions))
          (object-max-dimension (/ (maximum object-dimensions) 2.0))
          (object-second-max-dimension (/ (second
@@ -27,7 +25,6 @@ The location has to be reachable without having to move the robot's base."
                                            #'>))
                                          2.0))
          (object-offset object-max-dimension)
-         (pose (suturo-planning-common:get-last-gripper-pose ?obj))
          (arm (get-holding-arm ?obj))
          (obj-name (desig-prop-value ?obj 'name))
          (offset-loc (calc-gripper-offset arm obj-name))
@@ -42,7 +39,6 @@ The location has to be reachable without having to move the robot's base."
                                                   *put-over-offset*)))
                                      (pose ,pose)))))
     (format t "Created variables~%")
-    (format t "pose-stamped: ~a~%" pose-stamped)
     (format t "z: ~a~%" z)
     (format t "object-offset: ~a~%" object-offset)
     (format t "offset-loc: ~a~%" offset-loc)
