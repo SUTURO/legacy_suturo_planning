@@ -30,6 +30,9 @@
                      #:direction
                      #:open-hand
                      #:move-arm
+                     #:on
+                     #:in-pose
+                     #:in-offset
                      #:move-base
                      #:pose
                      #:loc

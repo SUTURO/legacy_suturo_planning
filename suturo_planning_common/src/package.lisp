@@ -93,6 +93,8 @@
    #:frame
    #:on
    #:in
+   #:in-pose
+   #:in-offset
    #:over
    #:between
    #:coords

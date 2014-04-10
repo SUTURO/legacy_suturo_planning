@@ -1,7 +1,5 @@
 (in-package :suturo-planning-pm-manipulation)
 
-(defvar *lock* (sb-thread:make-mutex))
-
 (defvar *current-goal-result-type* nil)
 (defvar *current-goal-id* nil)
 (defvar *current-goal-failed* nil)
@@ -35,59 +33,48 @@ workaround exits without raising any condition"
   (clear-variables)
   (let* ((time-begin nil)
          (time-now nil))
-    (sb-thread:with-recursive-lock (*lock*)
-      (setf *current-goal-subscribers*
-            (list
-             (roslisp:subscribe
-              (concatenate 'string server "/result")
-              result-topic-type #'(lambda (msg) (get-result msg)))
-             (roslisp:subscribe
-              (concatenate 'string server "/status")
-              status-topic-type #'(lambda (msg) (get-status msg))))))
+    (setf *current-goal-subscribers*
+          (list
+           (roslisp:subscribe
+            (concatenate 'string server "/result")
+            result-topic-type #'(lambda (msg) (get-result msg)))
+           (roslisp:subscribe
+            (concatenate 'string server "/status")
+            status-topic-type #'(lambda (msg) (get-status msg)))))
     (sleep 0.5)
     (incf intents)
     (loop while (> intents 0)
           do (clear-variables)
              ;;(format t "Calling goal: ~a~%Client: ~a~%timeout: ~a~%" goal client timeout)
-             (format t "intents left (including this one): ~a~%" intents)
+             (format t "Looping. Intents left: ~a~%" intents)
+             (format t "Calling goal.~%")
              (format t "Waiting for server: ~a~%" (actionlib:wait-for-server client))
              (setf time-begin (roslisp:ros-time))
              (setf time-now (roslisp:ros-time))
-             (format t "Sending goal.~%")
-             (sb-thread:with-recursive-lock (*lock*)
-               (setf *current-goal-id* (actionlib:goal-id (actionlib:send-goal client goal)))
-               (format t "Goal sent: ~a~%" *current-goal-id*))
-             (loop while (sb-thread:with-recursive-lock (*lock*)
-                           (and
-                            (not (timeout-occured timeout time-begin time-now))
-                            (not *current-goal-failed*)
-                            (not *current-goal-result-type*)
-                            (not *current-goal-result-callback-failed*)))
-                   do (format t "looping...~%")
-                      (format t "~tcurrent-goal-result-callback-failed: ~a~%"
-                          *current-goal-result-callback-failed*)
-                      (sleep 1)
+             (setf *current-goal-id* (actionlib:goal-id (actionlib:send-goal client goal)))
+             (format t "Goal created: ~a~%" *current-goal-id*)
+             (loop while (and
+                          (not (timeout-occured timeout time-begin time-now))
+                          (not *current-goal-failed*)
+                          (not *current-goal-result-type*)
+                          (not *current-goal-result-callback-failed*))
+                   do (sleep 0.1)
                       (setf time-now (roslisp:ros-time)))
              (cond
-               ((sb-thread:with-recursive-lock (*lock*)
-                  *current-goal-failed*)
+               (*current-goal-failed*
                 (progn
                   (format t "Goal failed.~%")
                   (goal-failed on-fail-fn throwable)
                   (return)))
-               ((sb-thread:with-recursive-lock (*lock*)
-                  *current-goal-result-type*)
+               (*current-goal-result-type*
                 (progn
                   (handle-action-answer *current-goal-result-type* throwable)
                   (roslisp:ros-info (suturo-pm-manipulation) "Action finished successfully.")
                   (funcall on-success-fn)
                   (return)))
-               ((sb-thread:with-recursive-lock (*lock*)
-                  *current-goal-result-callback-failed*)
+               (*current-goal-result-callback-failed*
                 (progn
                   (format t "Goal finished, but callback hasn't been called.~%")
-                  (format t "~tcurrent-goal-result-callback-failed: ~a~%"
-                          *current-goal-result-callback-failed*)
                   (format t "Cancelling goal and calling again.~%")
                   (cancel-goal server cancel-topic-type)
                   (decf intents)))
@@ -112,28 +99,25 @@ workaround exits without raising any condition"
 (defun cancel-goal (server cancel-topic-type)
   "Cancels the currently running goal."
   (format t "Canceling goal.~%")
-  (sb-thread:with-recursive-lock (*lock*)
-    (roslisp:publish (concatenate 'string server "/cancel")
-                     (roslisp:make-msg cancel-topic-type
-                                       (stamp) (roslisp:ros-time)
-                                       (id) *current-goal-id*))))
+  (roslisp:publish (concatenate 'string server "/cancel")
+                   (roslisp:make-msg cancel-topic-type
+                                     (stamp) (roslisp:ros-time)
+                                     (id) *current-goal-id*)))
 
 (defun unsubscribe ()
   "Unsubscribes  all subscribed topics in `*current-goal-subscribers*'"
   (format t "Unsubscribing.~%")
-  (sb-thread:with-recursive-lock (*lock*)
-    (loop for subscriber in *current-goal-subscribers*
-          do (roslisp:unsubscribe subscriber))
-    (setf *current-goal-subscribers* nil)))
+  (loop for subscriber in *current-goal-subscribers*
+        do (roslisp:unsubscribe subscriber))
+  (setf *current-goal-subscribers* nil))
 
 (defun clear-variables ()
   "Clears all variables which are used to monitor the goal's progress."
   (format t "Clearing variables.~%")
-  (sb-thread:with-recursive-lock (*lock*)
-    (setf *current-goal-id* nil)
-    (setf *current-goal-result-type* nil)
-    (setf *current-goal-failed* nil)
-    (setf *current-goal-result-callback-failed* nil)))
+  (setf *current-goal-id* nil)
+  (setf *current-goal-result-type* nil)
+  (setf *current-goal-failed* nil)
+  (setf *current-goal-result-callback-failed* nil))
 
 (defun goal-failed (on-fail-fn throwable)
   "Executes the actions to be done when a goal fails."
@@ -148,21 +132,17 @@ workaround exits without raising any condition"
     
 (defun get-result (msg)
   "Callback method for the /result-topic."
-  (sb-thread:with-recursive-lock (*lock*)
-    (format t "Calling get-result.~%")
-    (unsubscribe)
-    (roslisp:with-fields ((goal_id (goal_id status))  (succ (succ result))) msg
-      (roslisp:with-fields (id) goal_id
-        (roslisp:with-fields (type) succ
-          (if (equal id *current-goal-id*)
-              (progn
-                (format t "id: ~a~% current-id: ~a~%" id *current-goal-id*)
-                (format t "~tResult ~a~%" type)
-                (setf *current-goal-result-type* type))))))))
+  (format t "Calling get-result.~%")
+  (roslisp:with-fields ((goal_id (goal_id status))  (succ (succ result))) msg
+    (roslisp:with-fields (id) goal_id
+      (roslisp:with-fields (type) succ
+        (if (equal id *current-goal-id*)
+        (progn
+          (format t "Result ~a~%" type)
+          (setf *current-goal-result-type* type)))))))
     
 (defun get-status (msg)
   "Callback method for the /status-topic."
-  (format t "callback status.~%")
   (roslisp:with-fields (status_list) msg
     (let ((list (roslisp-msg-protocol:ros-message-to-list status_list)))
       (loop for s across list
@@ -192,7 +172,7 @@ workaround exits without raising any condition"
 
 (defun handle-action-answer (type error-to-throw)
   "Analyses returns from action servers and throws the passed error if necessary."
-  (format t "Handling result.~%")
+  (format t "Handling result.")
   (cond
     ((eql
       type

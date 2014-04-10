@@ -170,15 +170,18 @@
   (format t "Updating object's location and pose~%")
   (let* ((loc-old (desig-prop-value obj 'at))
          (frame (desig-prop-value loc-old 'frame))
+         (obj-name (desig-prop-value obj 'name))
+         (gripper (cond
+                    ((eql arm 'left-arm) 'left-gripper)
+                    ((eql arm 'right-arm) 'right-gripper)
+                    (t nil)))
          (loc (make-designator 'location 
                                (update-designator-properties 
-                                `((in ,(cond
-                                         ((eql arm 'left-arm) 'left-gripper)
-                                         ((eql arm 'right-arm) 'right-gripper)
-                                         (t nil)))
-                                  (pose ,(sp-gripper-monitor:get-gripper-pose
+                                `((in ,gripper)
+                                  (in-pose ,(sp-gripper-monitor:get-gripper-pose
                                           arm
-                                          :target-frame frame)))
+                                          :target-frame frame))
+                                  (in-offset ,(calc-gripper-offset gripper obj-name :target-frame frame)))
                                 (description loc-old)))))
     (make-designator 'object
                      (update-designator-properties 

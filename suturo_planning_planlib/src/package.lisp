@@ -47,6 +47,8 @@
    #:all
    #:body-part
    #:on
+   #:in-pose
+   #:in-offset
    #:at
    #:in
    #:name

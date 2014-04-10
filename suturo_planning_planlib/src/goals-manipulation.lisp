@@ -13,7 +13,7 @@
                                            ,(cl-tf:y vector)
                                            ,(cl-tf:z vector)))
                                   (on ,target-on)))))
-      (achieve `(,?obj placed-gently ,location))))
+      (achieve `(,?obj placed-gently-location ,location))))
 
 (def-goal (achieve (?obj placed-gently-location ?loc))
   "Places an object `?obj' on a given location `loc'.
@@ -39,7 +39,9 @@ The location has to be reachable without having to move the robot's base."
          (object-offset object-max-dimension)
          (arm (get-holding-arm ?obj))
          (obj-name (desig-prop-value ?obj 'name))
-         (offset-loc (calc-gripper-offset arm obj-name))
+         (obj-location (desig-prop-value (current-desig ?obj) 'at))
+         (offset-loc (desig-prop-value obj-location 'in-offset))
+         (sdgsdg (format t "offset-loc: ~a~%" offset-loc))
          (alternate-x (+ x (cl-transforms:x offset-loc)))
          (alternate-y (+ y (cl-transforms:y offset-loc)))
          (alternate-z (+ z object-offset (cl-transforms:z offset-loc)))

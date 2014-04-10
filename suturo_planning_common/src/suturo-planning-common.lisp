@@ -40,7 +40,7 @@ If there isn't any `nil' is returned."
                         (parent-in (desig-prop-value parent-at 'in)))
                    (format t "current: ~a~%parent:~a~%" current-designator parent-designator)
                    (if (and (setf current-gripper current-in) (not (setf parent-gripper parent-in)))
-                       (setf result (desig-prop-value current-at 'pose))
+                       (setf result (desig-prop-value current-at 'in-pose))
                        (progn
                          (setf current-designator parent-designator)
                          (setf parent-designator (parent parent-designator))))))
