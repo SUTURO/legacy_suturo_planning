@@ -18,7 +18,7 @@
         ;#:location-costmap)
   ;(:import-from cram-reasoning #:<- #:def-fact-group)
   ;(:import-from semantic-map-utils semantic-map-name)
-  (:export place-gently-go)
+  (:export)
   (:desig-properties #:to 
                      #:grasp 
                      #:arm 
@@ -45,6 +45,7 @@
                      #:pose
                      #:empty-hand
                      #:placed-gently
+                     #:placed-gently-reference
                      #:know-unknown-object
                      #:hand-over
                      #:objects-and-boxes-perceived
