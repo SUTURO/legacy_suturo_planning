@@ -70,11 +70,10 @@ equates it with a exact location"
     (let ((pos (desig-prop-value 
                 (desig-prop-value (current-desig obj) 'at) 
                 'in)))
-      (if pos
-          (if (eql pos 'left-gripper) 
-              'left-arm
-              (if (eql pos 'right-gripper)
-                  'right-arm))))))
+      (cond
+        ((eql pos 'left-gripper) 'left-arm)
+        ((eql pos 'right-gripper) 'right-arm)
+        (t nil)))))
 
 (defun get-best-arm (obj)
   "Returns the arm closest to the object"
