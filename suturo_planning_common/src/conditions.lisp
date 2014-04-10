@@ -31,6 +31,11 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "unhandled-body-part"))
 
+;; The given object is not being hold by any gripper.
+(define-condition object-not-hold-by-any-gripper (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "object-not-hold-by-any-gripper"))
+
 ;; The given action isn't specified or can't be used
 (define-condition unhandled-grasp-action (simple-plan-failure)
   ((result :initarg :result :reader result :initform nil))

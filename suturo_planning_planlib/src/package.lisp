@@ -22,6 +22,7 @@
    #:object-in-box
    #:objects-in-appropriate-boxes
    #:objects-perceived
+   #:know-unknown-object
    #:home-pose
    #:arm-at
    #:empty-hand
@@ -82,7 +83,9 @@
    #:get-static-object
    #:update-objects-on
    #:placed-object-in-box
+   #:know-unknown-object
    #:placed-gently
+   #:placed-gently-location
    #:get-best-arm
    #:get-location-over
    #:storage-for-food

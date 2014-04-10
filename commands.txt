@@ -45,7 +45,7 @@
 (make-designator 'location '((frame "/map") (coords (-0.9595373 1.2592965 0.9259399)) (pose (0 0 0 1))))
 
 (suturo-planning-executive::place-gently-plan cafe (make-designator 'location `((frame "/base_footprint") (coords (0.5 0.3 0.63)) (pose (0 0 0 1)) (on ,sp-planlib::*table-name*))))
-
+(suturo-planning-executive::know-unknown-object-plan corny (make-designator 'location `((frame "/base_link") (coords (0.5 0.0 0.7)) (on ,sp-planlib::*table-name*))))
 
 (suturo-planning-executive::place-gently-plan corny loc)
 

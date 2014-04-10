@@ -30,9 +30,21 @@
            unhandled-action-answer
            unhandled-condition
            get-holding-gripper
+           get-gripper-frame
            get-last-gripper-pose
            no-object-with-that-description
-           calc-gripper-offset)
+           calc-gripper-offset
+           object-not-hold-by-any-gripper
+           transform
+           transform->pose
+           transform->origin
+           transform->origin-as-list
+           transform->matrix
+           transform->quaternion
+           transform->quaternion-as-list
+           transform-coords-to-frame
+           cl-transforms-euler-degree->quaternion
+           cl-transforms-euler-degree->quaternion-as-list)
   (:desig-properties 
    #:left
    #:right
