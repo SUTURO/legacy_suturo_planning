@@ -26,12 +26,28 @@
 (call-initial-action 'left-arm)
 (call-initial-action 'right-arm)
 
+
 (call-move-arm-action (make-designator 'location '((frame "/odom_combined") (coords (0.00 0.65 1.15)) (pose (0.5 -0.5 0.5 0.5)))) 'left-arm)
+
+(call-move-arm-action (make-designator 'location `((frame "/base_footprint") (coords (0.5 0.4 0.9)) (pose ,(get-last-gripper-pose cafe)))) 'left-arm)
+
+(call-move-arm-action (make-designator 'location `((frame "/base_footprint") (coords (0.5 0.4 0.9)) (pose ,(cl-transforms-euler-degree->quaternion-as-list :ax 45 :ay 0 :az 0)))) 'left-arm)
+
+(call-move-arm-action (make-designator 'location `((frame "/l_wrist_roll_link") (coords (-0.05 0 0)) (pose ,(get-last-gripper-pose cafe)))) 'left-arm)
+
+(sp-gripper-monitor:get-gripper-pose 'left-arm :target-frame "/base_link")
+
+(call-move-arm-action (make-designator 'location `((frame "/l_wrist_roll_link") (coords (0 0 0)) (pose ,(cl-transforms-euler-degree->quaternion-as-list :ax 45 :ay 0 :az 0)))) 'left-arm)
+
+
+(call-move-arm-action (make-designator 'location `((frame "/base_footprint") (coords (0.7 0.35 1.0)) (pose ,(cl-transforms-euler-degree->quaternion-as-list :ax 0 :ay 0 :az 0)))) 'left-arm)
 
 (make-designator 'location '((frame "/map") (coords (-0.9595373 1.2592965 0.9259399)) (pose (0 0 0 1))))
 
-(suturo-planning-executive::place-gently-go cafe loc)
-(suturo-planning-executive::place-gently-go corny loc)
+(suturo-planning-executive::place-gently-plan cafe (make-designator 'location `((frame "/base_footprint") (coords (0.5 0.3 0.63)) (pose (0 0 0 1)) (on ,sp-planlib::*table-name*))))
+
+
+(suturo-planning-executive::place-gently-plan corny loc)
 
 ;(call-move-arm-action (make-designator 'location '((frame "base_footprint") (coords (0.1 0.6 1.0)) (pose (0 0 1 0)))) 'left-arm)
 
@@ -89,3 +105,15 @@
                                                  (w) 1)))))
 
 (call-move-base-action pose)
+
+
+
+POSEN
+
+left-arm
+
+	/base_link (0.5000285573285219d0 0.4990192438614538d0 -0.5000920419769876d0 0.500858448728967d0) frontal
+
+right-arm
+	/base-link (-0.4979847991023766d0 0.5021521617962537d0 0.49771687296865463d0 0.5021277333792858d0) frontal
+
