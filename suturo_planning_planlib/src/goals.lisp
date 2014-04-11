@@ -83,9 +83,9 @@
     (format t "Performing move~%")
     (let ((pose-stamped (reference ?loc)))
       (publish-visualization-marker pose-stamped)
-      (sp-manipulation::call-action 'move-base pose-stamped))))
-    ;(perform (make-designator 'action `((to move-base) 
-    ;                                    (pose ,(reference ?loc)))))))
+      ;(sp-manipulation::call-action 'move-base pose-stamped))))
+      (perform (make-designator 'action `((to move-base) 
+                                          (pose ,(reference ?loc))))))))
  
                      
 (def-goal (achieve (home-pose))

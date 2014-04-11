@@ -32,9 +32,9 @@
     (desig-prop ?desig (arm ?arm)))
 
  (<- (action-desig ?desig (move-base ?pose-stamped)) 
-   ;;Action designator for action to move the base to teh specified pose
+   ;;Action designator for action to move the base to the specified pose
    (desig-prop ?desig (to move-base))
-   (desig-prop ?desig (pose pose-stamped))))
+   (desig-prop ?desig (pose ?pose-stamped))))
 
 
   
