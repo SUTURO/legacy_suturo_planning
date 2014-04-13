@@ -441,6 +441,9 @@
       ((eq body-part 'head)
        (roslisp-msg-protocol:symbol-code
         'suturo_manipulation_msgs-msg:RobotBodyPart :HEAD))
+      ((eq body-part 'left-arm-campose)
+       (roslisp-msg-protocol:symbol-code
+        'suturo_manipulation_msgs-msg:RobotBodyPart :LEFT_ARM_CAM_POSE))
       (t (roslisp:ros-error
           (suturo-pm-manipulation)
           "Unhandled body part: ~a" body-part)
