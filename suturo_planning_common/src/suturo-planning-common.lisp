@@ -136,3 +136,6 @@ If there isn't any `nil' is returned."
 (defun cl-transforms-euler-degree->quaternion-as-list (&key (ax 0.0) (ay 0.0) (az 0.0))
  (let ((quat (cl-transforms-euler-degree->quaternion :ax ax :ay ay :az az)))
    (list (cl-transforms:x quat) (cl-transforms:y quat) (cl-transforms:z quat) (cl-transforms:w quat))))
+
+(defun split-string (str pattern)
+  (ppcre:split pattern str))

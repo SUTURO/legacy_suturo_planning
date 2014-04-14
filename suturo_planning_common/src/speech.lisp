@@ -9,15 +9,21 @@
 
 (defmacro error-out (domain msg &rest arg)
   `(let
-      ((str (format nil ,msg ,@arg)))
-      (roslisp:ros-error ,domain ,msg ,@arg)))
-      ;;(speak str)))
+      ((str (apply #'format nil ,msg (mapcar #'(lambda (x)
+        (if (eq (type-of x) 'OBJECT-DESIGNATOR)
+          (first (last (split-string (desig-prop-value x 'name) "#")))
+          x)) (list ,@arg)))))
+      (roslisp:ros-error ,domain ,msg ,@arg)
+      (speak str)))
 
 (defmacro info-out (domain msg &rest arg)
   `(let
-      ((str (format nil ,msg ,@arg)))
-      (roslisp:ros-info ,domain ,msg ,@arg)))
-      ;;(speak str)))
+      ((str (apply #'format nil ,msg (mapcar #'(lambda (x)
+        (if (eq (type-of x) 'OBJECT-DESIGNATOR)
+          (first (last (split-string (desig-prop-value x 'name) "#")))
+          x)) (list ,@arg)))))
+      (roslisp:ros-info ,domain ,msg ,@arg)
+      (speak str)))
 
 (defun speak (msg)
   (speak-with-voice msg "voice_kal_diphone"))
