@@ -49,8 +49,7 @@
 (def-action-handler update-semantic-map ()
   nil)
 
-(def-action-handler update-objects-on (object-name)
-  (declare (ignore object-name))
+(def-action-handler clear-maps ()
   nil)
 
 (def-action-handler placed-object-in-box (object box)
@@ -65,3 +64,9 @@
   (make-designator 'object `((name ,object-name) (dim (0.85 0.8 2.45))
                              (at ,(make-designator 'location '((coords 1 1 1) (frame "/map")))))))
       
+(def-action-handler update-objects-on (object-name)
+  (declare (ignore object-name))
+  nil)
+
+(def-action-handler get-graspable-objects ()
+  (call-action 'get-objects-with-properties nil nil))

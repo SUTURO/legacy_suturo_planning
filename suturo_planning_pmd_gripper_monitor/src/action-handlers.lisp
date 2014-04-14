@@ -17,5 +17,6 @@
 (def-action-handler end-monitoring-gripper ()
   t)
 
-  
+(def-action-handler get-gripper-state (arm)
+  nil) 
 
