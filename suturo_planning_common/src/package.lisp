@@ -33,6 +33,7 @@
            get-gripper-frame
            get-last-gripper-pose
            no-object-with-that-description
+           objs-in-on-failed
            calc-gripper-offset
            object-not-hold-by-any-gripper
            transform

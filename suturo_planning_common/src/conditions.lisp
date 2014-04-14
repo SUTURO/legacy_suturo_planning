@@ -14,6 +14,10 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "no-object-with-that-description"))
 
+(define-condition objs-in-on-failed (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "objs-in-on-failed"))
+
 ;;; Conditions thrown by manipulation
 
 ;; The robot couldn't grasp the object

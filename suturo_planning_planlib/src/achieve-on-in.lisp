@@ -4,28 +4,35 @@
 
 (def-goal (achieve (all ?obj ?prep ?loc))
   "All objects matching the description of ?obj will be put on ?loc"
-    (let ((objs (perceive `(,?obj)))
-          (obj nil)
-          (first-obj nil))
-      (if (not objs)
-          (fail 'no-object-with-that-description))
-      (with-retry-counters ((new-obj-counter 3))
-        (with-failure-handling 
-            () ;(simple-plan-failure (f)
-               ;(declare (ignore f))
-               ;(do-retry new-obj-counter
-               ;  (retry))))
+  (with-retry-counters ((perceive-again 2))
+    (with-failure-handling
+        ((objs-in-on-failed (f)
+           (declare (ignore f))
+           (do-retry perceive-again
+             (retry))))
+      (let ((objs (perceive `(,?obj)))
+            (obj nil)
+            (failed-objs nil)
+            (first-obj t)
+            (nr-of-objs 0))
+        (with-failure-handling
+            ((objs-in-on-failed (f)
+               (declare (ignore f))
+               (when (< (length failed-objs) nr-of-objs)
+                 (setf objs failed-objs)
+                 (setf failed-objs nil)
+                 (retry)))
+             (simple-plan-failure (f)
+               (when (not (eql 'objs-in-on-failed (type-of f)))
+                 (push obj failed-objs)
+                 (retry))))  
+          (setf nr-of-objs (length objs))
           (loop while objs
                 do (setf obj (pop objs))
                    (if (not first-obj) (next-solution ?loc))
-                   (with-retry-counters ((same-obj-counter 1))
-                     (with-failure-handling 
-                         () ;(simple-plan-failure (f)
-                            ;(declare (ignore f))
-                            ;(do-retry same-obj-counter
-                            ;  (retry))
-                            ;(append `(,obj) objs)))
-                       (achieve `(the ,obj ,?prep ,?loc)))))))))
+                   (achieve `(the ,obj ,?prep ,?loc)))
+          (if failed-objs 
+              (fail 'objs-in-on-failed)))))))
 
 (def-goal (achieve (a ?obj ?prep ?loc))
   "Puts the object described by ?obj on ?loc, fails if there are more
