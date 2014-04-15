@@ -34,7 +34,7 @@
   (setf *locations-on-red-box* nil)
   (setf *locations-to-reach* nil)
   (setf *location-to-reach-nr* 0)
-  (setf *location-to-reach-nalome* nil))
+  (setf *location-to-reach-name* nil))
 
 (defun location-to-see-table ()
   (make-pose '(0.4 1.4 0)

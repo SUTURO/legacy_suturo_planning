@@ -16,16 +16,29 @@
          (edible (desig-prop-value ?obj 'edible)))
     (achieve '(home-pose))
     (achieve `(robot-at ,loc-to-see))
-    (sleep 1)
     (loop for loc-to-face in (get-locations-to-face)
           do (achieve `(face-loc ,loc-to-face))
              (perform (make-designator 'action 
                               `((to update-objects-on) 
                                 (name ,name)))))
-    (setf objs 
-          (json-prolog->designators (json-prolog:prolog-simple-1 (format nil "onObject('~a',Out)" name))))
+    (look-for-unknown-objs (get-objects-on name))
+    (setf objs (get-objects-on))
     (setf objs (remove-if (lambda (desig) 
                             (not (eql (desig-prop-value desig 'edible)
                                       edible)))
                           objs))
     objs))
+
+(defun get-objects-on (name)
+  (json-prolog->designators (json-prolog:prolog-simple-1 (format nil "onObject('~a',Out)" name))))
+
+(defun look-for-unknown-objs (objs table)
+  (loop for obj in objs
+        do (when (is-unknown obj)
+             (achieve `(face-loc ,(desig-prop-value obj 'at)))
+             (perform (make-designator 'action 
+                              `((to update-objects-on) 
+                                (name ,table)))))))
+
+(defun is-unknown (obj)
+  nil)
