@@ -1,11 +1,11 @@
 (in-package :suturo-planning-planlib)
 
-(defun get-location-to-face ()
-  `(,(make-designator 'location '((coords (1 1 1))
+(defun get-locations-to-face ()
+  `(,(make-designator 'location '((coords (1 0.4 0.4))
                                   (frame "/base_link")))
-    ,(make-designator 'location '((coords (1 -1 1))
+    ,(make-designator 'location '((coords (1 -0.4 0.4))
                                   (frame "/base_link")))
-    ,(make-designator 'location '((coords (1 0 1))
+    ,(make-designator 'location '((coords (1 0 0.1))
                                   (frame "/base_link")))))
 
 (def-goal (perceive (?obj))
@@ -16,23 +16,16 @@
          (edible (desig-prop-value ?obj 'edible)))
     (achieve '(home-pose))
     (achieve `(robot-at ,loc-to-see))
-    ;(loop for loc-to-face in (get-location-to-face)
-    ;      do (achieve `(face-loc ,loc-to-face))
+    (sleep 1)
+    (loop for loc-to-face in (get-locations-to-face)
+          do (achieve `(face-loc ,loc-to-face))
+             (perform (make-designator 'action 
+                              `((to update-objects-on) 
+                                (name ,name)))))
     (setf objs 
           (json-prolog->designators (json-prolog:prolog-simple-1 (format nil "onObject('~a',Out)" name))))
-    (when (not objs)
-      (sleep 1)
-      (perform (make-designator 'action 
-                                `((to update-objects-on) 
-                                  (name ,name))));)
-                                        ;(setf objs (perform (make-designator 'action 
-                                        ;                                     `((to get-objects-with-properties) 
-                                        ;                                       (obj ,?obj)
-                                        ;                                       (props (on))))))
-      (setf objs 
-            (json-prolog->designators (json-prolog:prolog-simple-1 (format nil "onObject('~a',Out)" name)))))
     (setf objs (remove-if (lambda (desig) 
-                            (not (eql (desig-prop-value desig 'edible) 
+                            (not (eql (desig-prop-value desig 'edible)
                                       edible)))
                           objs))
     objs))

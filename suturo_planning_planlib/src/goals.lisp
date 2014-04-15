@@ -90,7 +90,7 @@
                      
 (def-goal (achieve (home-pose))
   "Moves the robot in the initial position"
-  (info-out (suturo planlib) "Taking hoe pose")
+  (info-out (suturo planlib) "Taking home pose")
   (achieve '(home-pose both-arms))
   (achieve '(home-pose head)))
 
@@ -253,5 +253,5 @@
            (do-retry head-retry-counter
              (retry))))
       (with-designators ((move-head (action `((to move-head)
-                                              (loc ,?loc)))))
+                                              (direction ,?loc)))))
         (perform move-head)))))

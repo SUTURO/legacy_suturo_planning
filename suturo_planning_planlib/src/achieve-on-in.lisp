@@ -15,6 +15,8 @@
             (failed-objs nil)
             (first-obj t)
             (nr-of-objs 0))
+        (format t "OBJ ______________________________________________________________ ~%~a"
+                objs)
         (with-failure-handling
             ((objs-in-on-failed (f)
                (declare (ignore f))
