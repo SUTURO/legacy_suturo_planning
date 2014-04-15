@@ -15,6 +15,7 @@
            error-out
            designator->string
            json-prolog->designators
+           ;; conditions
            monitor-not-started
            ambiguous-description
            grasping-failed
@@ -36,6 +37,7 @@
            objs-in-on-failed
            calc-gripper-offset
            object-not-hold-by-any-gripper
+           ;; tf
            transform
            transform->pose
            transform->origin
@@ -45,7 +47,10 @@
            transform->quaternion-as-list
            transform-coords-to-frame
            cl-transforms-euler-degree->quaternion
-           cl-transforms-euler-degree->quaternion-as-list)
+           cl-transforms-euler-degree->quaternion-as-list
+           ;;visualization
+           publish-visualization-marker
+           publish-visualization-marker2)
   (:desig-properties 
    #:left
    #:right
