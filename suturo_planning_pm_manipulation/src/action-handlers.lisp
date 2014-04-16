@@ -169,23 +169,38 @@
   (format t "Calling grasping-succeeded.~%")
   (format t "Updating object's location and pose~%")
   (let* ((loc-old (desig-prop-value obj 'at))
-         (frame (desig-prop-value loc-old 'frame))
-         (obj-name (desig-prop-value obj 'name))
-         (gripper (cond
-                    ((eql arm 'left-arm) 'left-gripper)
-                    ((eql arm 'right-arm) 'right-gripper)
-                    (t nil)))
+         (gripper-frame (get-gripper-frame arm))
+         (object-name (desig-prop-value obj 'name))
+         (object-on-old (desig-prop-value loc-old 'on))
+         (object-on-name (desig-prop-value object-on-old 'name))
+         (blab (format t "object-on-name: ~a~%" object-on-name))
+         (object-on (suturo-planning-pm-knowledge::call-action
+                     'suturo-planning-pm-knowledge::get-static-object object-on-name))
+         (object-on-height (first (desig-prop-value object-on 'dimensions)))
+         (blaa (format t "object-on-height: ~a~%" object-on-height))
+         ;;(object-on-origin (transform->origin object-on-name "/odom_combined"))
+         (object-on-origin (transform->origin "table2" "/odom_combined"))
+         (object-origin (transform->origin object-name "/odom_combined"))
+         (object-height
+           (* 2 (- (- (cl-transforms:z object-origin)
+                      (cl-transforms:z object-on-origin))
+                   (/ object-on-height 2.0))))
          (loc (make-designator 'location 
                                (update-designator-properties 
-                                `((in ,gripper)
-                                  (in-pose ,(sp-gripper-monitor:get-gripper-pose
-                                          arm
-                                          :target-frame frame))
-                                  (in-offset ,(calc-gripper-offset gripper obj-name :target-frame frame)))
+                                `((in ,(cond
+                                         ((eq arm 'left-arm) 'left-gripper)
+                                         ((eq arm 'right-arm) 'right-gripper)
+                                         (t nil)))
+                                  (frame ,gripper-frame)
+                                  (pose ,(sp-gripper-monitor:get-gripper-pose
+                                          arm)))
                                 (description loc-old)))))
+    (format t "object-on-height: ~a~%" object-on-height)
+    (format t "object-height: ~a~%" object-height)
     (make-designator 'object
                      (update-designator-properties 
-                      `((at ,loc))
+                      `((height ,object-height)
+                        (at ,loc))
                       (description obj))
                      obj)))
 

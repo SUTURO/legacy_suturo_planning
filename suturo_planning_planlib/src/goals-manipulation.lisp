@@ -4,16 +4,43 @@
 (defvar *put-over-offset* 0.03)
 
 (def-goal (achieve (?obj placed-gently ?loc))
-    (let* ((pose-stamped (reference ?loc))
-           (target-on (desig-prop-value ?loc 'on))
-           (vector (cl-tf:origin pose-stamped))
-           (location (make-designator
-                      'location `((frame ,(cl-tf:frame-id pose-stamped))
-                                  (coords (,(cl-tf:x vector)
-                                           ,(cl-tf:y vector)
-                                           ,(cl-tf:z vector)))
-                                  (on ,target-on)))))
-      (achieve `(,?obj placed-gently-location ,location))))
+     "Places an object `?obj' on a given location `loc'.
+The location has to be reachable without having to move the robot's base."
+  (format t "Placing object gently: ~a~%" ?obj)
+  (let* ((obj (current-desig ?obj))
+         (tgt-name (desig-prop-value ?loc 'name))
+         ;;(tgt-pose-stamped (reference ?loc))
+         (tgt-pose-stamped (cl-tf:make-pose-stamped
+                            "table2"
+                            ;;sp-planlib::*table-name*
+                            0
+                            (cl-transforms:make-3d-vector -0.15 0.0 0.015)
+                            (cl-transforms:make-quaternion 0 0 0 1)))
+         (obj-height (desig-prop-value obj 'height))
+         (obj-height-vector (cl-transforms:make-3d-vector 0 0 (/ obj-height 2.0)))
+         (tgt-to-obj-stamped-transform
+           (cl-tf:make-stamped-transform tgt-name
+                                         "/tgt-to-obj"
+                                         0                                         
+                                         obj-height-vector
+                                         (cl-transforms:make-identity-rotation)))
+         (tgt-to-obj-transform (stamped-transform->transform tgt-to-obj-stamped-transform))
+         (obj-name (desig-prop-value obj 'name))
+         (gripper-frame (get-gripper-frame obj))
+         (obj-to-gripper-transform (transform gripper-frame obj-name))
+         (gripper-pose-stamped
+           (cl-transforms:transform*
+            (pose-stamped->transform tgt-pose-stamped)
+            tgt-to-obj-stamped-transform
+            obj-to-gripper-transform)))
+    (format t "obj-height: ~a~%~%" obj-height)
+    (format t "tgt-pose-stamped: ~a~%~%" tgt-pose-stamped)
+    ;;(format t "tgt-to-obj-transform: ~a~%~%" tgt-to-obj-transform)
+    (format t "tgt-to-obj-stamped-transform: ~a~%~%" tgt-to-obj-stamped-transform)
+    (format t "obj-to-gripper-transform: ~a~%~%" obj-to-gripper-transform)
+    (format t "gripper-pose-stamped: ~a~%" gripper-pose-stamped)))
+
+;;(achieve `(,?obj placed-gently ,location))
 
 (def-goal (achieve (?obj placed-gently-location ?loc))
   "Places an object `?obj' on a given location `loc'.

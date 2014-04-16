@@ -47,14 +47,8 @@
                    (decf intents)
                    (setf time (roslisp:ros-time)))))
     (if result
-        (progn
-          (setf result (cl-transforms:orientation
-                        (cl-transforms:transform->pose
-                         (tf:lookup-transform *tf*
-                                              :time time
-                                              :source-frame source-frame
-                                              :target-frame target-frame))))
-          `(,(cl-transforms:x result)
-            ,(cl-transforms:y result)
-            ,(cl-transforms:z result)
-            ,(cl-transforms:w result))))))
+        (cl-transforms:transform->pose
+         (tf:lookup-transform *tf*
+                              :time time
+                              :source-frame source-frame
+                              :target-frame target-frame)))))

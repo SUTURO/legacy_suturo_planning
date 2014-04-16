@@ -92,4 +92,5 @@
    #:get-location-over
    #:storage-for-food
    #:storage-for-stuff
-   #:target-on))
+   #:target-on
+   #:height))

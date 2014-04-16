@@ -18,6 +18,7 @@
   (:desig-properties #:to
                      #:arm
                      #:in
+                     #:on
                      #:both-arms
                      #:head
                      #:obj 
@@ -54,4 +55,5 @@
                      #:grasping-action-grasp
                      #:grasping-action-drop
                      #:grasping-action-open
-                     #:target-on))
+                     #:target-on
+                     #:height))

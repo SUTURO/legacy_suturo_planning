@@ -12,6 +12,7 @@
                cram-language
                cram-plan-library
                suturo-planning-common
+               suturo-planning-pm-knowledge
                cl-transforms)
 
   :components

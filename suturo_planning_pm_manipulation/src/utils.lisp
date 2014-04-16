@@ -156,7 +156,7 @@ workaround exits without raising any condition"
                          ((eq status (roslisp-msg-protocol:symbol-code 'actionlib_msgs-msg:GoalStatus :PREEMPTED))
                           (setf *current-goal-failed* t))
                          ((eq status (roslisp-msg-protocol:symbol-code 'actionlib_msgs-msg:GoalStatus :SUCCEEDED))
-                          (sleep 1)
+                          (sleep 2)
                           (unless *current-goal-result-type*
                             (setf *current-goal-result-callback-failed* t)))
                          ((eq status (roslisp-msg-protocol:symbol-code 'actionlib_msgs-msg:GoalStatus :ABORTED))

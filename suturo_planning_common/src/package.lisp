@@ -38,6 +38,9 @@
            calc-gripper-offset
            object-not-hold-by-any-gripper
            ;; tf
+           pose-stamped->pose
+           stamped-transform->transform
+           pose-stamped->transform
            transform
            transform->pose
            transform->origin

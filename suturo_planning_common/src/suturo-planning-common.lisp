@@ -73,6 +73,18 @@ If there isn't any `nil' is returned."
                      (* 1 (cl-transforms:z result)))))))
     result))
 
+(defun stamped-transform->transform (stamped-transform)
+  (cl-transforms:make-transform (cl-tf:translation stamped-transform)
+                                (cl-tf:rotation stamped-transform)))
+
+(defun pose-stamped->transform (pose-stamped)
+  (cl-transforms:pose->transform (pose-stamped->pose pose-stamped)))
+
+(defun pose-stamped->pose (pose-stamped)
+  (cl-transforms:make-pose (cl-transforms:origin pose-stamped)
+                           (cl-transforms:orientation pose-stamped)))
+
+
 (defun transform->pose (source-frame target-frame &key (timeout 2))
   (cl-transforms:transform->pose (transform source-frame target-frame :timeout timeout)))
 
@@ -103,6 +115,7 @@ If there isn't any `nil' is returned."
     new-coords))
 
 (defun transform (source-frame target-frame &key (timeout 2))
+  (format t "Transforming  from ~a to ~a.~%" source-frame target-frame)
   (let ((time (roslisp:ros-time))
         (result nil)
         (intents 5))
