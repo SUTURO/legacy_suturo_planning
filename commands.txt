@@ -120,3 +120,10 @@ left-arm
 right-arm
 	/base-link (-0.4979847991023766d0 0.5021521617962537d0 0.49771687296865463d0 0.5021277333792858d0) frontal
 
+
+
+./launch_simulation_with_3_obj.zsh
+rosrun suturo_knowledge_location localize_gazebo
+roslaunch suturo_knowledge_foodreasoner reasoner_rosnode_gazebo.launch
+rosrun rviz rviz
+roslaunch suturo_manipulation_action suturo_manipulation_servers_non_reactive.launch
