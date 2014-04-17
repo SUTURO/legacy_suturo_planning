@@ -1,11 +1,11 @@
 (in-package :suturo-planning-planlib)
 
 (defun get-locations-to-face ()
-  `(,(make-designator 'location '((coords (1 0.4 0.4))
-                                  (frame "/base_link")))
-    ,(make-designator 'location '((coords (1 -0.4 0.4))
-                                  (frame "/base_link")))
-    ,(make-designator 'location '((coords (1 0 0.1))
+;  `(,(make-designator 'location '((coords (1 0.4 0.4))
+;                                  (frame "/base_link")))))
+;    ,(make-designator 'location '((coords (1 -0.4 0.4))
+; ;                                 (frame "/base_link")))
+    `(,(make-designator 'location '((coords (1 0 0.1))
                                   (frame "/base_link")))))
 
 (def-goal (perceive (?obj))
@@ -21,8 +21,8 @@
              (perform (make-designator 'action 
                               `((to update-objects-on) 
                                 (name ,name)))))
-    (look-for-unknown-objs (get-objects-on name))
-    (setf objs (get-objects-on))
+    (look-for-unknown-objs (get-objects-on name) name)
+    (setf objs (get-objects-on name))
     (setf objs (remove-if (lambda (desig) 
                             (not (eql (desig-prop-value desig 'edible)
                                       edible)))

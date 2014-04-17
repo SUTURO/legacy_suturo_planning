@@ -9,17 +9,22 @@ The location has to be reachable without having to move the robot's base."
   (format t "Placing object gently: ~a~%" ?obj)
   (let* ((obj (current-desig ?obj))
          (tgt-name (desig-prop-value ?loc 'name))
-         ;;(tgt-pose-stamped (reference ?loc))
+         (aaa (format t "referencing...~%"))
+         (tgt-pose-stamped (reference ?loc))
+         (tgt-frame (cl-tf:frame-id tgt-pose-stamped))
+         (aab (format t "referencing done.~%"))
+         #|
          (tgt-pose-stamped (cl-tf:make-pose-stamped
                             "table2"
                             ;;sp-planlib::*table-name*
                             0
                             (cl-transforms:make-3d-vector -0.15 0.0 0.015)
                             (cl-transforms:make-quaternion 0 0 0 1)))
+         |#
          (obj-height (desig-prop-value obj 'height))
          (obj-height-vector (cl-transforms:make-3d-vector 0 0 (/ obj-height 2.0)))
          (tgt-to-obj-stamped-transform
-           (cl-tf:make-stamped-transform tgt-name
+           (cl-tf:make-stamped-transform tgt-frame
                                          "/tgt-to-obj"
                                          0                                         
                                          obj-height-vector
@@ -27,7 +32,7 @@ The location has to be reachable without having to move the robot's base."
          (tgt-to-obj-transform (stamped-transform->transform tgt-to-obj-stamped-transform))
          (obj-name (desig-prop-value obj 'name))
          (gripper-frame (get-gripper-frame obj))
-         (obj-to-gripper-transform (transform gripper-frame obj-name))
+         (obj-to-gripper-transform (transform gripper-frame obj-name :timeout 2 :intents 10))
          (gripper-pose-stamped
            (cl-transforms:transform*
             (pose-stamped->transform tgt-pose-stamped)

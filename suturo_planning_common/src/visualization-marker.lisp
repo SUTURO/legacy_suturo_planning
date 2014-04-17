@@ -58,9 +58,13 @@
                            lifetime lifetime))))
 
 (defun publish-visualization-marker2 (loc)
+    (if (not *visualization-advertiser*)
+      (setf *visualization-advertiser* 
+            (advertise "/suturo/planning_marker" 
+                       "visualization_msgs/Marker")))
   (let ((origin (desig-prop-value loc 'coords))
         (orientation (desig-prop-value loc 'pose)))
-    (publish (advertise "/visualization_marker" "visualization_msgs/Marker")
+    (publish *visualization-advertiser*
              (make-message "visualization_msgs/Marker"
                            (frame_id header) "/map"
                            (stamp header)  (ros-time)

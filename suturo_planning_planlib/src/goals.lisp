@@ -84,7 +84,7 @@
                      'left-gripper
                      'right-gripper))
     (achieve '(home-pose both-arms))
-    (let ((arm 'left-arm)
+    (let ((arm 'right-arm) ;(arm 'left-arm)
           (loc-to-reach (make-designator 'location 
                                          `((to reach) (obj ,?obj))))
           (retry-counter 0))
@@ -95,10 +95,10 @@
              (if (< retry-counter 8)
                  (cond
                    ((eql (mod retry-counter 2) 1)
-                    (error-out (suturo planlib) 
-                               "Grasping failed retry with other arm")
+                    ;(error-out (suturo planlib) 
+                    ;           "Grasping failed retry with other arm")
                     (achieve `(home-pose ,arm))
-                    (setf arm (switch-arms arm))
+                    ;(setf arm (switch-arms arm))
                     (retry))
                    ((eql (mod retry-counter 2) 0)
                     (format t "Move around~%")

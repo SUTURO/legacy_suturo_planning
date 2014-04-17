@@ -49,11 +49,15 @@ If there isn't any `nil' is returned."
                 (desig-prop-value (desig-prop-value current-designator 'at) 'in)))
     result))
 
+(defun get-tf (&key force)
+  (if (or force (not *tf*))
+      (defparameter *tf* (make-instance 'cl-tf:transform-listener)))
+  *tf*)
+
 (defun calc-gripper-offset (gripper offset-frame &key (target-frame "/base_link"))
   (format t
           "Calculating offset. gripper: ~a, offset-frame: ~a, target-frame: ~a~%"
           gripper offset-frame target-frame)
-  (defparameter *tf* (make-instance 'cl-tf:transform-listener))
   (let ((gripper-vector nil)
         (offset-vector nil)
         (result nil)
@@ -85,28 +89,28 @@ If there isn't any `nil' is returned."
                            (cl-transforms:orientation pose-stamped)))
 
 
-(defun transform->pose (source-frame target-frame &key (timeout 2))
-  (cl-transforms:transform->pose (transform source-frame target-frame :timeout timeout)))
+(defun transform->pose (source-frame target-frame &key timeout intents)
+  (cl-transforms:transform->pose (transform source-frame target-frame :timeout timeout :intents intents)))
 
-(defun transform->origin (source-frame target-frame &key (timeout 2))
-  (cl-transforms:origin (transform->pose source-frame target-frame :timeout timeout)))
+(defun transform->origin (source-frame target-frame &key timeout intents)
+  (cl-transforms:origin (transform->pose source-frame target-frame :timeout timeout :intents intents)))
 
-(defun transform->origin-as-list (source-frame target-frame &key (timeout 2))
-  (let ((origin (transform->origin source-frame target-frame :timeout timeout)))
+(defun transform->origin-as-list (source-frame target-frame &key timeout intents)
+  (let ((origin (transform->origin source-frame target-frame :timeout timeout :intents intents)))
     (list (cl-transforms:x origin) (cl-transforms:y origin) (cl-transforms:z origin))))
 
-(defun transform->matrix (source-frame target-frame &key (timeout 2))
-  (cl-transforms:transform->matrix (transform source-frame target-frame :timeout timeout)))
+(defun transform->matrix (source-frame target-frame &key timeout intents)
+  (cl-transforms:transform->matrix (transform source-frame target-frame :timeout timeout :intents intents)))
 
-(defun transform->quaternion (source-frame target-frame &key (timeout 2))
-  (cl-transforms:matrix->quaternion (transform->matrix source-frame target-frame :timeout timeout)))
+(defun transform->quaternion (source-frame target-frame &key timeout intents)
+  (cl-transforms:matrix->quaternion (transform->matrix source-frame target-frame :timeout timeout :intents intents)))
 
-(defun transform->quaternion-as-list (source-frame target-frame &key (timeout 2))
-  (let ((quat (transform->quaternion source-frame target-frame :timeout timeout)))
+(defun transform->quaternion-as-list (source-frame target-frame &key timeout intents)
+  (let ((quat (transform->quaternion source-frame target-frame :timeout timeout :intents intents)))
     (list (cl-transforms:x quat) (cl-transforms:y quat) (cl-transforms:z quat) (cl-transforms:w quat))))
 
-(defun transform-coords-to-frame (source-frame target-frame coords &key (timeout 2))
-  (let* ((offset (transform->origin source-frame target-frame :timeout timeout))
+(defun transform-coords-to-frame (source-frame target-frame coords &key timeout intents)
+  (let* ((offset (transform->origin source-frame target-frame :timeout timeout :intents intents))
          (new-coords (list
                       (+ (first coords) (cl-transforms:x offset))
                       (+ (second coords) (cl-transforms:y offset))
@@ -114,23 +118,27 @@ If there isn't any `nil' is returned."
     (format t "Transformed ~a in ~a to ~a in ~a.~%" coords source-frame new-coords target-frame)
     new-coords))
 
-(defun transform (source-frame target-frame &key (timeout 2))
-  (format t "Transforming  from ~a to ~a.~%" source-frame target-frame)
-  (let ((time (roslisp:ros-time))
-        (result nil)
-        (intents 5))
-    (loop while (and (not result) (> intents 0))
-          do (setf timeout (* timeout 1.5))
-             (setf result
-                   (tf:wait-for-transform *tf*
-                                          :timeout timeout
-                                          :time time
-                                          :source-frame source-frame
-                                          :target-frame target-frame))
+(defun transform (source-frame target-frame &key timeout intents)
+  (format t "Transforming  from ~a to ~a with timeout ~a and ~a intents.~%"
+          source-frame target-frame timeout intents)
+  (let ((result nil)
+        (time (roslisp:ros-time)))
+    (loop while (or (and (not intents) (not result)) (and (not result) (> intents 0)))
+          do (setf result
+                   (if timeout
+                       (tf:wait-for-transform (get-tf)
+                                              :timeout timeout
+                                              :time time
+                                              :source-frame source-frame
+                                              :target-frame target-frame)
+                       (tf:wait-for-transform (get-tf)
+                                              :time time
+                                              :source-frame source-frame
+                                              :target-frame target-frame)))
              (format t "result: ~a~%" result)
              (if (not result)
                  (progn
-                   (format t "No result. Result: ~a, *tf*: ~a. Retrying.~%" result *tf*)
+                   (format t "No result. Time: ~a, result: ~a, *tf*: ~a. Retrying.~%" time result *tf*)
                    (decf intents)
                    (setf time (roslisp:ros-time)))))
     (if result

@@ -178,9 +178,9 @@
                      'suturo-planning-pm-knowledge::get-static-object object-on-name))
          (object-on-height (first (desig-prop-value object-on 'dimensions)))
          (blaa (format t "object-on-height: ~a~%" object-on-height))
-         ;;(object-on-origin (transform->origin object-on-name "/odom_combined"))
-         (object-on-origin (transform->origin "table2" "/odom_combined"))
-         (object-origin (transform->origin object-name "/odom_combined"))
+         (object-on-origin (transform->origin object-on-name "/odom_combined" :timeout 2 :intents 10))
+         ;;(object-on-origin (transform->origin "table2" "/odom_combined" :timeout 5 :intents 5))
+         (object-origin (transform->origin object-name "/odom_combined" :timeout 2 :intents 10))
          (object-height
            (* 2 (- (- (cl-transforms:z object-origin)
                       (cl-transforms:z object-on-origin))
