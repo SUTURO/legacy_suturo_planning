@@ -93,4 +93,5 @@
    #:storage-for-food
    #:storage-for-stuff
    #:target-on
-   #:height))
+   #:height
+   #:target-to-gripper))

@@ -69,8 +69,6 @@
 (defparameter loc (make-designator 'location '((on cupboard) (name "kitchen_island"))))
 
 
-
-
 (defparameter topic-a (roslisp:subscribe
                                       "suturo_man_move_home_server/result"
                                       "suturo_manipulation_msgs/suturo_manipulation_homeActionResult"
@@ -109,7 +107,22 @@
 
 (call-move-base-action pose)
 
+(top-level
+  (exec::with-process-modules
+    (with-designators ((move-arm (action `((to move-arm)
+                                               (loc ,(make-designator 'location '((frame "/odom_combined") (coords (0.00 0.65 1.15)) (pose (0.5 -0.5 0.5 0.5)))))
+                                               (arm left-arm)))))
+          (format t "performing ~a~%" move-arm)
+          (perform move-arm))))
 
+
+(top-level
+  (exec::with-process-modules
+    (with-designators ((move-arm (action `((to move-arm)
+                                               (loc ,(make-designator 'location '((frame "/odom_combined") (coords (0.00 -0.65 0.95)) (pose (0.5 0.5 0.5 0.5)))))
+                                               (arm right-arm)))))
+          (format t "performing ~a~%" move-arm)
+          (perform move-arm))))
 
 POSEN
 
@@ -122,8 +135,11 @@ right-arm
 
 
 
-./launch_simulation_with_3_obj.zsh
+./suturo_manipulation/suturo_manipulation_gazebo/launch_simulation_with_3_obj.zsh
 rosrun suturo_knowledge_location localize_gazebo
 roslaunch suturo_knowledge_foodreasoner reasoner_rosnode_gazebo.launch
 rosrun rviz rviz
 roslaunch suturo_manipulation_action suturo_manipulation_servers_non_reactive.launch
+roslaunch suturo_perception_rosnode run_gazebo.launch                               
+
+cd ...foodreasoner... cp owl/gazebo_room.owl lib/iai_maps/owl/room.owl

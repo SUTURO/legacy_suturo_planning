@@ -65,8 +65,8 @@ If there isn't any `nil' is returned."
                      ((position gripper '(left-gripper left-arm)) "l_wrist_roll_link")
                      ((position gripper '(right-gripper right-arm)) "r_wrist_roll_link")
                      (t (cpl:error 'suturo-planning-common::unhandled-body-part)))))
-    (if (and (setf gripper-vector (transform->origin pov-frame target-frame))
-             (setf offset-vector (transform->origin offset-frame target-frame)))          
+    (if (and (setf gripper-vector (transform-get-origin pov-frame target-frame))
+             (setf offset-vector (transform-get-origin offset-frame target-frame)))          
         (progn
           (setf result (cl-transforms:v- offset-vector gripper-vector))
           (if (position gripper '(right-gripper right-arm))
@@ -77,6 +77,17 @@ If there isn't any `nil' is returned."
                      (* 1 (cl-transforms:z result)))))))
     result))
 
+(defun pose-stamped->designator (pose-stamped)
+  (make-designator
+   'location `((frame ,(cl-tf:frame-id pose-stamped))
+               (coords (,(cl-transforms:x (cl-tf:origin pose-stamped))
+                         ,(cl-transforms:y (cl-tf:origin pose-stamped))
+                         ,(cl-transforms:z (cl-tf:origin pose-stamped))))
+               (pose (,(cl-transforms:x (cl-tf:orientation pose-stamped))
+                       ,(cl-transforms:y (cl-tf:orientation pose-stamped))
+                       ,(cl-transforms:z (cl-tf:orientation pose-stamped))
+                       ,(cl-transforms:w (cl-tf:orientation pose-stamped)))))))
+
 (defun stamped-transform->transform (stamped-transform)
   (cl-transforms:make-transform (cl-tf:translation stamped-transform)
                                 (cl-tf:rotation stamped-transform)))
@@ -84,19 +95,42 @@ If there isn't any `nil' is returned."
 (defun pose-stamped->transform (pose-stamped)
   (cl-transforms:pose->transform (pose-stamped->pose pose-stamped)))
 
+(defun pose-stamped->stamped-transform (pose-stamped)
+  (cl-tf:make-stamped-transform nil
+                                (cl-tf:frame-id pose-stamped)
+                                (cl-tf:stamp pose-stamped)
+                                (cl-transforms:origin pose-stamped)
+                                (cl-transforms:orientation pose-stamped)))
+
 (defun pose-stamped->pose (pose-stamped)
   (cl-transforms:make-pose (cl-transforms:origin pose-stamped)
                            (cl-transforms:orientation pose-stamped)))
 
 
-(defun transform->pose (source-frame target-frame &key timeout intents)
+(defun transform-get-pose (source-frame target-frame &key timeout intents)
   (cl-transforms:transform->pose (transform source-frame target-frame :timeout timeout :intents intents)))
 
-(defun transform->origin (source-frame target-frame &key timeout intents)
-  (cl-transforms:origin (transform->pose source-frame target-frame :timeout timeout :intents intents)))
+(defun transform-get-pose-stamped (source-frame target-frame &key timeout intents)
+  (let ((trans (transform source-frame target-frame :timeout timeout :intents intents)))
+    (cl-tf:make-pose-stamped target-frame
+                             0
+                             (cl-transforms:translation trans)
+                             (cl-transforms:rotation trans))))
+
+(defun transform->pose (transform)
+  (cl-transforms:transform->pose transform ))
+
+(defun transform-get-origin (source-frame target-frame &key timeout intents)
+  (cl-transforms:origin (transform-get-pose source-frame target-frame :timeout timeout :intents intents)))
+
+(defun transform->origin (transform)
+  (cl-transforms:origin (transform->pose transform)))
+
+(defun transform->orientation (transform)
+  (cl-transforms:orientation (transform->pose transform)))
 
 (defun transform->origin-as-list (source-frame target-frame &key timeout intents)
-  (let ((origin (transform->origin source-frame target-frame :timeout timeout :intents intents)))
+  (let ((origin (transform-get-origin source-frame target-frame :timeout timeout :intents intents)))
     (list (cl-transforms:x origin) (cl-transforms:y origin) (cl-transforms:z origin))))
 
 (defun transform->matrix (source-frame target-frame &key timeout intents)
@@ -110,7 +144,7 @@ If there isn't any `nil' is returned."
     (list (cl-transforms:x quat) (cl-transforms:y quat) (cl-transforms:z quat) (cl-transforms:w quat))))
 
 (defun transform-coords-to-frame (source-frame target-frame coords &key timeout intents)
-  (let* ((offset (transform->origin source-frame target-frame :timeout timeout :intents intents))
+  (let* ((offset (transform-get-origin source-frame target-frame :timeout timeout :intents intents))
          (new-coords (list
                       (+ (first coords) (cl-transforms:x offset))
                       (+ (second coords) (cl-transforms:y offset))
@@ -160,3 +194,6 @@ If there isn't any `nil' is returned."
 
 (defun split-string (str pattern)
   (ppcre:split pattern str))
+
+(defun desig-prop-value-concat (desig prop-names)
+  (reduce #'(lambda (x y) (desig-prop-value x y)) prop-names :initial-value desig))

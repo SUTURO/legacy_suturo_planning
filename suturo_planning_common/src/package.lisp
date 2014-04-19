@@ -41,9 +41,14 @@
            pose-stamped->pose
            stamped-transform->transform
            pose-stamped->transform
+           pose-stamped->stamped-transform
            transform
            transform->pose
+           transform-get-pose
+           transform-get-pose-stamped
            transform->origin
+           transform->orientation
+           transform-get-origin
            transform->origin-as-list
            transform->matrix
            transform->quaternion
@@ -53,7 +58,10 @@
            cl-transforms-euler-degree->quaternion-as-list
            ;;visualization
            publish-visualization-marker
-           publish-visualization-marker2)
+           publish-visualization-marker2
+           ;;designators
+           desig-prop-value-concat
+           pose-stamped->designator)
   (:desig-properties 
    #:left
    #:right
