@@ -4,13 +4,16 @@
 
 (defvar *table-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top")
 (defvar *counter-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block")
+(defvar *counter-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block")
 (defvar *red-box-name* "http://www.suturo.de/ontology/semantic#r_dumpster")
 
 (defvar *location-on-table-nr* 0)
 (defvar *location-on-counter-nr* 0)
+(defvar *location-on-counter-top-nr* 0)
 (defvar *location-on-red-box-nr* 0)
 (defvar *locations-on-table* nil)
 (defvar *locations-on-counter* nil)
+(defvar *locations-on-counter-top* nil)
 (defvar *locations-on-red-box* nil)
 
 (defvar *locations-to-reach* nil)
@@ -19,6 +22,7 @@
 
 (defvar *quaternion-table* '(0 0 1 0))
 (defvar *quaternion-counter* '(0 0 0 1))
+(defvar *quaternion-counter-top* '(0 0 0 1))
 
 (defparameter *gap-object-robot* 0.6)
 (defparameter *gap-between-objects* 0.15)
@@ -95,6 +99,11 @@
               (generate-locations-on name))
           (nth *location-on-counter-nr*
                *locations-on-counter*))
+         ((equal name *counter-top-name*) 
+          (if (not *locations-on-counter-top*)
+              (generate-locations-on name))
+          (nth *location-on-counter-top-nr*
+               *locations-on-counter-top*))
          ((equal name *red-box-name*) 
           (if (not *locations-on-red-box*)
               (generate-locations-on name))
@@ -177,6 +186,10 @@
        (push (make-pose `(,(- x 0.18) ,(+ y *gap-between-objects* 0.1) ,z) *quaternion-counter*) *locations-on-counter*)
        (push (make-pose `(,(- x 0.18) ,(- y *gap-between-objects* -0.1) ,z) *quaternion-counter*) *locations-on-counter*)
        (push (make-pose `(,(- x 0.18) ,(- y -0.1) ,z) *quaternion-counter*) *locations-on-counter*))
+      ((equal name *counter-top-name*)
+       (push (make-pose `(,(- x 0.18) ,(+ y *gap-between-objects* 0.1) ,z) *quaternion-counter-top*) *locations-on-counter-top*)
+       (push (make-pose `(,(- x 0.18) ,(- y *gap-between-objects* -0.1) ,z) *quaternion-counter-top*) *locations-on-counter-top*)
+       (push (make-pose `(,(- x 0.18) ,(- y -0.1) ,z) *quaternion-counter-top*) *locations-on-counter-top*))
       ((equal name *red-box-name*)
        (push (make-pose `(,(+ x gripper-offset) ,(+ y position-over-diff) ,(- z 0.05)) *quaternion-table*) *locations-on-red-box*)
        (push (make-pose `(,(+ x gripper-offset) ,(- y position-over-diff) ,(- z 0.05)) *quaternion-table*) *locations-on-red-box*)

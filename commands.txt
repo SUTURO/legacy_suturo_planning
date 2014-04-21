@@ -21,6 +21,7 @@
 
 ;(defparameter loc (make-designator 'location '((on cupboard) (name "kitchen_island"))))
 (defparameter loc (make-designator 'location `((on ,sp-planlib::*table-name*) (name ,sp-planlib::*table-name*))))
+(defparameter loc2 (make-designator 'location `((on ,sp-planlib::*counter-name*) (name ,sp-planlib::*counter-name*))))
 
 (call-grasp-action cafe 'left-arm)
 (call-grasp-action corny 'right-arm)

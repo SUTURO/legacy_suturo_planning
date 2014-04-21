@@ -216,6 +216,7 @@
                                           arm)))
                                 (description loc-old)))))
  |#
+  (sleep 4)
   (let* ((curr-obj (current-desig obj))
          (obj-name (desig-prop-value curr-obj 'name))
          (obj-on-name (desig-prop-value-concat curr-obj '(at on name)))
