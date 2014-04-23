@@ -2,6 +2,7 @@
 
 (defvar *current-goal-result-type* nil)
 (defvar *current-goal-id* nil)
+(defvar *current-goal-finished* nil)
 (defvar *current-goal-failed* nil)
 (defvar *current-goal-subscribers* nil)
 (defvar *current-goal-result-callback-failed* nil)
@@ -47,7 +48,6 @@ workaround exits without raising any condition"
           do (clear-variables)
              ;;(format t "Calling goal: ~a~%Client: ~a~%timeout: ~a~%" goal client timeout)
              (format t "Looping. Intents left: ~a~%" intents)
-             (format t "Calling goal.~%")
              (format t "Waiting for server: ~a~%" (actionlib:wait-for-server client))
              (setf time-begin (roslisp:ros-time))
              (setf time-now (roslisp:ros-time))
@@ -98,7 +98,7 @@ workaround exits without raising any condition"
 
 (defun cancel-goal (server cancel-topic-type)
   "Cancels the currently running goal."
-  (format t "Canceling goal.~%")
+  (format t "~tCanceling goal.~%")
   (roslisp:publish (concatenate 'string server "/cancel")
                    (roslisp:make-msg cancel-topic-type
                                      (stamp) (roslisp:ros-time)
@@ -106,18 +106,19 @@ workaround exits without raising any condition"
 
 (defun unsubscribe ()
   "Unsubscribes  all subscribed topics in `*current-goal-subscribers*'"
-  (format t "Unsubscribing.~%")
+  (format t "~tUnsubscribing.~%")
   (loop for subscriber in *current-goal-subscribers*
         do (roslisp:unsubscribe subscriber))
   (setf *current-goal-subscribers* nil))
 
 (defun clear-variables ()
   "Clears all variables which are used to monitor the goal's progress."
-  (format t "Clearing variables.~%")
+  (format t "~tClearing variables.~%")
   (setf *current-goal-id* nil)
   (setf *current-goal-result-type* nil)
   (setf *current-goal-failed* nil)
-  (setf *current-goal-result-callback-failed* nil))
+  (setf *current-goal-result-callback-failed* nil)
+  (setf *current-goal-finished* nil))
 
 (defun goal-failed (on-fail-fn throwable)
   "Executes the actions to be done when a goal fails."
@@ -132,13 +133,13 @@ workaround exits without raising any condition"
     
 (defun get-result (msg)
   "Callback method for the /result-topic."
-  (format t "Calling get-result.~%")
+  (format t "~tCalling get-result.~%")
   (roslisp:with-fields ((goal_id (goal_id status))  (succ (succ result))) msg
     (roslisp:with-fields (id) goal_id
       (roslisp:with-fields (type) succ
         (if (equal id *current-goal-id*)
         (progn
-          (format t "Result ~a~%" type)
+          (format t "~tResult ~a~%" type)
           (setf *current-goal-result-type* type)))))))
     
 (defun get-status (msg)
@@ -147,6 +148,7 @@ workaround exits without raising any condition"
     (let ((list (roslisp-msg-protocol:ros-message-to-list status_list)))
       (loop for s across list
             do (roslisp:with-fields ((id (id goal_id)) status) s
+                 ;;(format t "~t~t~tgoal_id: ~a~%" id)
                  (if (equal id *current-goal-id*)
                      (progn
                        (format t "~a" status)
@@ -155,10 +157,15 @@ workaround exits without raising any condition"
                          ((eq status (roslisp-msg-protocol:symbol-code 'actionlib_msgs-msg:GoalStatus :ACTIVE)) )
                          ((eq status (roslisp-msg-protocol:symbol-code 'actionlib_msgs-msg:GoalStatus :PREEMPTED))
                           (setf *current-goal-failed* t))
-                         ((eq status (roslisp-msg-protocol:symbol-code 'actionlib_msgs-msg:GoalStatus :SUCCEEDED))
+                         ((and
+                           (not *current-goal-finished*)
+                           (eq status (roslisp-msg-protocol:symbol-code 'actionlib_msgs-msg:GoalStatus :SUCCEEDED)))
+                          (setf *current-goal-finished* t)
                           (sleep 2)
-                          (unless *current-goal-result-type*
-                            (setf *current-goal-result-callback-failed* t)))
+                          (unless (or *current-goal-result-type* *current-goal-result-callback-failed*)
+                            (progn
+                              ;;(format t "~tResult callback seems to have failed...~%")
+                              (setf *current-goal-result-callback-failed* t))))
                          ((eq status (roslisp-msg-protocol:symbol-code 'actionlib_msgs-msg:GoalStatus :ABORTED))
                           (setf *current-goal-failed* t))
                          ((eq status (roslisp-msg-protocol:symbol-code 'actionlib_msgs-msg:GoalStatus :REJECTED))
@@ -172,7 +179,7 @@ workaround exits without raising any condition"
 
 (defun handle-action-answer (type error-to-throw)
   "Analyses returns from action servers and throws the passed error if necessary."
-  (format t "Handling result.")
+  (format t "~tHandling result.")
   (cond
     ((eql
       type
