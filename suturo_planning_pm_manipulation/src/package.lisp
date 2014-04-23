@@ -55,6 +55,9 @@
                      #:grasping-action-grasp
                      #:grasping-action-drop
                      #:grasping-action-open
+                     #:grasping-action-above
                      #:target-on
                      #:target-to-gripper
-                     #:height))
+                     #:height
+                     #:grasp-action
+                     #:tolerance))

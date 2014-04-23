@@ -84,6 +84,10 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "unhandled-action-answer"))
 
+(define-condition unhandled-value (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "unhandled-value"))
+
 
 ;;; Conditions thrown by knowledge
 

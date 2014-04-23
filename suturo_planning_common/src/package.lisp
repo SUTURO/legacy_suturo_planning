@@ -39,6 +39,7 @@
            object-not-hold-by-any-gripper
            ;; tf
            pose-stamped->pose
+           pose->pose-stamped
            stamped-transform->transform
            pose-stamped->transform
            pose-stamped->stamped-transform
@@ -77,6 +78,9 @@
    #:grasp
    #:open-hand
    #:direction
+   #:grasp-action
+   #:tolerance
+   #:target-on
    ;; Action - pose
    #:pose
    #:initial

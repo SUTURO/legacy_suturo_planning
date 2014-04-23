@@ -19,6 +19,8 @@
                                                                          (coords (0.4 0.0 0.8))
                                                                          (on ,(make-designator 'object `((name ,sp-planlib::*table-name*))))))))))
 
+(defparameter obj (sp-knowledge::call-action 'sp-knowledge::get-graspable-objects sp-planlib::*table-name*))
+
 ;(defparameter loc (make-designator 'location '((on cupboard) (name "kitchen_island"))))
 (defparameter loc (make-designator 'location `((on ,sp-planlib::*table-name*) (name ,sp-planlib::*table-name*))))
 (defparameter loc2 (make-designator 'location `((on ,sp-planlib::*counter-name*) (name ,sp-planlib::*counter-name*))))
@@ -141,6 +143,6 @@ rosrun suturo_knowledge_location localize_gazebo
 roslaunch suturo_knowledge_foodreasoner reasoner_rosnode_gazebo.launch
 rosrun rviz rviz
 roslaunch suturo_manipulation_action suturo_manipulation_servers_non_reactive.launch
-roslaunch suturo_perception_rosnode run_gazebo.launch                               
+roslaunch suturo_perception_rosnode run_gazebo.launch
 
 cd ...foodreasoner... cp owl/gazebo_room.owl lib/iai_maps/owl/room.owl

@@ -13,13 +13,15 @@
     (desig-prop ?desig (to move-head))
     (desig-prop ?desig (direction ?direction)))
   
-  (<- (action-desig ?desig (grasp ?obj ?arm)) ; name-obj (identifyer) & arm 
+  (<- (action-desig ?desig (grasp ?obj ?arm ?grasp-action ?tolerance)) ; name-obj (identifyer) & arm 
     ;;Action designator for action to take an object with the hand of the specified arm.
     (desig-prop ?desig (to grasp))
+    (desig-prop ?desig (obj ?obj))
     (desig-prop ?desig (arm ?arm))
-    (desig-prop ?desig (obj ?obj)))
+    (desig-prop ?desig (grasp-action ?grasp-action))
+    (desig-prop ?desig (tolerance ?tolerance)))
   
-  (<- (action-desig ?desig (open-hand ?obj)) ; 
+  (<- (action-desig ?desig (open-hand ?obj ?target-on)) ; 
     ;;Action designator for action to open the hand of the specified arm.
     (desig-prop ?desig (to open-hand))
     (desig-prop ?desig (obj ?obj))

@@ -15,9 +15,9 @@
   "Moves the head to look at a specified location." 
   (call-move-head-action loc))
 
-(def-action-handler grasp (obj arm)
+(def-action-handler grasp (obj arm grasp-action tolerance)
   "Moves arm to the object and grasps it."
-  (call-grasp-action obj arm))
+  (call-grasp-action obj arm grasp-action tolerance))
 
 (def-action-handler open-hand (obj target-on)
   "Opens the hand containing the passed object and drops the object."
@@ -128,7 +128,7 @@
   "suturo_manipulation_msgs/suturo_manipulation_graspingActionResult")
 (defvar *grasp-status-topic-type* "actionlib_msgs/GoalStatusArray")
 
-(defun make-grasp-action-goal (obj in-arm)
+(defun make-grasp-action-goal (obj in-arm grasp-action tolerance)
   (format t "make obj: ~a ~%in-arm:~a~%" obj in-arm)
   (let* ((time (roslisp:ros-time))
          (msg-header (roslisp:make-msg "std_msgs/Header"
@@ -139,9 +139,14 @@
          (msg-grasp-header (roslisp:make-msg "std_msgs/Header"
                                        (stamp) time
                                        (frame_id) (desig-prop-value (desig-prop-value obj 'at)  'frame)))
-         (msg-action (roslisp:make-msg "suturo_manipulation_msgs/GraspingAndDrop"
-                                      (header) msg-grasp-header
-                                      (action) (get-grasp-constant 'grasp-action-grasp)))
+         (msg-action (cond
+                       (tolerance (roslisp:make-msg "suturo_manipulation_msgs/GraspingAndDrop"
+                                                    (header) msg-grasp-header
+                                                    (action) (get-grasp-constant grasp-action)
+                                                    (tolerance) (degrees->radians tolerance)))
+                       (t (roslisp:make-msg "suturo_manipulation_msgs/GraspingAndDrop"
+                                            (header) msg-grasp-header
+                                            (action) (get-grasp-constant grasp-action)))))
          (msg-goal (roslisp:make-msg "suturo_manipulation_msgs/suturo_manipulation_grasping_goal"
                                      (header) msg-header 
                                      (objectName) (desig-prop-value obj 'name)
@@ -152,11 +157,11 @@
     (actionlib:make-action-goal *action-client-grasp*
       goal msg-goal)))
 
-(defun call-grasp-action (obj arm)
+(defun call-grasp-action (obj arm grasp-action tolerance)
   (setf *action-client-grasp*  (get-action-client 'grasp))
   (with-lost-in-resultation-workaround
       *action-client-grasp*
-    (make-grasp-action-goal obj (get-body-part-constant arm))
+    (make-grasp-action-goal obj (get-body-part-constant arm) grasp-action tolerance)
     *grasp-timeout*
     'suturo-planning-common::grasping-failed
     *action-client-grasp-server*
@@ -222,6 +227,7 @@
          (obj-on-name (desig-prop-value-concat curr-obj '(at on name)))
          (obj-on (suturo-planning-pm-knowledge::call-action
                      'suturo-planning-pm-knowledge::get-static-object obj-on-name))
+         (a (format t "~%obj-on: ~a~%~%" obj-on))
          (gripper-frame (get-gripper-frame arm))
          ;;(obj-on-to-gripper (transform gripper-frame obj-on-name :timeout 2 :intents 10))
          ;;(obj-on-to-gripper-origin (transform->origin obj-on-to-gripper))
@@ -395,21 +401,41 @@
   ;;(format t "call-move-arm-action arm:~a~%" arm)
   (setf *action-client-move-arm* (get-action-client 'move-arm))
   ;;(format t "getting frame and coords.~%")
-  (let* ((frame (desig-prop-value location 'frame))
-         (coords (desig-prop-value location 'coords))
-         (pose (desig-prop-value location 'pose))
+  (let* ((frame (cond
+                  ((typep location 'location-designator) (desig-prop-value location 'frame))
+                  ((typep location 'cl-tf:pose-stamped) (cl-tf:frame-id location))))
+         (coords (cond
+                   ((typep location 'location-designator) (desig-prop-value location 'coords))
+                   ((typep location 'cl-tf:pose-stamped) (cl-tf:origin location))))
+         (pose (cond
+                 ((typep location 'location-designator) (desig-prop-value location 'pose))
+                 ((typep location 'cl-tf:pose-stamped) (cl-tf:orientation location))))
          (header-msg (roslisp:make-msg "std_msgs/Header"
                                        (stamp) (roslisp:ros-time)
                                        (frame_id) frame))
          (position-msg (roslisp:make-msg "geometry_msgs/Point"
-                                         (x) (first coords)
-                                         (y) (second coords)
-                                         (z) (third coords)))
+                                         (x) (cond
+                                               ((typep location 'location-designator) (first coords))
+                                               ((typep location 'cl-tf:pose-stamped) (cl-tf:x coords)))
+                                         (y) (cond
+                                               ((typep location 'location-designator) (second coords))
+                                               ((typep location 'cl-tf:pose-stamped) (cl-tf:y coords)))
+                                         (z) (cond
+                                               ((typep location 'location-designator) (third coords))
+                                               ((typep location 'cl-tf:pose-stamped) (cl-tf:z coords)))))
          (orientation-msg (roslisp:make-msg "geometry_msgs/Quaternion"
-                                            (x) (first pose)
-                                            (y) (second pose)
-                                            (z) (third pose)
-                                            (w) (fourth pose)))
+                                            (x) (cond
+                                                  ((typep location 'location-designator) (first pose))
+                                                  ((typep location 'cl-tf:pose-stamped) (cl-tf:x pose)))
+                                            (y) (cond
+                                                  ((typep location 'location-designator) (second pose))
+                                                  ((typep location 'cl-tf:pose-stamped) (cl-tf:y pose)))
+                                            (z) (cond
+                                                  ((typep location 'location-designator) (third pose))
+                                                  ((typep location 'cl-tf:pose-stamped) (cl-tf:z pose)))
+                                            (w) (cond
+                                                  ((typep location 'location-designator) (fourth pose))
+                                                  ((typep location 'cl-tf:pose-stamped) (cl-tf:w pose)))))
          (pose-msg (roslisp:make-msg "geometry_msgs/Pose"
                                      (position) position-msg
                                      (orientation) orientation-msg))
@@ -549,6 +575,9 @@
       ((eq action 'grasp-action-open)
        (roslisp-msg-protocol:symbol-code
         'suturo_manipulation_msgs-msg:GraspingAndDrop :OPEN_GRIPPER))
+      ((eq action 'grasp-action-above)
+       (roslisp-msg-protocol:symbol-code
+        'suturo_manipulation_msgs-msg:GraspingAndDrop :GRASP_ABOVE))
       (t (roslisp:ros-error
           (suturo-pm-manipulation)
           "Unhandled grasp/drop action: ~a" action)

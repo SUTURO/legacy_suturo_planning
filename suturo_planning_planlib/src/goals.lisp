@@ -27,11 +27,14 @@
          (declare (ignore f))
          (retry-with-next-solution ?loc)))
     (format t "Performing move~%")
-    (let ((pose-stamped (reference ?loc)))
+    (let ((pose-stamped (cond
+                          ((typep ?loc 'location-designator) (reference ?loc))
+                          ((typep ?loc 'cl-tf:pose-stamped) ?loc)
+                          (t (cpl:error 'suturo-planning-common::unhandled-value)))))
       (publish-visualization-marker pose-stamped)
       ;(sp-manipulation::call-action 'move-base pose-stamped))))
       (perform (make-designator 'action `((to move-base) 
-                                          (pose ,(reference ?loc))))))))
+                                          (pose ,pose-stamped)))))))
  
                      
 (def-goal (achieve (home-pose))
@@ -75,7 +78,9 @@
               (do-retry retry-counter
                 (info-out (suturo planlib) "Trying again")
                 (retry))))
-         (publish-visualization-marker2 ?loc)
+         (publish-visualization-marker2 (cond
+                                          ((typep ?loc 'location-designator) ?loc)
+                                          ((typep ?loc 'cl-tf:pose-stamped) (pose-stamped->designator ?loc))))
          (perform move)))))
 
 (def-goal (achieve (in-gripper ?obj))
@@ -107,18 +112,21 @@
         (format t "Grasp position~%")
         (achieve `(robot-at ,loc-to-reach))
         (format t "Grasping~%")
-        (achieve `(object-in-hand ,?obj ,arm))))))
+        (achieve `(object-in-hand ,?obj ,arm sp-manipulation::grasp-action-grasp nil))))))
   
 
-(def-goal (achieve (object-in-hand ?obj ?arm))
+(def-goal (achieve (object-in-hand ?obj ?arm ?grasp-action ?tolerance))
   "Takes the object in one hand"
   (info-out (suturo planlib) "Grasping object with ~a" ?arm)
   (with-designators ((grasp-obj (action `((to grasp)
                                           (obj ,?obj)
-                                          (arm ,?arm))))
+                                          (arm ,?arm)
+                                          (grasp-action ,?grasp-action)
+                                          (tolerance ,?tolerance))))
                      (monitor-gripper (action `((to monitor-gripper)
                                                 (arm ,?arm)))))
-    (perform grasp-obj)
+    ;;(perform grasp-obj)
+    (sp-manipulation::call-grasp-action ?obj ?arm ?grasp-action ?tolerance)
     (if (perform monitor-gripper) 
         (cpl:fail 'grasping-failed))))
   

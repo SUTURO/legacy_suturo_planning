@@ -106,6 +106,11 @@ If there isn't any `nil' is returned."
   (cl-transforms:make-pose (cl-transforms:origin pose-stamped)
                            (cl-transforms:orientation pose-stamped)))
 
+(defun pose->pose-stamped (pose frame-id)
+  (cl-tf:make-pose-stamped frame-id 0.0
+                           (cl-transforms:origin pose)
+                           (cl-transforms:orientation pose)))
+
 
 (defun transform-get-pose (source-frame target-frame &key timeout intents)
   (cl-transforms:transform->pose (transform source-frame target-frame :timeout timeout :intents intents)))
@@ -173,7 +178,8 @@ If there isn't any `nil' is returned."
              (if (not result)
                  (progn
                    (format t "No result. Time: ~a, result: ~a, *tf*: ~a. Retrying.~%" time result *tf*)
-                   (decf intents)
+                   (if intents
+                       (decf intents))
                    (setf time (roslisp:ros-time)))))
     (if result
         (progn

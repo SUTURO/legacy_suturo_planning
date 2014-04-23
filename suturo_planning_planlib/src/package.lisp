@@ -94,4 +94,10 @@
    #:storage-for-stuff
    #:target-on
    #:height
-   #:target-to-gripper))
+   #:target-to-gripper
+   #:grasp-action
+   #:tolerance
+   #:grasping-action-grasp
+   #:grasping-action-drop
+   #:grasping-action-open
+   #:grasping-action-above))

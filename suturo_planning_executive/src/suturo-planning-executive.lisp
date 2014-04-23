@@ -52,11 +52,11 @@
 
 ;;;;;;;;;;;;;;; things to make testing easier
 
-(def-top-level-cram-function know-unknown-object-plan (object location)
+(def-top-level-cram-function know-unknown-object-plan (object)
   ""
   (format t "Iniciating plan.~%")
   (with-process-modules
-    (achieve `(,object know-unknown-object ,location))))
+    (achieve `(know-unknown-object ,object))))
 
 (def-top-level-cram-function place-gently-plan (object location)
   ""
