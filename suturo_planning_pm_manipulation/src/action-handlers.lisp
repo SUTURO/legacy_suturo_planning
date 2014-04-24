@@ -117,7 +117,8 @@
     *action-client-initial-server*
     *initial-cancel-topic-type*
     *initial-result-topic-type*
-    *initial-status-topic-type*))
+    *initial-status-topic-type*
+    :intents 3))
 
 ; grasp
 (defvar *action-client-grasp* nil)

@@ -33,37 +33,54 @@ Initially the PR2 has to be positioned in front of the object. The object has to
                (retry))))
         (achieve `(object-in-hand ,obj ,arm sp-manipulation::grasp-action-above 10))))
     (let* ((gripper-origin (transform-get-origin gripper-frame "/base_link" :timeout 2))
-           (gripper-in-base-link (transform gripper-frame "/base_link" :timeout 2))
-          (initial-location
-            (cond
-              ((eq arm 'left-arm)
-               (cl-tf:make-pose-stamped "/base_link" 0.0
-                                        gripper-origin
-                                        (cl-tf:make-quaternion 0.5000285573285219d0
-                                                               0.4990192438614538d0
-                                                               -0.5000920419769876d0
-                                                               0.500858448728967d0)))
-              ((eq arm 'right-arm)
-               (cl-tf:make-pose-stamped "/base_link" 0.0
-                                        gripper-origin
-                                        (cl-tf:make-quaternion -0.4979847991023766d0
-                                                               0.5021521617962537d0
-                                                               0.49771687296865463d0
-                                                               0.5021277333792858d0)))
+           (initial-lifted-location
+             (cond
+               ((eq arm 'left-arm)
+                (cl-tf:make-pose-stamped "/base_link" 0.0
+                                         (cl-tf:v+ gripper-origin
+                                                   (cl-tf:make-3d-vector 0 0 0.02))
+                                         (cl-tf:make-quaternion 0.5000285573285219d0
+                                                                0.4990192438614538d0
+                                                                -0.5000920419769876d0
+                                                                0.500858448728967d0)))
+               ((eq arm 'right-arm)
+                (cl-tf:make-pose-stamped "/base_link" 0.0
+                                         (cl-tf:v+ gripper-origin
+                                                   (cl-tf:make-3d-vector 0 0 0.02))
+                                         (cl-tf:make-quaternion -0.4979847991023766d0
+                                                                0.5021521617962537d0
+                                                                0.49771687296865463d0
+                                                                0.5021277333792858d0)))
               (t (cpl:error 'suturo-planning-common::unhandled-body-part)))))
       (format t "Taking initial scan pose.~%")
-      (format t "Lifting arm.~%")
-      (achieve `(arm-at ,arm
-                        ,(pose->pose-stamped
-                          (cl-transforms:transform gripper-in-base-link
-                                                   (cl-tf:make-pose-stamped gripper-frame 0.0
-                                                                            (cl-tf:make-3d-vector -0.02 0 0)
-                                                                            (cl-tf:make-identity-rotation)))
-                          "/base_link")))
-      (achieve `(arm-at ,arm ,initial-location))
+      (format t "Lifting and rotating arm.~%")
+      (achieve `(arm-at ,arm ,initial-lifted-location))
+      (format t "Lowering arm.~%")
+      (let ((x-val 0.02))
+        (with-retry-counters ((move-arm-counter 1))
+          (with-failure-handling
+              ((suturo-planning-common::move-arm-failed (e)
+                 (declare (ignore e))
+                 (format t "Failed to lower arm.~%")
+                 (do-retry move-arm-counter
+                   (format t "Trying again. This time a little bit higher.~%")
+                   (setf x-val 0.01)
+                   (retry))
+                 (return)))
+            (achieve `(arm-at ,arm
+                              ,(pose->pose-stamped
+                                (cl-transforms:transform (transform gripper-frame "/base_link" :timeout 2)
+                                                         (cl-tf:make-pose-stamped gripper-frame 0.0
+                                                                                  (cl-tf:make-3d-vector x-val 0 0)
+                                                                                  (cl-tf:make-identity-rotation)))
+                                "/base_link"))))))
       (achieve `(empty-hand ,obj ,(make-designator 'object `((name ,obj-on-name)))))
       (achieve `(home-pose ,arm))
-      (format t "Knowledge is doing its magic now...~%")
+      (format t "Updating planning scene.~%")
+      (achieve `(home-pose head))
+      (exec::update-on-table)
+      (format t "~%~%### Knowledge is doing its magic now... ###~%~%")
+      (sleep 3)
       (loop for rotation in rotations
             do (format t "Grasping unknown object.~%")
                (with-retry-counters ((grasp-obj-counter 1))
@@ -75,27 +92,41 @@ Initially the PR2 has to be positioned in front of the object. The object has to
                           (format t "Trying again.~%")
                           (retry))))
                    (achieve `(object-in-hand ,obj ,arm sp-manipulation::grasp-action-above 10))))
-               (let* ((gripper-origin (transform-get-origin gripper-frame "/base_link" :timeout 2))
-                      (gripper-in-base-link (transform gripper-frame "/base_link" :timeout 2))
-                      (new-location
+               (let* ((gripper-in-base-link (transform gripper-frame "/base_link" :timeout 2))
+                      (lifted-location
                         (pose->pose-stamped
                          (cl-transforms:transform
                           gripper-in-base-link
                           (cl-tf:make-pose-stamped gripper-frame 0.0
-                                                   (cl-tf:v+ gripper-origin
-                                                             (cl-tf:make-3d-vector -0.02 0 0))
+                                                   (cl-tf:make-3d-vector -0.02 0 0)
                                                    (cl-transforms-euler-degree->quaternion :ax rotation)))
                          "/base_link")))
-                 (format t "Lifting arm.~%")
-                 (achieve `(arm-at ,arm
-                                   ,(pose->pose-stamped
-                                     (cl-transforms:transform gripper-in-base-link
-                                                              (cl-tf:make-pose-stamped gripper-frame 0.0
-                                                                                       (cl-tf:make-3d-vector -0.02 0 0)
-                                                                                       (cl-tf:make-identity-rotation)))
-                                     "/base_link")))
-                 (format t "Rotating object in ~a ~a degrees.~%" arm rotation)
-                 (achieve `(arm-at ,arm ,new-location))
+                 (format t "Lifiting arm and rotating object in ~a ~a degrees.~%" arm rotation)
+                 (achieve `(arm-at ,arm ,lifted-location))
+                 (format t "Lowering arm.~%")
+                 (let* ((x-val 0.02))
+                   (with-retry-counters ((move-arm-counter 1))
+                     (with-failure-handling
+                         ((suturo-planning-common::move-arm-failed (e)
+                            (declare (ignore e))
+                            (format t "Failed to lower arm.~%")
+                            (do-retry move-arm-counter
+                              (format t "Trying again. This time a little bit higher.~%")
+                              (setf x-val 0.01)
+                              (retry))
+                            (return)))
+                       (achieve `(arm-at ,arm
+                                         ,(pose->pose-stamped
+                                           (cl-transforms:transform
+                                            gripper-in-base-link
+                                            (cl-tf:make-pose-stamped gripper-frame 0.0
+                                                                     (cl-tf:make-3d-vector x-val 0 0)
+                                                                     (cl-transforms-euler-degree->quaternion :ax rotation)))
+                                           "/base_link"))))))
                  (achieve `(empty-hand ,obj ,(make-designator 'object `((name ,obj-on-name)))))
                  (achieve `(home-pose ,arm))
-                 (format t "Knowledge is doing its magic now...~%"))))))
+                 (format t "Updating planning scene.~%")
+                 (achieve `(home-pose head))
+                 (exec::update-on-table)
+                 (format t "~%~%### Knowledge is doing its magic now... ###~%~%")
+                 (sleep 3))))))
