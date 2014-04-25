@@ -78,7 +78,7 @@ Initially the PR2 has to be positioned in front of the object. The object has to
       (achieve `(home-pose ,arm))
       (format t "Updating planning scene.~%")
       (achieve `(home-pose head))
-      (exec::update-on-table)
+      ;;(exec::update-on-table)
       (format t "~%~%### Knowledge is doing its magic now... ###~%~%")
       (sleep 3)
       (loop for rotation in rotations
@@ -127,6 +127,6 @@ Initially the PR2 has to be positioned in front of the object. The object has to
                  (achieve `(home-pose ,arm))
                  (format t "Updating planning scene.~%")
                  (achieve `(home-pose head))
-                 (exec::update-on-table)
+                 ;;(exec::update-on-table)
                  (format t "~%~%### Knowledge is doing its magic now... ###~%~%")
                  (sleep 3))))))
