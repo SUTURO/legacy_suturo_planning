@@ -95,7 +95,7 @@
       (make-designator 'object `((edible ,(equal "true" (parse-symbol-name `,edible)))
                                  (name ,(parse-symbol-name `,name))
                                  (grip-force ,grip-force)
-                                 (unknown , (equal "true" (parse-symbol-name `,unknown)))
+                                 (unknown ,(equal "true" (parse-symbol-name `,unknown)))
                                  (use ,(if (equal (parse-symbol-name `,use) "storage-for-food") 'storage-for-food 'storage-for-stuff))
                                  (at ,(make-designator 'location `((coords ,centroid)
                                                                    (frame ,(parse-symbol-name `,frame-id))
