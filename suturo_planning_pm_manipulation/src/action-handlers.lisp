@@ -597,6 +597,9 @@
       ((eq body-part 'both-arms)
        (roslisp-msg-protocol:symbol-code
         'suturo_manipulation_msgs-msg:RobotBodyPart :BOTH_ARMS))
+      ((eq body-part 'both-arms-move)
+       (roslisp-msg-protocol:symbol-code
+        'suturo_manipulation_msgs-msg:RobotBodyPart :BOTH_ARMS_MOVE))
       ((eq body-part 'head)
        (roslisp-msg-protocol:symbol-code
         'suturo_manipulation_msgs-msg:RobotBodyPart :HEAD))

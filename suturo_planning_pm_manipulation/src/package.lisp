@@ -20,6 +20,7 @@
                      #:in
                      #:on
                      #:both-arms
+                     #:both-arms-move
                      #:head
                      #:all
                      #:obj 
