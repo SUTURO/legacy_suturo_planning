@@ -21,6 +21,7 @@
                      #:on
                      #:both-arms
                      #:head
+                     #:all
                      #:obj 
                      #:coords
                      #:grasp 

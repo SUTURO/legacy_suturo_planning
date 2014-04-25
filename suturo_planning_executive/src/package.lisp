@@ -39,6 +39,8 @@
                      #:take-pose
                      #:initial
                      #:both-arms
+                     #:head
+                     #:all
                      #:right-arm
                      #:body-part
                      #:home-pose

@@ -42,6 +42,7 @@
    #:right-arm
    #:both-arms
    #:head
+   #:all
    #:left-gripper
    #:right-gripper
    #:all
