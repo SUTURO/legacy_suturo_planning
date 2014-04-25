@@ -28,16 +28,18 @@
 
 (def-action-handler get-objects-with-properties (object props)
   "Retrieves objects that match the given designator"
-  (let ((gen (json-prolog:prolog-simple-1 (suturo-planning-common:designator->string object props))))
-    (format t "generated function-call: ~a~%" gen)
-    (if gen
-      (suturo-planning-common:json-prolog->designators gen)
+  (let* ((gen (suturo-planning-common:designator->string object props))
+         (res (json-prolog:prolog-simple-1 gen)))
+    (roslisp:ros-info (get-objects-with-properties) "Generated prolog function call: ~a~%" gen)
+    (roslisp:ros-info (get-objects-with-properties) "Result of prolog function call: ~a~%" res)
+    (if res
+      (suturo-planning-common:json-prolog->designators res)
       (roslisp:ros-warn nil "Could not find any matching objects."))))
 
 (def-action-handler update-objects-on (object-name)
   "Retrieves objects that match the given designator"
   (let ((gen (json-prolog:prolog-simple-1 (format nil "updatePerception('~a', Out)" object-name))))
-    (format t "generated function-call: ~a~%" gen)))
+    (roslisp:ros-info (update-objects-on) "Result of prolog function call: ~a~%" gen)))
 
 (def-action-handler get-container-objects ()
   "Receives all containers from Knowledge Representation as a list."

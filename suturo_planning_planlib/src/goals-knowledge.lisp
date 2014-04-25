@@ -30,7 +30,10 @@
     objs))
 
 (defun get-objects-on (name)
-  (json-prolog->designators (json-prolog:prolog-simple-1 (format nil "onObject('~a',Out)" name))))
+  (let* ((obj (make-designator 'object `((name ,name))))
+         (loc (make-designator 'location `((on ,obj))))
+         (obj-on (make-designator 'object `((at ,loc)))))
+    (suturo-planning-pm-knowledge::call-action 'get-objects-with-properties obj-on '(at))))
 
 (defun look-for-unknown-objs (objs table)
   (loop for obj in objs
