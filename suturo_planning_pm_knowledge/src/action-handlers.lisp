@@ -61,7 +61,6 @@
          (objs (call-action 'get-objects-with-properties (make-designator 'object `((at ,loc))) `(on))))
     (if objs
         (progn
-          (format t "khsafkj")
           (mapcar #'(lambda (x)
                       (let* ((loc-desig (make-designator 'location
                                                          (update-designator-properties
