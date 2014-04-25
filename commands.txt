@@ -146,3 +146,8 @@ roslaunch suturo_manipulation_action suturo_manipulation_servers_non_reactive.la
 roslaunch suturo_perception_rosnode run_gazebo.launch
 
 cd ...foodreasoner... cp owl/gazebo_room.owl lib/iai_maps/owl/room.owl
+
+
+
+Prolog query failed: PrologException: error(syntax_error(cannot_start_term), string('expand_goal((),_Q), call(_Q) . ', 13)).
+   [Condition of type SIMPLE-ERROR]

@@ -102,4 +102,10 @@
    #:grasping-action-grasp
    #:grasping-action-drop
    #:grasping-action-open
-   #:grasping-action-above))
+   #:grasping-action-above
+   #:action
+   #:learn-object
+   #:learn-object-start
+   #:learn-object-learn
+   #:learn-object-abort
+   #:learn-object-finish))
