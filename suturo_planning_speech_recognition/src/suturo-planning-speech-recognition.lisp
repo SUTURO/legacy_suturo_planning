@@ -3,7 +3,7 @@
 (defparameter cb-mutex (sb-thread:make-mutex))
 
 (defun start-listening ()
-  (subscribe "/suturo/topic" "suturo_perception_msgs/SpeechRecognitionCommand"
+  (subscribe "/suturo/SpeechRecognitionCommand" "suturo_perception_msgs/SpeechRecognitionCommand"
              #'speech-callback))
 
 (defun stop-listening (subscriber)
@@ -12,6 +12,13 @@
 (defun speech-callback (msg)
   (sb-thread:with-recursive-lock (cb-mutex)
     (with-fields (command object) msg
-      (format t "~a ~a%" command object))))
+      (ros-info (speech-recognition)
+                "command: ~a~%object: ~a%" command object)
+      (cond
+        ((equal command "cleanup")
+         (exec::clean-table))
+        ((equal command "clean")
+         (exec::clean-table))))))
+        
 
 
