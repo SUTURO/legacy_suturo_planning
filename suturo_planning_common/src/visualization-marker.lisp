@@ -25,7 +25,7 @@
                                                     (lifetime 50))
   (if (not *visualization-advertiser*)
       (setf *visualization-advertiser* 
-            (advertise "/suturo/planning_marker" 
+            (advertise "/visualization_marker" 
                        "visualization_msgs/Marker")))
   (let ((origin (cl-tf:origin pose-stamped))
         (orientation (cl-tf:orientation pose-stamped)))
@@ -33,7 +33,7 @@
              (make-message "visualization_msgs/Marker"
                            (frame_id header) frame
                            (stamp header)  (ros-time)
-                           ns "my_ns"
+                           ns "suturo_planning"
                            id 0
                            type (symbol-code 'visualization_msgs-msg:marker 
                                              type)
@@ -60,7 +60,7 @@
 (defun publish-visualization-marker2 (loc)
     (if (not *visualization-advertiser*)
       (setf *visualization-advertiser* 
-            (advertise "/suturo/planning_marker" 
+            (advertise "/visualization_marker" 
                        "visualization_msgs/Marker")))
   (let ((origin (desig-prop-value loc 'coords))
         (orientation (desig-prop-value loc 'pose)))
@@ -68,7 +68,7 @@
              (make-message "visualization_msgs/Marker"
                            (frame_id header) "/map"
                            (stamp header)  (ros-time)
-                           ns "my_ns"
+                           ns "suturo_planning"
                            id 0
                            type 0
                            action 0

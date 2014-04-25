@@ -60,7 +60,7 @@
   "Receives all graspable objects from Knowledge Representation as a list"
   (let* ((on-desig (make-designator 'object `((name ,on-name))))
          (loc (make-designator 'location `((on ,on-desig))))
-         (objs (call-action 'get-objects-with-properties (make-designator 'object `((at ,loc))) `(on))))
+         (objs (call-action 'get-objects-with-properties (make-designator 'object `((at ,loc))) `(at))))
     (if objs
         (progn
           (mapcar #'(lambda (x)

@@ -93,7 +93,7 @@
                      'left-gripper
                      'right-gripper))
     (achieve '(home-pose both-arms))
-    (let ((arm 'right-arm) ;(arm 'left-arm)
+    (let ((arm 'left-arm)
           (loc-to-reach (make-designator 'location 
                                          `((to reach) (obj ,?obj))))
           (retry-counter 0))
@@ -104,10 +104,10 @@
              (if (< retry-counter 8)
                  (cond
                    ((eql (mod retry-counter 2) 1)
-                    ;(error-out (suturo planlib) 
-                    ;           "Grasping failed retry with other arm")
+                    (error-out (suturo planlib) 
+                               "Grasping failed retry with other arm")
                     (achieve `(home-pose ,arm))
-                    ;(setf arm (switch-arms arm))
+                    (setf arm (switch-arms arm))
                     (retry))
                    ((eql (mod retry-counter 2) 0)
                     (format t "Move around~%")
@@ -118,7 +118,6 @@
         (format t "Grasping~%")
         (achieve `(object-in-hand ,?obj ,arm sp-manipulation::grasp-action-grasp nil))))))
   
-
 (def-goal (achieve (object-in-hand ?obj ?arm ?grasp-action ?tolerance))
   "Takes the object in one hand"
   (info-out (suturo planlib) "Grasping object with ~a" ?arm)
@@ -132,8 +131,7 @@
     ;;(perform grasp-obj)
     (sp-manipulation::call-grasp-action ?obj ?arm ?grasp-action ?tolerance)
     (if (perform monitor-gripper) 
-        (cpl:fail 'grasping-failed))))
-  
+        (cpl:fail 'grasping-failed))))  
 
 (def-goal (achieve (hand-over ?obj ?arm))
   "Moves the selected hand over the object"
