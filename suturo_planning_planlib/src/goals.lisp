@@ -26,7 +26,7 @@
       ((move-base-failed (f)
          (declare (ignore f))
          (retry-with-next-solution ?loc)))
-    (format t "Performing move~%")
+    (achieve '(drive-pose))
     (let ((pose-stamped (cond
                           ((typep ?loc 'location-designator) (reference ?loc))
                           ((typep ?loc 'cl-tf:pose-stamped) ?loc)
@@ -42,6 +42,10 @@
   (info-out (suturo planlib) "Taking home pose")
   (achieve '(home-pose both-arms))
   (achieve '(home-pose head)))
+
+(def-goal (achieve (drive-pose))
+  "Brings the arms in a pose that brings the arms closer to the body"
+  (achieve '(home-pose both-arms-move)))
 
 (def-goal (achieve (home-pose ?body-part))
   "Brings the specified robotpart in the home pose"
@@ -209,3 +213,25 @@
       (with-designators ((move-head (action `((to move-head)
                                               (direction ,?loc)))))
         (perform move-head)))))
+
+(def-goal (achieve (examine-unknown-objects ?objs))
+  "Filters the list for unknown objects. If an object is unknown
+   the plan tries to scan the Barcode. If the barcode belongs to a
+   object unknown to the knowledge the objects gets added to
+   the knowledgebase. Returns all known objects after the process
+   in an unordered"
+  (let* ((filtered-objs (seperate-known-from-unknown-objects ?objs))
+         (known-objs (nth-value 0 filtered-objs))
+         (unknown-objs (nth-value 1 filtered-objs)))
+    (append known-objs unknown-objs)))
+
+(defun seperate-known-from-unknown-objects (objs)
+  "Gets a list of objects and returns two values. The first is the
+   list of known objects and the second the list of unknown objects."
+  (let ((known-objs nil)
+        (unknown-objs nil))
+    (loop for obj in objs
+          do (if (desig-prop-value obj 'unknown)
+                 (push obj unknown-objs)
+                 (push obj known-objs)))
+    (values known-objs unknown-objs)))

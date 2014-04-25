@@ -62,7 +62,7 @@
            (retry-with-next-solution loc-to-reach)))
       (setf *last-seen* ?obj)
       (achieve `(in-gripper ,?obj))
-      (achieve '(home-pose both-arms))
+      ;(achieve '(home-pose both-arms))
       (achieve `(robot-at ,loc-to-reach))
       (achieve `(,?obj placed-gently ,?loc)))))
 
@@ -76,7 +76,7 @@
           ()
         (setf *last-seen* ?obj)
         (achieve `(in-gripper ,?obj))
-        (achieve '(home-pose both-arms))
+        ;(achieve '(home-pose both-arms))
         (achieve `(robot-at ,loc-to-reach))
         (achieve `(hand-over ,(make-designator 'object
                                                `((at ,?loc)))

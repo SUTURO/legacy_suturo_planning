@@ -24,10 +24,12 @@
    #:objects-perceived
    #:know-unknown-object
    #:home-pose
+   #:drive-pose
    #:arm-at
    #:empty-hand
    #:hand-over
    #:objects-and-boxes-perceived
+   #:examine-unknown-objects
    #:get-holding-arm
    #:in-gripper
    #:robot-at
@@ -36,13 +38,12 @@
    #:reach
    #:a
    #:the 
-   #:all
    #:arm 
    #:left-arm
    #:right-arm
    #:both-arms
+   #:both-arms-move
    #:head
-   #:all
    #:left-gripper
    #:right-gripper
    #:all
@@ -53,6 +54,7 @@
    #:at
    #:in
    #:name
+   #:unknown
    #:type
    #:frame
    #:coords
@@ -86,7 +88,6 @@
    #:get-static-object
    #:update-objects-on
    #:placed-object-in-box
-   #:know-unknown-object
    #:placed-gently
    #:placed-gently-location
    #:get-best-arm
