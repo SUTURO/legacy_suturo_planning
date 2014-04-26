@@ -22,6 +22,7 @@
    #:object-in-box
    #:objects-in-appropriate-boxes
    #:objects-perceived
+   #:gripper-rotated
    #:know-unknown-object
    #:home-pose
    #:drive-pose

@@ -18,10 +18,24 @@
  
   ;ask perception||knwoledge if barcode was found
   ;rotate obj by 45°
+                                     
+    (achieve `(gripper-roteted left-arm 45.0)))
 
-  (let* ((pose-stamped (suturo-planning-common:get-last-gripper-pose ?obj)))
-    )
-)
+(def-goal (achieve (gripper-rotated ?arm ?degree))
+  (let* ((gripper-frame (get-gripper-frame ?arm))
+         (gripper-in-base-link (transform gripper-frame "/base_link" :timeout 2))
+         (rotated-location 
+           (pose->pose-stamped
+            (cl-transforms:transform 
+             gripper-in-base-link
+             (cl-tf:make-pose-stamped gripper-frame 0.0
+                                      (cl-tf:make-3d-vector 0 0 0)
+                                      (cl-transforms-euler-degree->quaternion :ax ?degree)))
+            "/base_link")))
+                                     
+    (achieve `(arm-at left-arm ,rotated-location))))
+
+
 
 #|
 (def-goal (achive (object-passed-over ?obj))
