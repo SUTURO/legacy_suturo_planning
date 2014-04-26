@@ -39,6 +39,7 @@
                      #:take-pose
                      #:initial
                      #:both-arms
+                     #:left-arm-campose
                      #:head
                      #:all
                      #:right-arm

@@ -44,6 +44,7 @@
    #:both-arms
    #:both-arms-move
    #:head
+   #:left-arm-campose
    #:left-gripper
    #:right-gripper
    #:all
