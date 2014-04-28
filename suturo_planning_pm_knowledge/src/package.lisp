@@ -33,4 +33,10 @@
                      #:update-objects-on
                      #:get-static-object
                      #:get-container-objects
-                     #:get-graspable-objects))
+                     #:get-graspable-objects
+                     #:learn-object
+                     #:learn-object-start
+                     #:learn-object-learn
+                     #:learn-object-abort
+                     #:learn-object-finish
+                     #:action))

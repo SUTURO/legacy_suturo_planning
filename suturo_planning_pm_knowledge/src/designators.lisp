@@ -34,6 +34,12 @@
   (<- (action-desig ?desig (get-graspable-objects ?name))
     ;;Action designator for action to get information about objects.
     (desig-prop ?desig (to get-graspable-objects))
+    (desig-prop ?desig (name ?name)))
+
+  (<- (action-desig ?desig (learn-object ?action ?name))
+    ;;Action designator for action to get information about objects.
+    (desig-prop ?desig (to learn-object))
+    (desig-prop ?desig (action ?action))
     (desig-prop ?desig (name ?name))))
 
 (def-fact-group suturo-planning-pm-knowledge (matching-process-module
@@ -47,7 +53,8 @@
         (desig-prop ?designator (to update-objects-on))
         (desig-prop ?designator (to get-container-objects))
         (desig-prop ?designator (to get-static-object))
-        (desig-prop ?designator (to get-graspable-objects))))
+        (desig-prop ?designator (to get-graspable-objects))
+        (desig-prop ?designator (to learn-object))))
   
   (<- (available-process-module suturo-planning-pm-knowledge)
     (symbol-value cram-projection:*projection-environment* nil)))

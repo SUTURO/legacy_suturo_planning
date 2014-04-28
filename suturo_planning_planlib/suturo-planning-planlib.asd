@@ -23,4 +23,5 @@
      (:file "goals-manipulation" :depends-on ("package"))
      (:file "man-know-unknown-object" :depends-on ("package"))
      (:file "goals-knowledge" :depends-on ("package" "localize" "suturo-planning-planlib"))
-     (:file "goals" :depends-on ("package" "suturo-planning-planlib" "goals-knowledge" "goals-manipulation" "localize" "man-know-unknown-object"))))))
+     (:file "goals" :depends-on ("package" "suturo-planning-planlib" "goals-knowledge" "goals-manipulation" "localize" "man-know-unknown-object"))
+     (:file "goals-barcode" :depends-on ("package" "localize" "suturo-planning-planlib"))))))

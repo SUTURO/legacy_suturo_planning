@@ -82,3 +82,19 @@
                                                   "getKnowrobDimension('~a',Out)"
                                                   object-name))))
      (suturo-planning-common::json-prolog->short-designator gen)))
+
+(defparameter *learn-object-success* 0)
+(defparameter *learn-object-to-close-to-other-object* 1)
+(defparameter *learn-object-object-lost* 2)
+(defparameter *learn-object-fail* 3)
+
+(def-action-handler learn-object (action name)
+  "Learn object stuff."
+  (let ((gen (json-prolog:prolog-simple-1
+              (cond
+                ((eq action 'learn-object-start) (format nil "startObjectLearning"))
+                ((eq action 'learn-object-learn) (format nil "learnObject('~a', Out)" name))
+                ((eq action 'learn-object-abort) (format nil "abortLearning"))
+                ((eq action 'learn-object-finish) (format nil "finishLearning"))))))
+  (cond
+    ((eq action 'learn-object-learn) (cdr (first (first gen)))))))

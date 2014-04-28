@@ -8,6 +8,7 @@ Initially the PR2 has to be positioned in front of the object. The object has to
   (let* ((obj (current-desig ?obj))
          (obj-name (desig-prop-value ?obj 'name))
          (obj-in-base-link-origin (transform-get-origin obj-name "/base_link" :timeout 2))
+         (base-link-in-map (transform "/base_link" "/map" :timeout 2))
          (obj-on-name (desig-prop-value-concat obj '(at on name)))
          (obj-on (suturo-planning-pm-knowledge::call-action
                       'suturo-planning-pm-knowledge::get-static-object obj-on-name))
@@ -17,11 +18,13 @@ Initially the PR2 has to be positioned in front of the object. The object has to
     (format t "obj-on-name: ~a~%" obj-on-name)
     (format t "obj-on: ~a~%" obj-on)
     (format t "Moving in front of unknown object.~%")
-#|
-    (achieve `(robot-at ,(cl-tf:make-pose-stamped "/base_link" 0.0
-                                                  (cl-tf:make-3d-vector 0 (cl-transforms:y obj-in-base-link-origin) 0)
-                                                  (cl-tf:make-identity-rotation))))
-|#
+    (achieve `(robot-at ,(pose->pose-stamped
+               (cl-transforms:transform
+                base-link-in-map
+                (cl-tf:make-pose-stamped "/base_link" 0.0
+                                         (cl-tf:make-3d-vector 0 (cl-transforms:y obj-in-base-link-origin) 0)
+                                         (cl-tf:make-identity-rotation)))
+               "/map")))
     (format t "Grasping unknown object.~%")
     (with-retry-counters ((grasp-obj-counter 1))
       (with-failure-handling
@@ -78,9 +81,16 @@ Initially the PR2 has to be positioned in front of the object. The object has to
       (achieve `(home-pose ,arm))
       (format t "Updating planning scene.~%")
       (achieve `(home-pose head))
-      ;;(exec::update-on-table)
+      (perform (make-designator 'action 
+                                `((to update-objects-on) 
+                                  (name ,obj-on-name))))
       (format t "~%~%### Knowledge is doing its magic now... ###~%~%")
-      (sleep 3)
+      (perform (make-designator 'action `((to learn-object)
+                                          (action lear-object-start)
+                                          (name ,obj-name))))
+      (perform (make-designator 'action `((to learn-object)
+                                          (action lear-object-learn)
+                                          (name ,obj-name))))
       (loop for rotation in rotations
             do (format t "Grasping unknown object.~%")
                (with-retry-counters ((grasp-obj-counter 1))
@@ -127,6 +137,12 @@ Initially the PR2 has to be positioned in front of the object. The object has to
                  (achieve `(home-pose ,arm))
                  (format t "Updating planning scene.~%")
                  (achieve `(home-pose head))
-                 ;;(exec::update-on-table)
+                 (perform (make-designator 'action 
+                                           `((to update-objects-on) 
+                                             (name ,obj-on-name))))
                  (format t "~%~%### Knowledge is doing its magic now... ###~%~%")
-                 (sleep 3))))))
+                 (perform (make-designator 'action `((to learn-object)
+                                          (action lear-object-learn)
+                                          (name ,obj-name))))))
+      (perform (make-designator 'action `((to learn-object)
+                                          (action lear-object-finish)))))))

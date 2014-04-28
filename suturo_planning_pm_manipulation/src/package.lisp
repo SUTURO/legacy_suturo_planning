@@ -49,6 +49,7 @@
                      #:coords
                      #:dimensions
                      #:left-arm
+                     #:left-arm-campose
                      #:right-arm
                      #:left-gripper
                      #:right-gripper

@@ -32,6 +32,7 @@
                      #:get-container-objects
                      #:achieve
                      #:object
+                     #:gripper-rotated
                      #:object-in-hand
                      #:object-in-box
                      #:objects-in-appropriate-boxes
@@ -39,6 +40,7 @@
                      #:take-pose
                      #:initial
                      #:both-arms
+                     #:left-arm-campose
                      #:head
                      #:all
                      #:right-arm

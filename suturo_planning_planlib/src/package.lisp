@@ -22,6 +22,7 @@
    #:object-in-box
    #:objects-in-appropriate-boxes
    #:objects-perceived
+   #:gripper-rotated
    #:know-unknown-object
    #:home-pose
    #:drive-pose
@@ -44,6 +45,7 @@
    #:both-arms
    #:both-arms-move
    #:head
+   #:left-arm-campose
    #:left-gripper
    #:right-gripper
    #:all
@@ -102,4 +104,10 @@
    #:grasping-action-grasp
    #:grasping-action-drop
    #:grasping-action-open
-   #:grasping-action-above))
+   #:grasping-action-above
+   #:action
+   #:learn-object
+   #:learn-object-start
+   #:learn-object-learn
+   #:learn-object-abort
+   #:learn-object-finish))
