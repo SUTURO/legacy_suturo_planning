@@ -14,6 +14,7 @@ The location has to be reachable without having to move the robot's base."
            (format t "Failed to move arm to referenced location.~%")
            (do-retry place-object-counter
              (format t "Referencing again.~%")
+             (next-solution ?loc)
              (retry))))
       (let* ((obj (current-desig ?obj))
              (tgt-on-name (desig-prop-value ?loc 'name))
@@ -69,5 +70,5 @@ The location has to be reachable without having to move the robot's base."
                                                  ,(cl-transforms:z (cl-tf:orientation gripper-pose-stamped))
                                                  ,(cl-transforms:w (cl-tf:orientation gripper-pose-stamped))))))))
                 (achieve `(arm-at ,arm ,location))
-                (achieve `(empty-hand ,?obj ,tgt-on))
+                (achieve `(empty-hand ,?obj ,(make-designator 'object `((name ,tgt-on-name)))))
                 (info-out (suturo planlib) "Placed object gently as you requested, master!~%")))))))))

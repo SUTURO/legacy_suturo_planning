@@ -14,8 +14,8 @@
          (loc-to-see (make-designator 'location `((to reach) (loc ,loc))))
          (name (desig-prop-value loc 'name))
          (edible (desig-prop-value ?obj 'edible)))
-    (achieve '(home-pose))
     (achieve `(robot-at ,loc-to-see))
+    (achieve '(home-pose))
     (loop for loc-to-face in (get-locations-to-face)
           do (achieve `(face-loc ,loc-to-face))
              (perform (make-designator 'action 

@@ -95,6 +95,7 @@
                 ((eq action 'learn-object-start) (format nil "startObjectLearning"))
                 ((eq action 'learn-object-learn) (format nil "learnObject('~a', Out)" name))
                 ((eq action 'learn-object-abort) (format nil "abortLearning"))
-                ((eq action 'learn-object-finish) (format nil "finishLearning"))))))
+                ((eq action 'learn-object-finish) (format nil "finishLearning"))
+                (t (cpl:error 'suturo-planning-common::unhandled-value))))))
   (cond
     ((eq action 'learn-object-learn) (cdr (first (first gen)))))))
