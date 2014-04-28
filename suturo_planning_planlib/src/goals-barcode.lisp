@@ -4,22 +4,21 @@
   "Moves an object `?obj' in fornt of the webcam and rotates it until a barcode was found and scanned. The `?obj' has to be held by a gripper."
   (format t "Try to scan Barcode from ~a~%" ?obj)
 
-  ;reach campose with object in left-arm
-
-  ;(let* ((arm (get-holding-arm ?obj)))
-  ;  (if (eq arm 'right-arm)
-  ;      (achive `(object-passed-over ?obj)))
-  (let* ((obj-name (desig-prop-value ?obj 'name))
-         (obj-in-base-link-origin (transform-get-origin obj-name "/base_link" :timeout 2)))
-    (achieve `(robot-at ,(cl-tf:make-pose-stamped "/base_link" 0.0 (cl-tf:make-3d-vector 0 (cl-transforms:y obj-in-base-link-origin) 0)
-                                                  (cl-tf:make-identity-rotation))))
-    (achieve `(object-in-hand ?obj left-arm sp-manipulation::grasp-action-grasp nil))
-    (achieve `(home-pose left-arm-campose)))
+  (let* ((loc-to-reach (make-designator 'location 
+                                       `((to reach) (obj ,?obj)))))
+    (format t "Moving Robot")
+    (achieve `(robot-at ,loc-to-reach))
+    (format t "Taking home-pose")
+    (achieve `(home-pose))
+    (format t "Grasping Objekt")
+    (achieve `(object-in-hand ,?obj left-arm sp-manipulation::grasp-action-above nil))
+    (format t "Moving Objekt in front of camera")
+    (achieve `(home-pose left-arm-campose))
  
   ;ask perception||knwoledge if barcode was found
   ;rotate obj by 45°
                                      
-    (achieve `(gripper-roteted left-arm 45.0)))
+    (achieve `(gripper-roteted left-arm 90.0))))
 
 (def-goal (achieve (gripper-rotated ?arm ?degree))
   (let* ((gripper-frame (get-gripper-frame ?arm))
@@ -32,8 +31,15 @@
                                       (cl-tf:make-3d-vector 0 0 0)
                                       (cl-transforms-euler-degree->quaternion :ax ?degree)))
             "/base_link")))
-                                     
-    (achieve `(arm-at left-arm ,rotated-location))))
+    (with-retry-counters ((arm-at-counter 3))
+      (with-failure-handling 
+          ((suturo-planning-common::move-arm-failed (e)
+             (declare (ignore e))
+             (format t "Failed to move arm.~%")
+             (do-retry arm-at-counter
+               (format t "Retry rotatiing.~%")
+               (retry))))
+        (achieve `(arm-at left-arm ,rotated-location))))))
 
 
 
@@ -47,4 +53,4 @@
   ;grasp with other arm
     (achive `(object-in-hand ?obj other-arm sp-manipulation::grasp-action-grasp nil))
   (achive `(empty-hand ?obj nil)))) ;geht das? taget-on? 
-|#
+ |#
