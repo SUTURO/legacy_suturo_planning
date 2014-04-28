@@ -11,7 +11,7 @@
     (format t "Taking home-pose")
     (achieve `(home-pose))
     (format t "Grasping Objekt")
-    (achieve `(object-in-hand ,?obj left-arm sp-manipulation::grasp-action-above nil))
+    (achieve `(object-in-hand ,?obj left-arm sp-manipulation::grasp-action-above 360))
     (format t "Moving Objekt in front of camera")
     (achieve `(home-pose left-arm-campose))
  

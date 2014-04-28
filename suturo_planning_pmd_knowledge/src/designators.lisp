@@ -31,9 +31,10 @@
     ;;Action designator for action to get information about objects.
     (desig-prop ?desig (to get-container-objects)))
   
-  (<- (action-desig ?desig (get-graspable-objects))
+  (<- (action-desig ?desig (get-graspable-objects ?name))
     ;;Action designator for action to get information about objects.
-    (desig-prop ?desig (to get-graspable-objects))))
+    (desig-prop ?desig (to get-graspable-objects))
+    (desig-prop ?desig (name ?name))))
 
 
 (def-fact-group suturo-planning-pmd-knowledge (matching-process-module

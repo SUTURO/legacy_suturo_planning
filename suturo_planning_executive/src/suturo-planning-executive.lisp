@@ -43,7 +43,7 @@
                      (objs-inedible (object `((edible nil)
                                               (at ,loc-table)))))
     (achieve `(all ,objs-inedible in ,loc-trash))
-    (achieve `(all ,objs-edible in ,loc-counter))
+    (achieve `(all ,objs-edible on ,loc-counter))
     (achieve '(home-pose))
     (info-out (suturo executive) "Yeah!!! I've done it.")))
 
