@@ -32,4 +32,7 @@
                      #:move-arm
                      #:loc
                      #:body-part
-                     #:all))
+                     #:all
+                     #:target-on
+                     #:grasp-action
+                     #:tolerance))

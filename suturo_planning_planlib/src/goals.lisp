@@ -32,7 +32,6 @@
                           ((typep ?loc 'cl-tf:pose-stamped) ?loc)
                           (t (cpl:error 'suturo-planning-common::unhandled-value)))))
       (publish-visualization-marker pose-stamped)
-      ;(sp-manipulation::call-action 'move-base pose-stamped))))
       (perform (make-designator 'action `((to move-base) 
                                           (pose ,pose-stamped)))))))
  
@@ -128,8 +127,8 @@
                                           (tolerance ,?tolerance))))
                      (monitor-gripper (action `((to monitor-gripper)
                                                 (arm ,?arm)))))
-    ;;(perform grasp-obj)
-    (sp-manipulation::call-grasp-action ?obj ?arm ?grasp-action ?tolerance)
+    (perform grasp-obj)
+    ;;(sp-manipulation::call-grasp-action ?obj ?arm ?grasp-action ?tolerance)
     (if (perform monitor-gripper) 
         (cpl:fail 'grasping-failed))))  
 
@@ -178,8 +177,8 @@
       (with-designators ((open-hand (action `((to open-hand)
                                               (obj ,?obj)
                                               (target-on ,?target-on)))))
-        ;(perform open-hand))))
-        (sp-manipulation::call-open-hand-action ?obj ?target-on))))      
+        (perform open-hand))))
+        ;;(sp-manipulation::call-open-hand-action ?obj ?target-on))))      
   (info-out (suturo planlib) "Dropped, object"))
 
 (def-goal (achieve (object-in-box ?obj ?box))
