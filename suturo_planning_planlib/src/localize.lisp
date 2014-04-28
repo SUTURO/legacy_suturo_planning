@@ -3,7 +3,7 @@
 (defvar *transform-listener* nil)
 
 (defvar *table-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top")
-(defvar *counter-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block")
+(defvar *counter-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block_counter_top")
 (defvar *counter-top-name* "http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_sink_block_counter_top")
 (defvar *red-box-name* "http://www.suturo.de/ontology/semantic#r_dumpster")
 
