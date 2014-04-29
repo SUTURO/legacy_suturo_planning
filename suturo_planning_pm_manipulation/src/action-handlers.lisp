@@ -232,7 +232,7 @@
          (gripper-frame (get-gripper-frame arm))
          ;;(obj-on-to-gripper (transform gripper-frame obj-on-name :timeout 2 :intents 10))
          ;;(obj-on-to-gripper-origin (transform->origin obj-on-to-gripper))
-         (object-on-height (first(desig-prop-value obj-on 'dimensions)))
+         (object-on-height (first (desig-prop-value obj-on 'dimensions)))
          (object-on-origin (transform-get-origin obj-on-name "/odom_combined" :timeout 2 :intents 10))
          (object-origin (transform-get-origin (desig-prop-value curr-obj 'name) "/odom_combined" :timeout 2 :intents 10))
          ;;(a (format t "obj-on-to-gripper-origin: ~a~%" obj-on-to-gripper-origin))

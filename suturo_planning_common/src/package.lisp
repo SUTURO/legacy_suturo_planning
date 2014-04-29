@@ -31,7 +31,7 @@
            unhandled-action-answer
            unhandled-value
            object-to-close-to-other-object
-           object-lost
+           object-suddenly-lost
            learn-object-failed
            unhandled-condition
            get-holding-gripper

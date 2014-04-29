@@ -1,5 +1,14 @@
 (in-package :suturo-planning-common)
 
+(defvar *tf*)
+
+(defun get-tf (&key force)
+  (if (or force (not *tf*))
+      (setf *tf* (make-instance 'cl-tf:transform-listener)))
+  *tf*)
+
+(roslisp-utilities:register-ros-init-function get-tf)
+
 (defun get-holding-gripper (obj)
   "Retruns the gripper which contians `obj' if it is being contained by any.
 Otherwise returns `nil'"
@@ -48,11 +57,6 @@ If there isn't any `nil' is returned."
                 (desig-prop-value current-designator 'at)
                 (desig-prop-value (desig-prop-value current-designator 'at) 'in)))
     result))
-
-(defun get-tf (&key force)
-  (if (or force (not *tf*))
-      (defparameter *tf* (make-instance 'cl-tf:transform-listener)))
-  *tf*)
 
 (defun calc-gripper-offset (gripper offset-frame &key (target-frame "/base_link"))
   (format t
