@@ -147,3 +147,27 @@ Initially the PR2 has to be positioned in front of the object. The object has to
                                           (name ,obj-name))))))
       (perform (make-designator 'action `((to learn-object)
                                           (action learn-object-finish)))))))
+
+(defun learn-object (obj-name &key intents)
+  (let ((result nil))
+  (loop while (or (not (eq result sp-knowledge::*learn-object-success*))
+                  (not intents)
+                  (> intents 0))
+        do (setf result (perform (make-designator 'action `((to learn-object)
+                                                            (action learn-object-learn)
+                                                            (name ,obj-name)))))
+           (progn
+             (cond
+               ((eq result sp-knowledge::*learn-object-success*) t)
+               ((eq result sp-knowledge::*learn-object-to-close-to-other-object*))
+               ((eq result sp-knowledge::*learn-object-object-lost*))
+               ((eq result sp-knowledge::*learn-object-failed*))
+               (t (cpl:error 'unhandled-value)))
+             (if intents
+                 (decf intents))))
+    (cond
+      ((eq result sp-knowledge::*learn-object-success*) t)
+      ((eq result sp-knowledge::*learn-object-to-close-to-other-object*) (cpl:error 'object-to-close-to-other-object))
+      ((eq result sp-knowledge::*learn-object-object-lost*) (cpl:error 'object-lost))
+      ((eq result sp-knowledge::*learn-object-failed*) (cpl:error 'learn-object-failed))
+      (t (cpl:error 'unhandled-value)))))

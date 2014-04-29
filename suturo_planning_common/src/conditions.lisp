@@ -88,6 +88,18 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "unhandled-value"))
 
+(define-condition object-to-close-to-other-object (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "object-to-close-to-other-object"))
+
+(define-condition object-lost (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "object-lost"))
+
+(define-condition learn-object-failed (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "learn-object-failed"))
+
 
 ;;; Conditions thrown by knowledge
 

@@ -161,12 +161,13 @@ If there isn't any `nil' is returned."
   (format t "Transforming  from ~a to ~a with timeout ~a and ~a intents.~%"
           source-frame target-frame timeout intents)
   (let ((result nil)
-        (time (roslisp:ros-time)))
+        (time (roslisp:ros-time))
+        (additional-time 0))
     (loop while (or (and (not intents) (not result)) (and (not result) (> intents 0)))
           do (setf result
                    (if timeout
                        (tf:wait-for-transform (get-tf)
-                                              :timeout timeout
+                                              :timeout (+ timeout additional-time)
                                               :time time
                                               :source-frame source-frame
                                               :target-frame target-frame)
@@ -179,7 +180,8 @@ If there isn't any `nil' is returned."
                  (progn
                    (format t "No result. Time: ~a, result: ~a, *tf*: ~a. Retrying.~%" time result *tf*)
                    (if intents
-                       (decf intents))
+                       (decf intents)
+                       (incf additional-time))
                    (setf time (roslisp:ros-time)))))
     (if result
         (progn

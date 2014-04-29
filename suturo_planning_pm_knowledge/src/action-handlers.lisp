@@ -86,7 +86,7 @@
 (defparameter *learn-object-success* 0)
 (defparameter *learn-object-to-close-to-other-object* 1)
 (defparameter *learn-object-object-lost* 2)
-(defparameter *learn-object-fail* 3)
+(defparameter *learn-object-failed* 3)
 
 (def-action-handler learn-object (action name)
   "Learn object stuff."

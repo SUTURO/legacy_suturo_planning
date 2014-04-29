@@ -29,6 +29,10 @@
            location-not-reached
            place-failed
            unhandled-action-answer
+           unhandled-value
+           object-to-close-to-other-object
+           object-lost
+           learn-object-failed
            unhandled-condition
            get-holding-gripper
            get-gripper-frame
