@@ -15,6 +15,7 @@
            error-out
            designator->string
            json-prolog->designators
+           list->designator
            ;; conditions
            monitor-not-started
            ambiguous-description

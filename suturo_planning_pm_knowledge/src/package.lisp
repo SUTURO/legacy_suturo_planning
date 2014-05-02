@@ -39,4 +39,5 @@
                      #:learn-object-learn
                      #:learn-object-abort
                      #:learn-object-finish
-                     #:action))
+                     #:action
+                     #:scan-barcode))

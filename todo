@@ -1,0 +1,17 @@
+perceive goal
+  bekommt objektbeschreibung
+  (object 
+    (location ((on 'foobar') 
+               (in 'barbaz'))))
+  falls nötig hinsehen
+  prolog fragen
+
+  steps:
+    * check knowledge for objects on 'foobar' in 'barbaz'
+    * if no results:
+      * look at 'foobar'
+    * check knowledge again
+
+Knowledge:
+  Fragen nach noch nicht gesehenen objekten
+  - eigenschaften von objektklassen(?) zurückgeben

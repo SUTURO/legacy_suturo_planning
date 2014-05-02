@@ -2,7 +2,6 @@
   :author "SUTURO Planning <suturo-planning@cs.uni-bremen.de>"
  
   :depends-on (designators-ros
-               cram-plan-library
                cram-plan-failures
                cram-plan-knowledge
                cram-language-designator-support

@@ -110,4 +110,6 @@
    #:learn-object-start
    #:learn-object-learn
    #:learn-object-abort
-   #:learn-object-finish))
+   #:learn-object-finish
+   #:scanned-from
+   #:scan-barcode))

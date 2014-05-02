@@ -99,3 +99,7 @@
                 (t (cpl:error 'suturo-planning-common::unhandled-value))))))
   (cond
     ((eq action 'learn-object-learn) (cdr (first (first gen)))))))
+
+(def-action-handler scan-barcode (name)
+  "Scan barcode and retrieve found object"
+  (json-prolog:prolog-simple-1 (format nil "scanObject(~a, Out)" name)))

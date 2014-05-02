@@ -3,7 +3,6 @@
 (def-goal (achieve (scanned-from ?obj))
   "Moves an object `?obj' in fornt of the webcam and rotates it until a barcode was found and scanned. The `?obj' has to be held by a gripper."
   (format t "Try to scan Barcode from ~a~%" ?obj)
-
   (let* ((loc-to-reach (make-designator 'location 
                                        `((to reach) (obj ,?obj)))))
     (format t "Moving Robot")
@@ -14,11 +13,24 @@
     (achieve `(object-in-hand ,?obj left-arm sp-manipulation::grasp-action-above 360))
     (format t "Moving Objekt in front of camera")
     (achieve `(home-pose left-arm-campose))
+    (format t "Scanning barcode.")
+    (achieve `(scan-barcode ,?obj))))
  
-  ;ask perception||knwoledge if barcode was found
-  ;rotate obj by 45°
-                                     
-    (achieve `(gripper-roteted left-arm 90.0))))
+(defparameter *deg* 90) ;degrees rotated each step
+
+(def-goal (achieve (scan-barcode ?obj))
+  (with-retry-counters ((scan-object-counter (- (/ 360 *deg*) 1)))
+    (with-failure-handling
+      ((suturo-planning-common::barcode-scan-failed (e)
+        (declare (ignore e))
+        (do-retry scan-object-counter
+          (achieve `(gripper-rotated left-arm *deg*))
+          (retry))))
+      (let ((scanned-barcode-object (perform (make-designator 'action `((to scan-barcode) (name ,(desig-prop-value ?obj 'name)))))))
+        (case (first scanned-barcode-object)
+          ("nobarcode" (fail 'suturo-planning-common::barcode-scan-failed))
+          ("nothingfound" (error-out (plan barcode scan) "Barcode scan failed!"))
+          (otherwise (list->designator scanned-barcode-object)))))))
 
 (def-goal (achieve (gripper-rotated ?arm ?degree))
   (let* ((gripper-frame (get-gripper-frame ?arm))
@@ -53,4 +65,4 @@
   ;grasp with other arm
     (achive `(object-in-hand ?obj other-arm sp-manipulation::grasp-action-grasp nil))
   (achive `(empty-hand ?obj nil)))) ;geht das? taget-on? 
- |#
+|#

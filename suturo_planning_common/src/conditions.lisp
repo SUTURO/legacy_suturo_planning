@@ -103,6 +103,9 @@
 
 ;;; Conditions thrown by knowledge
 
+(define-condition barcode-scan-failed (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "barcode-scan-failed"))
 
 ;;; Misc
 

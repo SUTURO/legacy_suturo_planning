@@ -40,7 +40,11 @@
     ;;Action designator for action to get information about objects.
     (desig-prop ?desig (to learn-object))
     (desig-prop ?desig (action ?action))
-    (desig-prop ?desig (name ?name))))
+    (desig-prop ?desig (name ?name)))
+
+  (<- (action-desig ?desig (scan-barcode ?obj))
+    (desig-prop ?desig (to scan-barcode))
+    (desig-prop ?desig (obj ?obj))))
 
 (def-fact-group suturo-planning-pm-knowledge (matching-process-module
                                               available-process-module)
@@ -54,7 +58,8 @@
         (desig-prop ?designator (to get-container-objects))
         (desig-prop ?designator (to get-static-object))
         (desig-prop ?designator (to get-graspable-objects))
-        (desig-prop ?designator (to learn-object))))
+        (desig-prop ?designator (to learn-object))
+        (desig-prop ?designator (to scan-barcode))))
   
   (<- (available-process-module suturo-planning-pm-knowledge)
     (symbol-value cram-projection:*projection-environment* nil)))

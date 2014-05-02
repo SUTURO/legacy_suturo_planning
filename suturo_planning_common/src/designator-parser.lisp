@@ -88,11 +88,9 @@
   (let ((ss (symbol-name s)))
     (subseq ss 1 (- (length ss) 1))))
 
-(defun json-prolog->designators (jj)
-  "Converts a JSON-Prolog return value to object designators"
-  (mapcar (lambda (e)
-    (eval `(bind-pattern (edible name centroid frame-id grip-force unknown use dimensions pose) ,e
-      (make-designator 'object `((edible ,(equal "true" (parse-symbol-name `,edible)))
+(defun list->designator (jj)
+  (eval `(bind-pattern (edible name centroid frame-id grip-force unknown use dimensions pose) ,jj
+    (make-designator 'object `((edible ,(equal "true" (parse-symbol-name `,edible)))
                                  (name ,(parse-symbol-name `,name))
                                  (grip-force ,grip-force)
                                  (unknown ,(equal "true" (parse-symbol-name `,unknown)))
@@ -101,7 +99,10 @@
                                                                    (frame ,(parse-symbol-name `,frame-id))
                                                                    (pose ,pose))))
                                  (dimensions ,dimensions))))))
-    (subseq (first (first jj)) 1)))
+
+(defun json-prolog->designators (jj)
+  "Converts a JSON-Prolog return value to object designators"
+  (mapcar #'list->designator (subseq (first (first jj)) 1)))
 
 (defun json-prolog->short-designators (jj)
   "Backwards compatibility function for json-prolog->short-designator"

@@ -67,4 +67,5 @@
                      #:frame
                      #:action
                      #:move-arm
-                     #:coords))
+                     #:coords
+                     #:scan-barcode))
