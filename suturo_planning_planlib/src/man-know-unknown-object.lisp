@@ -27,15 +27,7 @@ Initially the PR2 has to be positioned in front of the object. The object has to
                "/map")))
     (achieve `(home-pose both-arms))
     (format t "Grasping unknown object.~%")
-    (with-retry-counters ((grasp-obj-counter 1))
-      (with-failure-handling
-          ((suturo-planning-common::grasping-failed (f)
-             (declare (ignore f))
-             (format t "Failed to grasp object.~%")
-             (do-retry grasp-obj-counter
-               (format t "Trying again.~%")
-               (retry))))
-        (achieve `(object-in-hand ,obj ,arm sp-manipulation::grasp-action-above 10))))
+    (grasp obj arm :intents 1 :take-home-pose nil)
     (let* ((gripper-origin (transform-get-origin gripper-frame "/base_link" :timeout 2))
            (initial-lifted-location
              (cond
@@ -86,15 +78,7 @@ Initially the PR2 has to be positioned in front of the object. The object has to
       (learn-object obj arm :intents 2)
       (loop for rotation in rotations
             do (format t "Grasping unknown object.~%")
-               (with-retry-counters ((grasp-obj-counter 1))
-                 (with-failure-handling
-                     ((suturo-planning-common::grasping-failed (f)
-                        (declare (ignore f))
-                        (format t "Failed to grasp object.~%")
-                        (do-retry grasp-obj-counter
-                          (format t "Trying again.~%")
-                          (retry))))
-                   (achieve `(object-in-hand ,obj ,arm sp-manipulation::grasp-action-above 10))))
+               (grasp obj arm)
                (let* ((gripper-in-base-link (transform gripper-frame "/base_link" :timeout 2))
                       (lifted-location
                         (pose->pose-stamped
@@ -159,15 +143,7 @@ Initially the PR2 has to be positioned in front of the object. The object has to
                ((eq result sp-knowledge::*learn-object-success*) t)
                ((eq result sp-knowledge::*learn-object-to-close-to-other-object*)
                 (format t "Object too close to other object. Moving object.~%")
-                (with-retry-counters ((grasp-obj-counter 1))
-                  (with-failure-handling
-                      ((suturo-planning-common::grasping-failed (f)
-                         (declare (ignore f))
-                         (format t "Failed to grasp object.~%")
-                         (do-retry grasp-obj-counter
-                           (format t "Trying again.~%")
-                           (retry))))
-                    (achieve `(object-in-hand ,obj ,arm sp-manipulation::grasp-action-above 10))))
+                (grasp obj arm)
                 (format t "Lifting arm.~%")
                 (achieve `(arm-at ,arm
                                   ,(pose->pose-stamped
@@ -232,3 +208,26 @@ Initially the PR2 has to be positioned in front of the object. The object has to
     (if (> space-in-front-of-obj (/ obj-max-dimension 2))
         (/ obj-max-dimension 2)
         (* (/ obj-max-dimension 2) -1))))
+
+(defun grasp (obj-desig arm &key (intents 3) (take-home-pose t))
+  (let* ((obj (current-desig obj-desig))
+         (obj-on-name (desig-prop-value-concat obj '(at on name))))
+    (with-retry-counters ((grasp-obj-counter intents))
+      (with-failure-handling
+          ((suturo-planning-common::grasping-failed (f)
+             (declare (ignore f))
+             (format t "Failed to grasp object.~%")
+             (do-retry grasp-obj-counter
+               (format t "Trying again.~%")
+               (if take-home-pose
+                   (progn
+                     (format t "Moving arm to home pose.~%")
+                     (achieve `(home-pose ,arm))
+                     (format t "Moving head to home pose.~%")
+                     (achieve `(home-pose head))))
+               (format t "Updating planning scene.~%")
+               (perform (make-designator 'action 
+                                         `((to update-objects-on)
+                                           (name ,obj-on-name))))
+               (retry))))
+        (achieve `(object-in-hand ,obj ,arm sp-manipulation::grasp-action-above 10))))))
