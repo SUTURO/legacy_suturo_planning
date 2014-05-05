@@ -174,103 +174,31 @@
 (defun grasping-succeeded (obj arm)
   (format t "Calling grasping-succeeded.~%")
   (format t "Updating object's location and pose~%")
-#|
-  (let* ((loc-old (desig-prop-value obj 'at))
-         (gripper-frame (get-gripper-frame arm))
-         (object-name (desig-prop-value obj 'name))
-         (object-on-old (desig-prop-value loc-old 'on))
-         (object-on-name (desig-prop-value object-on-old 'name))
-         ;;(blab (format t "object-on-name: ~a~%" object-on-name))
-         (object-on (suturo-planning-pm-knowledge::call-action
-                     'suturo-planning-pm-knowledge::get-static-object object-on-name))
-         (object-on-height (first (desig-prop-value object-on 'dimensions)))
-         ;;(blaa (format t "object-on-height: ~a~%" object-on-height))
-         (object-on-origin (transform-get-origin object-on-name "/odom_combined" :timeout 2 :intents 10))
-         ;;(object-on-origin (transform->origin "table2" "/odom_combined" :timeout 5 :intents 5))
-         (object-origin (transform-get-origin object-name "/odom_combined" :timeout 2 :intents 10))
-         (object-height
-           (* 2 (- (- (cl-transforms:z object-origin)
-                      (cl-transforms:z object-on-origin))
-                   (/ object-on-height 2.0))))
-         (obj-height-vector (cl-transforms:make-3d-vector 0 (/ object-height 2.0) 0))
-         (gripper-to-object-stamped-transform (transform object-name gripper-frame))
-         (gripper-to-object-transform (stamped-transform->transform gripper-to-object-stamped-transform))
-         (aaa (format t "~%~%gripper-to-object-transform: ~a~%" gripper-to-object-transform))
-         (object-to-bottom-stamped-transform
-           (cl-tf:make-stamped-transform object-name
-                                         "/object-to-bottom"
-                                         0
-                                         obj-height-vector
-                                         (cl-transforms:make-identity-rotation)))
-         (object-to-bottom-transform (stamped-transform->transform object-to-bottom-stamped-transform))
-         (aab (format t "~%object-to-bottom-transform: ~a~%" object-to-bottom-transform))
-         (gripper-to-bottom-transform
-           (cl-transforms:transform* gripper-to-object-transform
-                                     object-to-bottom-transform))
-         (aac (format t "~%gripper-to-bottom-transform: ~a~%" gripper-to-bottom-transform))
-         (bottom-to-gripper-transform
-           (cl-transforms:transform-inv gripper-to-bottom-transform))
-         (aad (format t "~%bottom-to-gripper-transform: ~a~%" bottom-to-gripper-transform))
-         (loc (make-designator 'location 
-                               (update-designator-properties 
-                                `((in ,(cond
-                                         ((eq arm 'left-arm) 'left-gripper)
-                                         ((eq arm 'right-arm) 'right-gripper)
-                                         (t nil)))
-                                  (frame ,gripper-frame)
-                                  (pose ,(sp-gripper-monitor:get-gripper-pose
-                                          arm)))
-                                (description loc-old)))))
- |#
   (sleep 4)
   (let* ((curr-obj (current-desig obj))
          (obj-name (desig-prop-value curr-obj 'name))
          (obj-on-name (desig-prop-value-concat curr-obj '(at on name)))
          (obj-on (suturo-planning-pm-knowledge::call-action
                      'suturo-planning-pm-knowledge::get-static-object obj-on-name))
-         (a (format t "~%obj-on: ~a~%~%" obj-on))
          (gripper-frame (get-gripper-frame arm))
-         ;;(obj-on-to-gripper (transform gripper-frame obj-on-name :timeout 2 :intents 10))
-         ;;(obj-on-to-gripper-origin (transform->origin obj-on-to-gripper))
          (object-on-height (first (desig-prop-value obj-on 'dimensions)))
-         (object-on-origin (transform-get-origin obj-on-name "/odom_combined" :timeout 2 :intents 10))
-         (object-origin (transform-get-origin (desig-prop-value curr-obj 'name) "/odom_combined" :timeout 2 :intents 10))
-         ;;(a (format t "obj-on-to-gripper-origin: ~a~%" obj-on-to-gripper-origin))
+         (object-on-origin (transform-get-origin obj-on-name "/odom_combined" :timeout 2))
+         (object-origin (transform-get-origin (desig-prop-value curr-obj 'name) "/odom_combined" :timeout 2))
          (object-height
            (* 2 (- (- (cl-transforms:z object-origin)
                       (cl-transforms:z object-on-origin))
                    (/ object-on-height 2.0))))
-         (obj-on-to-obj (transform obj-name obj-on-name :timeout 2 :intents 10))
-         (obj-on-to-gripper (transform gripper-frame obj-on-name :timeout 2 :intents 10))
-         (a (format t "~%obj-on-to-obj: ~a~%~%" obj-on-to-obj))
-         (a (format t "~%obj-on-to-gripper: ~a~%~%" obj-on-to-gripper))
-         (obj-on-to-object (transform obj-name obj-on-name :timeout 2 :intents 10))
+         (obj-on-to-obj (transform obj-name obj-on-name :timeout 2))
+         (obj-on-to-gripper (transform gripper-frame obj-on-name :timeout 2))
+         (obj-on-to-object (transform obj-name obj-on-name :timeout 2))
          (target-to-object (cl-tf:make-stamped-transform
                             "/target-point"
                             obj-name
                             0.0
                             (cl-transforms:make-3d-vector 0 0 (/ object-height 2))
                             (cl-transforms:rotation obj-on-to-object)))
-         (object-to-gripper (transform gripper-frame obj-name :timeout 2 :intents 10))
-#|
-         (target-to-gripper (cl-tf:make-stamped-transform
-                             "/target-point"
-                             gripper-frame
-                             0
-                             (cl-transforms:make-3d-vector (- (cl-transforms:x (transform->origin obj-on-to-obj))
-                                                              (cl-transforms:x (transform->origin obj-on-to-gripper)))
-                                                           (- (cl-transforms:y (transform->origin obj-on-to-gripper))
-                                                              (cl-transforms:y (transform->origin obj-on-to-obj)))
-                                                           (- (cl-transforms:z (transform->origin obj-on-to-gripper))
-                                                              (cl-transforms:z (transform->origin obj-on-to-obj))))
-                             (cl-transforms:q* (transform->orientation obj-on-to-obj)
-                                               (transform->orientation obj-on-to-gripper))))
-|#
+         (object-to-gripper (transform gripper-frame obj-name :timeout 2))
          (target-to-gripper (cl-transforms:transform* target-to-object object-to-gripper))
-         (a (format t "~%target-to-gripper: ~a~%" target-to-gripper))
-         ;;(a (format t "~%target-to-gripper-tmp: ~a~%" target-to-gripper-tmp))
-         (a (format t "~%target-to-object: ~a~%" target-to-object))
-         (a (format t "~%object-to-gripper: ~a~%" object-to-gripper))
          (loc (make-designator 'location 
                                (update-designator-properties 
                                 `((in ,(cond
@@ -282,8 +210,14 @@
                                   (pose ,(transform-get-pose-stamped
                                           obj-name
                                           gripper-frame
-                                          :timeout 2 :intents 10)))
+                                          :timeout 2)))
                                 (description (desig-prop-value curr-obj 'at))))))
+    (format t "~%obj-on: ~a~%~%" obj-on)
+    (format t "~%obj-on-to-obj: ~a~%~%" obj-on-to-obj)
+    (format t "~%obj-on-to-gripper: ~a~%~%" obj-on-to-gripper)
+    (format t "~%target-to-gripper: ~a~%" target-to-gripper)
+    (format t "~%target-to-object: ~a~%" target-to-object)
+    (format t "~%object-to-gripper: ~a~%" object-to-gripper)
     (format t "object-on-height: ~a~%" object-on-height)
     (format t "object-height: ~a~%" object-height)
     (make-designator 'object
@@ -301,17 +235,17 @@
          (object-on-height (first (desig-prop-value object-on 'dimensions)))
          (object-on-height-half (/ object-on-height 2.0))
          (gripper-frame (get-gripper-frame arm))
-         (object-on-origin (transform-get-origin obj-on-name "/odom_combined" :timeout 2 :intents 10))
-         (object-origin (transform-get-origin obj-name "/odom_combined" :timeout 2 :intents 10))
+         (object-on-origin (transform-get-origin obj-on-name "/odom_combined" :timeout 2))
+         (object-origin (transform-get-origin obj-name "/odom_combined" :timeout 2))
          (object-height
            (* 2 (- (- (cl-transforms:z object-origin)
                       (cl-transforms:z object-on-origin))
                    object-on-height-half)))
          (object-height-half (/ object-height 2.0))
          ;;(gripper-to-obj (transform obj-name gripper-frame :timeout 2 :intents 10))
-         (obj-on-to-gripper (transform gripper-frame obj-on-name :timeout 2 :intents 10))
-         (obj-z (cl-transforms:z (transform-get-origin obj-name obj-on-name :timeout 2 :intents 10)))
-         (gripper-z (cl-transforms:z (transform-get-origin gripper-frame obj-on-name :timeout 2 :intents 10)))
+         (obj-on-to-gripper (transform gripper-frame obj-on-name :timeout 2))
+         (obj-z (cl-transforms:z (transform-get-origin obj-name obj-on-name :timeout 2)))
+         (gripper-z (cl-transforms:z (transform-get-origin gripper-frame obj-on-name :timeout 2)))
          (gripper-to-obj-distance (- gripper-z obj-z))
          (obj-on-to-gripper-distance-actual (cl-transforms:z (transform->origin obj-on-to-gripper)))
          (obj-on-to-gripper-distance-max (* (+ object-on-height-half
