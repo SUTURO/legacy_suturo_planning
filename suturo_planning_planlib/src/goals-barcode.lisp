@@ -10,7 +10,13 @@
     (format t "Taking home-pose")
     (achieve `(home-pose))
     (format t "Grasping Objekt")
-    (achieve `(object-in-hand ,?obj left-arm sp-manipulation::grasp-action-above 360))
+    (with-retry-counters ((cnt 3))
+      (with-failure-handling
+          ((suturo-planning-common::grasping-failed (e)
+             (declare (ignore e))
+             (do-retry cnt
+               (retry))))
+        (achieve `(object-in-hand ,?obj left-arm sp-manipulation::grasp-action-above 360))))
     (format t "Moving Objekt in front of camera")
     (achieve `(home-pose left-arm-campose))
     (format t "Scanning barcode.")
