@@ -27,7 +27,7 @@ Initially the PR2 has to be positioned in front of the object. The object has to
                "/map")))
     (achieve `(home-pose both-arms))
     (format t "Grasping unknown object.~%")
-    (grasp obj arm :intents 1 :take-home-pose nil)
+    (grasp obj arm :intents 1 :update-planning-scene nil)
     (let* ((gripper-origin (transform-get-origin gripper-frame "/base_link" :timeout 2))
            (initial-lifted-location
              (cond
@@ -209,7 +209,7 @@ Initially the PR2 has to be positioned in front of the object. The object has to
         (/ obj-max-dimension 2)
         (* (/ obj-max-dimension 2) -1))))
 
-(defun grasp (obj-desig arm &key (intents 3) (take-home-pose t))
+(defun grasp (obj-desig arm &key (intents 3) (update-planning-scene t))
   (let* ((obj (current-desig obj-desig))
          (obj-on-name (desig-prop-value-concat obj '(at on name))))
     (with-retry-counters ((grasp-obj-counter intents))
@@ -219,15 +219,15 @@ Initially the PR2 has to be positioned in front of the object. The object has to
              (format t "Failed to grasp object.~%")
              (do-retry grasp-obj-counter
                (format t "Trying again.~%")
-               (if take-home-pose
+               (if update-planning-scene
                    (progn
                      (format t "Moving arm to home pose.~%")
                      (achieve `(home-pose ,arm))
                      (format t "Moving head to home pose.~%")
-                     (achieve `(home-pose head))))
-               (format t "Updating planning scene.~%")
-               (perform (make-designator 'action 
-                                         `((to update-objects-on)
-                                           (name ,obj-on-name))))
+                     (achieve `(home-pose head))
+                     (format t "Updating planning scene.~%")
+                     (perform (make-designator 'action 
+                                               `((to update-objects-on)
+                                                 (name ,obj-on-name))))))
                (retry))))
         (achieve `(object-in-hand ,obj ,arm sp-manipulation::grasp-action-above 10))))))
