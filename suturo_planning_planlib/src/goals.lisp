@@ -60,7 +60,7 @@
                          "Failed to bring ~a into the initial pose"
                          ?body-part)
               (do-retry retry-counter
-                (info-out (suturo planlib) "Trying again")
+                ;(info-out (suturo planlib) "Trying again")
                 (retry))))
          (perform take-home-pose)))))
 
@@ -79,7 +79,7 @@
                          "Failed to move ~a"
                          ?arm)
               (do-retry retry-counter
-                (info-out (suturo planlib) "Trying again")
+                ;(info-out (suturo planlib) "Trying again")
                 (retry))))
          (publish-visualization-marker2 (cond
                                           ((typep ?loc 'location-designator) ?loc)
@@ -91,7 +91,6 @@
   (when (not (eql-or (desig-prop-value (desig-prop-value ?obj 'at) 'in)
                      'left-gripper
                      'right-gripper))
-    (achieve '(home-pose both-arms))
     (let ((arm 'left-arm)
           (loc-to-reach (make-designator 'location 
                                          `((to reach) (obj ,?obj))))
@@ -105,7 +104,6 @@
                    ((eql (mod retry-counter 2) 1)
                     (error-out (suturo planlib) 
                                "Grasping failed retry with other arm")
-                    (achieve `(home-pose ,arm))
                     (setf arm (switch-arms arm))
                     (retry))
                    ((eql (mod retry-counter 2) 0)
@@ -119,6 +117,7 @@
   
 (def-goal (achieve (object-in-hand ?obj ?arm ?grasp-action ?tolerance))
   "Takes the object in one hand"
+  (achieve '(home-pose both-arms))
   (info-out (suturo planlib) "Grasping object with ~a" ?arm)
   (with-designators ((grasp-obj (action `((to grasp)
                                           (obj ,?obj)
@@ -143,7 +142,7 @@
              (error-out (suturo planlib) "Failed to move arm")
              (do-retry move-arm-retry-counter
                (when (next-solution loc)
-                 (info-out (suturo planlib) "Trying again")
+                 ;(info-out (suturo planlib) "Trying again")
                  (retry)))))
         (let* ((loc-pose-stamp (reference loc))
                (orientation (cl-tf:orientation loc-pose-stamp))
@@ -171,7 +170,7 @@
            (error-out (suturo planlib) "Failed to open hand")
            (sleep 1.5)
            (do-retry open-retry-counter
-             (info-out (suturo planib) "Trying again.")
+             ;(info-out (suturo planib) "Trying again.")
              (sleep 1.5)
              (retry))))
       (with-designators ((open-hand (action `((to open-hand)
