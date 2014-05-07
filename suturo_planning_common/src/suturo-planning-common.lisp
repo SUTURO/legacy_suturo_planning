@@ -1,6 +1,6 @@
 (in-package :suturo-planning-common)
 
-(defvar *tf*)
+(defvar *tf* nil)
 
 (defun get-tf (&key force)
   (if (or force (not *tf*))
