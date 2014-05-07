@@ -7,7 +7,8 @@
                cram-plan-knowledge
                cram-projection
                suturo-planning-common
-               sensor_msgs-msg)
+               sensor_msgs-msg
+               cl-transforms)
 
   :components
   ((:module "src"

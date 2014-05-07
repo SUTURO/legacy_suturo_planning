@@ -1,0 +1,153 @@
+(defparameter cafe  (make-designator 'object `((name "cafetfilter")
+                                       (dimensions (0.132 0.197 0.037))
+                                       (grip-force 50)
+                                       (at ,(make-designator 'location `((frame ,"/base_footprint")
+                                                                         (coords (0.1 0.6 0.7))
+                                                                         (on ,(make-designator 'object `((name ,sp-planlib::*table-name*))))))))))
+
+(defparameter dlink  (make-designator 'object `((name "dlink")
+                                       (dimensions (0.24 0.169 0.035))
+                                       (grip-force 50)
+                                       (at ,(make-designator 'location `((frame ,"/base_footprint")
+                                                                         (coords (0.4 -0.2 0.8))
+                                                                         (on ,(make-designator 'object `((name ,sp-planlib::*table-name*))))))))))
+
+(defparameter corny  (make-designator 'object `((name "corny")
+                                       (dimensions (0.143 0.145 0.036))
+                                       (grip-force 50)
+                                       (at ,(make-designator 'location `((frame ,"/base_footprint")
+                                                                         (coords (0.4 0.0 0.8))
+                                                                         (on ,(make-designator 'object `((name ,sp-planlib::*table-name*))))))))))
+
+(defparameter obj (sp-knowledge::call-action 'sp-knowledge::get-graspable-objects sp-planlib::*table-name*))
+
+;(defparameter loc (make-designator 'location '((on cupboard) (name "kitchen_island"))))
+(defparameter loc (make-designator 'location `((on ,sp-planlib::*table-name*) (name ,sp-planlib::*table-name*))))
+(defparameter loc2 (make-designator 'location `((on ,sp-planlib::*counter-name*) (name ,sp-planlib::*counter-name*))))
+
+(call-grasp-action cafe 'left-arm)
+(call-grasp-action corny 'right-arm)
+(call-grasp-action dlink 'right-arm)
+
+(call-initial-action 'left-arm)
+(call-initial-action 'right-arm)
+
+
+(call-move-arm-action (make-designator 'location '((frame "/odom_combined") (coords (0.00 0.65 1.15)) (pose (0.5 -0.5 0.5 0.5)))) 'left-arm)
+
+(call-move-arm-action (make-designator 'location `((frame "/base_footprint") (coords (0.5 0.4 0.9)) (pose ,(get-last-gripper-pose cafe)))) 'left-arm)
+
+(call-move-arm-action (make-designator 'location `((frame "/base_footprint") (coords (0.5 0.4 0.9)) (pose ,(cl-transforms-euler-degree->quaternion-as-list :ax 45 :ay 0 :az 0)))) 'left-arm)
+
+(call-move-arm-action (make-designator 'location `((frame "/l_wrist_roll_link") (coords (-0.05 0 0)) (pose ,(get-last-gripper-pose cafe)))) 'left-arm)
+
+(sp-gripper-monitor:get-gripper-pose 'left-arm :target-frame "/base_link")
+
+(call-move-arm-action (make-designator 'location `((frame "/l_wrist_roll_link") (coords (0 0 0)) (pose ,(cl-transforms-euler-degree->quaternion-as-list :ax 45 :ay 0 :az 0)))) 'left-arm)
+
+
+(call-move-arm-action (make-designator 'location `((frame "/base_footprint") (coords (0.7 0.35 1.0)) (pose ,(cl-transforms-euler-degree->quaternion-as-list :ax 0 :ay 0 :az 0)))) 'left-arm)
+
+(make-designator 'location '((frame "/map") (coords (-0.9595373 1.2592965 0.9259399)) (pose (0 0 0 1))))
+
+(suturo-planning-executive::place-gently-plan cafe (make-designator 'location `((frame "/base_footprint") (coords (0.5 0.3 0.63)) (pose (0 0 0 1)) (on ,sp-planlib::*table-name*))))
+(suturo-planning-executive::know-unknown-object-plan corny (make-designator 'location `((frame "/base_link") (coords (0.5 0.0 0.7)) (on ,sp-planlib::*table-name*))))
+
+(suturo-planning-executive::place-gently-plan corny loc)
+
+;(call-move-arm-action (make-designator 'location '((frame "base_footprint") (coords (0.1 0.6 1.0)) (pose (0 0 1 0)))) 'left-arm)
+
+;(call-move-arm-action (make-designator 'location '((frame "/odom_combined") (coords (0.3 0.6 1.0)) (pose (0.5 0.5 0.5 0.5)))) 'left-arm)
+;(call-move-arm-action (make-designator 'location '((frame "/odom_combined") (coords (0.3 0.6 1.0)) (pose (0.5 -0.5 0.5 0.5)))) 'left-arm)
+;(call-move-arm-action (make-designator 'location '((frame "/odom_combined") (coords (0.3 -0.6 1.0)) (pose (0.5 0.5 0.5 -0.5)))) 'right-arm)
+
+;(call-move-arm-action (make-designator 'location '((frame "/odom_combined") (coords (0.73 -0.2 1.0)) (pose (0.5 -0.5 -0.5 -0.5)))) 'right-arm)
+
+
+
+; auf dem tisch
+(make-designator 'location '((on cupboard) (frame "/odom_combined") (coords (0.5 0.5 0.6))))
+
+(make-designator 'location '((on cupboard) (name "kitchen_island")))
+(defparameter loc (make-designator 'location '((on cupboard) (name "kitchen_island"))))
+
+
+(defparameter topic-a (roslisp:subscribe
+                                      "suturo_man_move_home_server/result"
+                                      "suturo_manipulation_msgs/suturo_manipulation_homeActionResult"
+                                      #'(lambda (msg) (format t "###########~%RESULT A~%##########~%"))))
+
+(defparameter topic-b (roslisp:subscribe
+                                      "suturo_man_move_home_server/result"
+                                      "suturo_manipulation_msgs/suturo_manipulation_homeActionResult"
+                                      #'(lambda (msg) (format t "###########~%RESULT B~%##########~%"))))
+
+(roslisp:unsubscribe topic-a)
+(roslisp:unsubscribe topic-b)
+
+(call-initial-action 'right-arm)
+
+
+
+
+(setf pose (cl-tf:msg->pose-stamped
+                       (roslisp:make-message
+                        "geometry_msgs/PoseStamped"
+                        (header) (roslisp:make-message
+                                  "std_msgs/Header"
+                                  (stamp) (roslisp:ros-time)
+                                  (frame_id) "/base_footprint")
+                        (pose) (roslisp:make-message
+                                  "geometry_msgs/Pose"
+                                  (position) (roslisp:make-msg
+                                              "geometry_msgs/Point"
+                                              (x) 0
+                                              (y) 1
+                                              (z) 0)
+                                  (orientation) (roslisp:make-msg
+                                                 "geometry_msgs/Quaternion"
+                                                 (w) 1)))))
+
+(call-move-base-action pose)
+
+(top-level
+  (exec::with-process-modules
+    (with-designators ((move-arm (action `((to move-arm)
+                                               (loc ,(make-designator 'location '((frame "/odom_combined") (coords (0.00 0.65 1.15)) (pose (0.5 -0.5 0.5 0.5)))))
+                                               (arm left-arm)))))
+          (format t "performing ~a~%" move-arm)
+          (perform move-arm))))
+
+
+(top-level
+  (exec::with-process-modules
+    (with-designators ((move-arm (action `((to move-arm)
+                                               (loc ,(make-designator 'location '((frame "/odom_combined") (coords (0.00 -0.65 0.95)) (pose (0.5 0.5 0.5 0.5)))))
+                                               (arm right-arm)))))
+          (format t "performing ~a~%" move-arm)
+          (perform move-arm))))
+
+POSEN
+
+left-arm
+
+	/base_link (0.5000285573285219d0 0.4990192438614538d0 -0.5000920419769876d0 0.500858448728967d0) frontal
+
+right-arm
+	/base-link (-0.4979847991023766d0 0.5021521617962537d0 0.49771687296865463d0 0.5021277333792858d0) frontal
+
+
+
+./suturo_manipulation/suturo_manipulation_gazebo/launch_simulation_with_3_obj.zsh
+rosrun suturo_knowledge_location localize_gazebo
+roslaunch suturo_knowledge_foodreasoner reasoner_rosnode_gazebo.launch
+rosrun rviz rviz
+roslaunch suturo_manipulation_action suturo_manipulation_servers_non_reactive.launch
+roslaunch suturo_perception_rosnode run_gazebo.launch
+
+cd ...foodreasoner... cp owl/gazebo_room.owl lib/iai_maps/owl/room.owl
+
+
+
+Prolog query failed: PrologException: error(syntax_error(cannot_start_term), string('expand_goal((),_Q), call(_Q) . ', 13)).
+   [Condition of type SIMPLE-ERROR]

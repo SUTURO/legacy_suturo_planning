@@ -15,8 +15,8 @@
   (if (not *joint-state-subscriber*)
       (setf *joint-state-subscriber* 
             (roslisp:subscribe "/joint_states" 
-                       "sensor_msgs/JointState" 
-                       #'(lambda (state) (monitor-grip state)))))
+                               "sensor_msgs/JointState" 
+                               #'(lambda (state) (monitor-grip state)))))
   t)
 
 (def-action-handler end-monitoring-gripper ()

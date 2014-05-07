@@ -1,10 +1,11 @@
 (in-package :suturo-planning-pmd-manipulation)
 
-(defvar *move-fails* 0)
-(defvar *move-head-fails* 0)
-(defvar *move-arm-fails* 0)
-(defvar *grasp-fails* 0)
-(defvar *open-fails* 0)
+(defparameter *move-fails* 0)
+(defparameter *move-head-fails* 0)
+(defparameter *move-arm-fails* 0)
+(defparameter *move-base-fails* 0)
+(defparameter *grasp-fails* 2)
+(defparameter *open-fails* 0)
 
 (defmacro def-action-handler (name args &body body)
   (alexandria:with-gensyms (action-sym params)
@@ -65,3 +66,16 @@
         (cpl:fail 'suturo-planning-common::location-not-reached :result arm))) 
   (if (= *move-arm-fails* 2)
         (setq *move-arm-fails* 0)))
+
+(def-action-handler move-base (pose-stamped)
+  (declare (ignore pose-stamped))
+  (if (= *move-base-fails* 0)
+      (prog1
+        (setq *move-base-fails* (+ *move-base-fails* 1))
+        (cpl:fail 'suturo-planning-common::move-base-failed))) 
+  (if (= *move-base-fails* 1)
+      (prog1
+        (setq *move-base-fails* (+ *move-base-fails* 1))
+        (cpl:fail 'suturo-planning-common::move-base-failed))) 
+  (if (= *move-base-fails* 2)
+        (setq *move-base-fails* 0)))

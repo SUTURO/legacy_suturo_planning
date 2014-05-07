@@ -10,9 +10,11 @@
     (sleep 0.5))
 
 (defmethod call-action :around (action-sym &rest params)
+#|
   (roslisp:ros-info (suturo process-module)
                     "Executing action in manipulation: ~a ~a."
                     action-sym params)
+  |#
   (prog1 (call-next-method)
     (roslisp:ros-info (suturo process-module)
                       "Action done.")))

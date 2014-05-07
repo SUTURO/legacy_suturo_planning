@@ -5,11 +5,17 @@
                cram-plan-library
                cram-plan-failures
                cram-plan-knowledge
-               sound_play-msg)
+               sound_play-msg
+               visualization_msgs-msg
+               roslisp-utilities
+               cl-ppcre
+               cl-transforms)
   :components
   ((:module "src"
     :components
     ((:file "package")
      (:file "speech" :depends-on ("package"))
      (:file "designator-parser" :depends-on ("package"))
-     (:file "suturo-planning-common" :depends-on ("package" "speech"))))))
+     (:file "conditions" :depends-on ("package"))
+     (:file "visualization-marker" :depends-on ("package"))
+     (:file "suturo-planning-common" :depends-on ("package"))))))

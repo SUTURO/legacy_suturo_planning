@@ -19,3 +19,36 @@
 
 (def-process-module suturo-planning-pm-gripper-monitor (desig)
   (apply #'call-action (reference desig)))
+
+(defun get-gripper-pose (gripper &key (target-frame "/base_footprint"))
+  (format t "Getting gripper pose from ~a~%" gripper)
+  (if (not *tf*)
+      (defparameter *tf* (make-instance 'cl-tf:transform-listener)))
+  (let* ((source-frame (cond
+                         ((eq gripper 'left-gripper) "l_wrist_roll_link")
+                         ((eq gripper 'left-arm) "l_wrist_roll_link")
+                         ((eq gripper 'right-gripper) "r_wrist_roll_link")
+                         ((eq gripper 'right-arm) "r_wrist_roll_link")
+                         (t nil)))                        
+         (time (roslisp:ros-time))
+         (result nil)
+         (intents 5)
+         (timeout 1))
+    (loop while (and source-frame (not result) (> intents 0))
+          do (setf timeout (* timeout 1.5))
+             (setf result (tf:wait-for-transform *tf*
+                                                 :timeout timeout
+                                                 :time time
+                                                 :source-frame source-frame
+                                                 :target-frame target-frame))
+             (if (not result)                 
+                 (progn
+                   (format t "No result. Result: ~a, *tf*: ~a Retrying.~%" result *tf*)
+                   (decf intents)
+                   (setf time (roslisp:ros-time)))))
+    (if result
+        (cl-transforms:transform->pose
+         (tf:lookup-transform *tf*
+                              :time time
+                              :source-frame source-frame
+                              :target-frame target-frame)))))

@@ -14,7 +14,60 @@
   (:export info-out
            error-out
            designator->string
-           string->designators)
+           json-prolog->designators
+           list->designator
+           ;; conditions
+           monitor-not-started
+           ambiguous-description
+           grasping-failed
+           pose-not-reached
+           unhandled-body-part
+           move-head-failed
+           move-arm-failed
+           move-base-failed
+           drop-failed
+           dropped-object
+           location-not-reached
+           place-failed
+           unhandled-action-answer
+           unhandled-value
+           object-to-close-to-other-object
+           object-suddenly-lost
+           learn-object-failed
+           unhandled-condition
+           get-holding-gripper
+           get-gripper-frame
+           get-last-gripper-pose
+           no-object-with-that-description
+           objs-in-on-failed
+           calc-gripper-offset
+           object-not-hold-by-any-gripper
+           ;; tf
+           pose-stamped->pose
+           pose->pose-stamped
+           stamped-transform->transform
+           pose-stamped->transform
+           pose-stamped->stamped-transform
+           transform
+           transform->pose
+           transform-get-pose
+           transform-get-pose-stamped
+           transform->origin
+           transform->orientation
+           transform-get-origin
+           transform->origin-as-list
+           transform->matrix
+           transform->quaternion
+           transform->quaternion-as-list
+           transform-coords-to-frame
+           cl-transforms-euler-degree->quaternion
+           cl-transforms-euler-degree->quaternion-as-list
+           ;;visualization
+           publish-visualization-marker
+           publish-visualization-marker2
+           ;;designators
+           desig-prop-value-concat
+           pose-stamped->designator)
   (:desig-properties 
    #:left
    #:right
@@ -30,6 +83,9 @@
    #:grasp
    #:open-hand
    #:direction
+   #:grasp-action
+   #:tolerance
+   #:target-on
    ;; Action - pose
    #:pose
    #:initial
@@ -52,15 +108,19 @@
    #:storage-for-stuff
    ;; Objects - attributes
    #:at
+   #:pose
    #:edible
    #:owner
    #:name
    #:color
+   #:dimensions
    ;; Locations
    #:loc
    #:frame
    #:on
    #:in
+   #:in-pose
+   #:in-offset
    #:over
    #:between
    #:coords

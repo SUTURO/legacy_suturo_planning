@@ -1,7 +1,7 @@
 (in-package :cl-user)
 
 (desig-props:def-desig-package suturo-planning-pm-knowledge
-  (:nicknames :suturo-pm-knowledge)
+  (:nicknames :sp-knowledge)
   (:use #:common-lisp
         #:crs
         #:cut
@@ -20,6 +20,7 @@
                      #:frame
                      #:edible
                      #:obj
+                     #:props
                      #:use
                      #:grip-force
                      #:storage-for-stuff
@@ -28,5 +29,15 @@
                      #:update-semantic-map
                      #:clear-maps
                      #:placed-object-in-box
+                     #:get-objects-with-properties
+                     #:update-objects-on
+                     #:get-static-object
                      #:get-container-objects
-                     #:get-graspable-objects))
+                     #:get-graspable-objects
+                     #:learn-object
+                     #:learn-object-start
+                     #:learn-object-learn
+                     #:learn-object-abort
+                     #:learn-object-finish
+                     #:action
+                     #:scan-barcode))
