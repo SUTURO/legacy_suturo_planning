@@ -33,7 +33,7 @@
           (achieve `(gripper-rotated left-arm *deg*))
           (retry))))
       (let ((scanned-barcode-object (subseq (first (first (perform (make-designator 'action `((to scan-barcode) (obj ,?obj)))))) 1)))
-        (case (first scanned-barcode-object)
+        (alexandria:switch ((first scanned-barcode-object) :test #'equal)
           ("nobarcode" (fail 'suturo-planning-common::barcode-scan-failed))
           ("nothingfound" (error-out (plan barcode scan) "Barcode scan failed!"))
           (otherwise (list->designator scanned-barcode-object)))))))
