@@ -74,13 +74,32 @@
 |#
 
 (def-goal (achieve (obj-in-front-of-webcam ?obj))
-  (let* ((obj-coord-to-wrist (transform-coords-to-frame (format nil "/~a" (desig-prop-value ?obj 'name))
-                                                        "/l_wrist_roll_link"
-                                                        '(0 0 0)))
-         (wrist-coords-in-front-of-webcam (list 0.23 (first obj-coord-to-wrist) 0))
-         (loc-in-front-of-webcam (make-designator 'location `((coords ,wrist-coords-in-front-of-webcam)
-                                                              (pose ,(cl-transforms-euler-degree->quaternion-as-list :az -90))
-                                                              (frame "/webcam")))))
-    (achieve `(arm-at left-arm ,loc-in-front-of-webcam))))
-                                                
+  (let ((retry-cnt 6)
+        (distance-to-cam 0.23)
+        (y (first (transform-coords-to-frame (format nil "/~a" (desig-prop-value ?obj 'name))
+                                             "/l_wrist_roll_link"
+                                             '(0 0 0))))
+        (z 0))
+    (with-failure-handling
+        ((suturo-planning-common::move-arm-failed (e)
+           (declare (ignore e))
+           (format t "Failed to move arm.~%")
+           (unless (eql retry-cnt 0)
+             (case retry-cnt
+               (0 (setf z (- z 4)))
+               (1 (setf z (+ z 2)))
+               (2 (setf y (- y 4)))
+               (3 (setf y (+ y 2)))
+               (4 (setf distance-to-cam (- distance-to-cam 4)))
+               (5 (setf distance-to-cam (+ distance-to-cam 2)))
+               (6 (format t "First try.~%")))
+             (retry))))
+      (format t "Trying with x:~a y:~a z:~a.~%" distance-to-cam y z)
+      (let* ((wrist-coords-in-front-of-webcam (list distance-to-cam y z))
+             (loc-in-front-of-webcam (make-designator 'location `((coords ,wrist-coords-in-front-of-webcam)
+                                                                  (pose ,(cl-transforms-euler-degree->quaternion-as-list :az -90))
+                                                                  (frame "/webcam")))))
+        (setf retry-cnt (- retry-cnt 1))
+        (achieve `(arm-at left-arm ,loc-in-front-of-webcam))))))
+
     
