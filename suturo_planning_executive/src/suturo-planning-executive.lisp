@@ -111,7 +111,8 @@
   (json-prolog:prolog-simple-1 "updatePerception(O)"))
 
 (defun on-table ()
-  (json-prolog:prolog-simple-1 "onObject('http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top', Out)"))
+  (suturo-planning-pm-knowledge::call-action 'suturo-planning-pm-knowledge::get-graspable-objects *table-name*))
+ ;; (json-prolog:prolog-simple-1 "onObject('http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top', Out)"))
 
 (defun publish-sematic-map ()
   (json-prolog:prolog-simple-1 "publishSemanticMap"))

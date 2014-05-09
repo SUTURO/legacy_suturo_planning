@@ -78,7 +78,8 @@
         (distance-to-cam 0.23)
         (y (first (transform-coords-to-frame (format nil "/~a" (desig-prop-value ?obj 'name))
                                              "/l_wrist_roll_link"
-                                             '(0 0 0))))
+                                             '(0 0 0)
+                                             :timeout 2)))
         (z 0))
     (with-failure-handling
         ((suturo-planning-common::move-arm-failed (e)
