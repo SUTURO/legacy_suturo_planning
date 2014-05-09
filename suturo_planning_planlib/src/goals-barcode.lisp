@@ -32,7 +32,7 @@
         (do-retry scan-object-counter
           (achieve `(gripper-rotated left-arm *deg*))
           (retry))))
-      (let ((scanned-barcode-object (perform (make-designator 'action `((to scan-barcode) (obj ,?obj))))))
+      (let ((scanned-barcode-object (subseq (first (first (perform (make-designator 'action `((to scan-barcode) (obj ,?obj)))))) 1)))
         (case (first scanned-barcode-object)
           ("nobarcode" (fail 'suturo-planning-common::barcode-scan-failed))
           ("nothingfound" (error-out (plan barcode scan) "Barcode scan failed!"))
