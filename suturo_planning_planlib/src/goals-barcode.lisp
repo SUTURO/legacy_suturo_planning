@@ -72,3 +72,17 @@
     (achive `(object-in-hand ?obj other-arm sp-manipulation::grasp-action-grasp nil))
   (achive `(empty-hand ?obj nil)))) ;geht das? taget-on? 
 |#
+
+(def-goal (achieve (obj-in-front-of-webcam ?obj))
+  (let* ((obj-coord-to-wrist (transform-coords-to-frame (format nil "/~a" (desig-prop-value ?obj 'name))
+                                                        "/l_wrist_roll_link"
+                                                        '(0 0 0)))
+         (wrist-coords-in-front-of-webcam (list 0.23 (first obj-coord-to-wrist) 0))
+         (loc-in-front-of-webcam (make-designator 'location `((coords ,wrist-coords-in-front-of-webcam)
+                                                              (pose ,(cl-transforms-euler-degree->quaternion-as-list :az 90))
+                                                              (frame "/webcam")))))
+    loc-in-front-of-webcam
+    ;;(achieve `(arm-at left-arm ,loc-in-front-of-webcam))
+    ))
+                                                
+    
