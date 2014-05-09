@@ -399,17 +399,20 @@
   "suturo_manipulation_msgs/suturo_manipulation_baseActionResult")
 (defvar *move-base-status-topic-type* "actionlib_msgs/GoalStatusArray")
 
-(defun make-move-base-goal (pose-stamped)
-  (format t "make-move-base-goal pose-stamped: ~a~%" pose-stamped)
+(defun make-move-base-goal (pose-stamped tolerance)
+  (format t "make-move-base-goal pose-stamped: ~a, tolerance: ~a~%"
+          pose-stamped tolerance)
   (actionlib:make-action-goal *action-client-move-base* 
-                              ps pose-stamped))
+                              ps pose-stamped
+                              range tolerance))
 
-(defun call-move-base-action (pose-stamped)
-  (format t "call-move-base-action. pose-stamped:~a~%" pose-stamped)
+(defun call-move-base-action (pose-stamped &key (tolerance 0.025))
+  (format t "call-move-base-action. pose-stamped:~a, tolerance: ~a~%"
+          pose-stamped tolerance)
   (setf *action-client-move-base* (get-action-client 'move-base))
   (with-lost-in-resultation-workaround
       *action-client-move-base*
-    (make-move-base-goal (cl-tf:pose-stamped->msg pose-stamped))
+    (make-move-base-goal (cl-tf:pose-stamped->msg pose-stamped) tolerance)
     *move-base-timeout*
     'suturo-planning-common::move-base-failed
     *action-client-move-base-server*
