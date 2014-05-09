@@ -66,7 +66,7 @@
         (orientation (desig-prop-value loc 'pose)))
     (publish *visualization-advertiser*
              (make-message "visualization_msgs/Marker"
-                           (frame_id header) "/map"
+                           (frame_id header) (desig-prop-value loc 'frame)
                            (stamp header)  (ros-time)
                            ns "suturo_planning"
                            id 0

@@ -79,10 +79,8 @@
                                                         '(0 0 0)))
          (wrist-coords-in-front-of-webcam (list 0.23 (first obj-coord-to-wrist) 0))
          (loc-in-front-of-webcam (make-designator 'location `((coords ,wrist-coords-in-front-of-webcam)
-                                                              (pose ,(cl-transforms-euler-degree->quaternion-as-list :az 90))
+                                                              (pose ,(cl-transforms-euler-degree->quaternion-as-list :az -90))
                                                               (frame "/webcam")))))
-    loc-in-front-of-webcam
-    ;;(achieve `(arm-at left-arm ,loc-in-front-of-webcam))
-    ))
+    (achieve `(arm-at left-arm ,loc-in-front-of-webcam))))
                                                 
     
