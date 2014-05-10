@@ -12,11 +12,11 @@
   "Moves the Robot to the a position from where he can see the location of
    object. Then updates the Perception and returns the objects that match
    the description of `?obj'."
-  (let* ((objs nil)
-         (loc (desig-prop-value ?obj 'at))
+  (let* ((loc (desig-prop-value ?obj 'at))
          (loc-to-see (make-designator 'location `((to reach) (loc ,loc))))
          (name (desig-prop-value loc 'name))
-         (edible (desig-prop-value ?obj 'edible)))
+         (edible (desig-prop-value ?obj 'edible))
+         (scanned-obj nil))
     (achieve `(robot-at ,loc-to-see))
     (achieve '(home-pose))
     (loop for loc-to-face in (get-locations-to-face)
@@ -25,11 +25,21 @@
                                        `((to update-objects-on) 
                                          (name ,name)))))
     (look-for-unknown-objs (get-objects-on name) name)
-    (setf objs (remove-if (lambda (desig) 
-                            (not (eql (desig-prop-value desig 'edible)
-                                      edible)))
-                          (get-objects-on name)))
-    objs))
+    (multiple-value-bind (known-objs unknown-objs)
+        (seperate-known-from-unknown-objects (get-objects-on name))
+      (with-failure-handling 
+          ((suturo-planning-common::barcode-scan-failed (f)
+             (declare (ignore f))
+             (retry)))
+        (loop while unknown-objs
+              do (setf scanned-obj 
+                       (achieve `(scanned-from ,(pop unknown-objs))))
+                 (if scanned-obj
+                     (push scanned-obj known-objs))))
+      (remove-if (lambda (desig) 
+                   (not (eql (desig-prop-value desig 'edible)
+                             edible)))
+                 known-objs))))
 
 (defun get-objects-on (name)
   "Returns all perceived objects over the surface of `name'"

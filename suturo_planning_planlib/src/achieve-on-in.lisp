@@ -13,38 +13,30 @@
             (failed-objs nil)
             (first-obj t)
             (nr-of-objs 0))
-         (multiple-value-bind (known-objects unknown-objects) 
-             (seperate-known-from-unknown-objects objs)
-           (setf objs known-objects)
-           (with-failure-handling
-               ((objs-in-on-failed (f)
-                  (declare (ignore f))
-                  ;; when not all objects failed
-                  (when (< (length failed-objs) nr-of-objs)
-                    (setf objs failed-objs)
-                    (setf failed-objs nil)
-                    (retry))
-                  ;; try with unknown object if all known fail
-                  (when unknown-objects
-                    (setf objs unknown-objects)
-                    (setf unknown-objects nil)
-                    (retry)))
-                (simple-plan-failure (f)
-                  (unless (eql 'objs-in-on-failed (type-of f))
-                    (push obj failed-objs)
-                    (retry))))  
-             (setf nr-of-objs (length objs))
-             ;; loop through all objects and put them on/in the location
-             (loop while objs
-                   do (setf obj (pop objs))
-                      ;; don't use next-location for the first object
-                      (if first-obj
-                          (setf first-obj nil)
-                          (next-solution ?loc))
-                      (achieve `(the ,obj ,?prep ,?loc)))
-             ;; throw an error if at least one object failed
-             (if (or failed-objs unknown-objects)
-                 (fail 'objs-in-on-failed))))))))
+        (with-failure-handling
+            ((objs-in-on-failed (f)
+               (declare (ignore f))
+               ;; when not all objects failed
+               (when (< (length failed-objs) nr-of-objs)
+                 (setf objs failed-objs)
+                 (setf failed-objs nil)
+                 (retry)))
+             (simple-plan-failure (f)
+               (unless (eql 'objs-in-on-failed (type-of f))
+                 (push obj failed-objs)
+                 (retry))))  
+          (setf nr-of-objs (length objs))
+          ;; loop through all objects and put them on/in the location
+          (loop while objs
+                do (setf obj (pop objs))
+                   ;; don't use next-location for the first object
+                   (if first-obj
+                       (setf first-obj nil)
+                       (next-solution ?loc))
+                   (achieve `(the ,obj ,?prep ,?loc)))
+          ;; throw an error if at least one object failed
+          (if failed-objs
+              (fail 'objs-in-on-failed)))))))
 
 (def-goal (achieve (a ?obj ?prep ?loc))
   "Puts one object matching the description of ?obj on ?loc"
