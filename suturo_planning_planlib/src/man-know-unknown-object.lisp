@@ -27,7 +27,6 @@ Initially the PR2 has to be positioned in front of the object. The object has to
         (format t "obj-on-name: ~a~%" obj-on-name)
         (format t "obj-on: ~a~%" obj-on)
         (format t "Moving in front of unknown object.~%")
-        #|
         (achieve `(robot-at ,(pose->pose-stamped
                               (cl-transforms:transform
                                base-link-in-map
@@ -35,7 +34,6 @@ Initially the PR2 has to be positioned in front of the object. The object has to
                                                         (cl-tf:make-3d-vector 0 (cl-transforms:y obj-in-base-link-origin) 0)
                                                         (cl-tf:make-identity-rotation)))
                               "/map")))
-        |#
         (achieve `(home-pose both-arms))
         (format t "Grasping unknown object.~%")
         (grasp obj arm :intents 1 :force-update-planning-scene nil)
