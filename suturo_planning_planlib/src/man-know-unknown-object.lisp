@@ -116,6 +116,27 @@ Initially the PR2 has to be positioned in front of the object. The object has to
       (perform (make-designator 'action `((to learn-object)
                                           (action learn-object-finish)))))))
 
+(defun update-planning-scene (obj-desig)
+  (let* ((obj (current-desig obj-desig))
+         (obj-name (desig-prop-value obj 'name))
+         (obj-on-name (desig-prop-value-concat obj '(at on name)))
+         (success nil))
+    (loop
+      (perform (make-designator 'action
+                                `((to update-objects-on)
+                                  (name ,obj-on-name))))
+      (let ((objects (sp-knowledge::call-action
+                      'sp-knowledge::get-graspable-objects
+                      sp-planlib::*table-name*)))
+        (loop for object in objects do
+          (if (equal obj-name (desig-prop-value object 'name))
+              (let* ((object-in-base-link-x (transform-get-origin
+                                             (desig-prop-value object 'name)
+                                             "/base_link" :timeout 2)))
+                (if (< (abs object-in-base-link-x) 10)
+                    (setf success t)))))))))
+  
+
 (defun learn-object (obj-desig arm &key intents)
   (let* ((obj (current-desig obj-desig))
          (obj-name (desig-prop-value obj 'name))
