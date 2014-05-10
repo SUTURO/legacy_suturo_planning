@@ -24,7 +24,7 @@
   (format t "Moving Objekt in front of camera")
   (achieve `(obj-in-front-of-webcam ,?obj))
   (format t "Scanning barcode.")
-  (achieve `(scan-barcode ,?obj))))
+  (achieve `(scan-barcode ,?obj)))
 
 (defparameter *deg* 90) ;degrees rotated each step
 
@@ -34,12 +34,12 @@
       ((suturo-planning-common::barcode-scan-failed (e)
         (declare (ignore e))
         (do-retry scan-object-counter
-          (achieve `(gripper-rotated left-arm *deg*))
+          (achieve `(gripper-rotated left-arm ,*deg*))
           (retry))))
       (let ((scanned-barcode-object (subseq (first (first (perform (make-designator 'action `((to scan-barcode) (obj ,?obj)))))) 1)))
-        (alexandria:switch ((first scanned-barcode-object) :test #'equal)
-          ("nobarcode" (fail 'suturo-planning-common::barcode-scan-failed))
-          ("nothingfound" (error-out (plan barcode scan) "Barcode scan failed!"))
+        (case (first scanned-barcode-object)
+          (exec::|'nobarcode'| (fail 'suturo-planning-common::barcode-scan-failed))
+          (exec::|'nothingfound'| (error-out (plan barcode scan) "Barcode scan failed!"))
           (otherwise (list->designator scanned-barcode-object)))))))
 
 (def-goal (achieve (gripper-rotated ?arm ?degree))
@@ -72,7 +72,7 @@
          (rot-deg -90))
     (if (eq holding-arm 'right-arm) 
         (progn (setf other-arm 'left-arm) (setf rot-deg 90)))
-    (let ((loc-to-pass (make-designator 'location `((coords (0.35 0 0.8))
+    (let ((loc-to-pass (make-designator 'location `((coords (0.35 0 1))
                                                     (pose ,(cl-transforms-euler-degree->quaternion-as-list :az rot-deg))
                                                     (frame "/base_link")))))
       (format t "Arm to loc-to-pass. Obj in arm:~a~%" holding-arm)
@@ -88,14 +88,17 @@
         (perform grasp-obj)
         (if (perform monitor-gripper) 
             (cpl:fail 'grasping-failed)))
-      (let* ((dummy-loc (make-designator 'location `((in right-gripper))))
+      
+      (let* ((dummy-loc (make-designator 'location `((in ,(if (eq holding-arm 'right-arm)
+          'right-gripper
+          'left-gripper)))))
              (dummy-obj (make-designator 'object `((at ,dummy-loc)))))
         (achieve `(empty-hand ,dummy-obj nil)))))) 
   
 
 (def-goal (achieve (obj-in-front-of-webcam ?obj))
   (let ((retry-cnt 6)
-        (distance-to-cam 0.23)
+        (distance-to-cam 0.25)
         (y (first (transform-coords-to-frame (format nil "/~a" (desig-prop-value ?obj 'name))
                                              "/l_wrist_roll_link"
                                              '(0 0 0)
@@ -116,7 +119,7 @@
                (6 (format t "First try.~%")))
              (retry))))
       (format t "Trying with x:~a y:~a z:~a.~%" distance-to-cam y z)
-      (let* ((wrist-coords-in-front-of-webcam (list distance-to-cam y z))
+      (let* ((wrist-coords-in-front-of-webcam (list distance-to-cam (+ y 0.02) z))
              (loc-in-front-of-webcam (make-designator 'location `((coords ,wrist-coords-in-front-of-webcam)
                                                                   (pose ,(cl-transforms-euler-degree->quaternion-as-list :az -90))
                                                                   (frame "/webcam")))))

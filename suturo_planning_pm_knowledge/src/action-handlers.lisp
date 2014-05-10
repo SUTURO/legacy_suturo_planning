@@ -104,4 +104,4 @@
 
 (def-action-handler scan-barcode (obj)
   "Scan barcode and retrieve found object"
-  (json-prolog:prolog-simple-1 (format nil "scanObject(~a, Out)" (suturo-planning-common::param->string (desig-prop-value obj 'name)))))
+  (json-prolog:prolog-simple-1 (format nil "scanObject('~a', Out)" (desig-prop-value obj 'name))))
