@@ -21,6 +21,8 @@
 
 (defparameter obj (sp-knowledge::call-action 'sp-knowledge::get-graspable-objects sp-planlib::*table-name*))
 
+(defparameter corn (make-designator 'object (update-designator-properties '((unknown t)) (description corny))))
+
 ;(defparameter loc (make-designator 'location '((on cupboard) (name "kitchen_island"))))
 (defparameter loc (make-designator 'location `((on ,sp-planlib::*table-name*) (name ,sp-planlib::*table-name*))))
 (defparameter loc2 (make-designator 'location `((on ,sp-planlib::*counter-name*) (name ,sp-planlib::*counter-name*))))

@@ -1,13 +1,21 @@
 (in-package :suturo-planning-common)
 
-(defvar *tf* nil)
+(defvar suturo-tf nil)
 
-(defun get-tf (&key force)
-  (if (or force (not *tf*))
-      (setf *tf* (make-instance 'cl-tf:transform-listener)))
-  *tf*)
+(defun get-tf (new)
+  (if new
+      (setf suturo-tf (append (cdr suturo-tf) (list (make-instance 'cl-tf:transform-listener)))))
+  (first suturo-tf))
 
-(roslisp-utilities:register-ros-init-function get-tf)
+(defun init-tf ()
+  (format t "suturo-tf: ~a~%" suturo-tf)
+  (let ((counter 3))
+    (loop while (> counter 0) do
+      (format t "suturo-tf: ~a~%" suturo-tf)
+      (setf suturo-tf (append suturo-tf (list (make-instance 'cl-tf:transform-listener))))
+      (decf counter))))
+
+(roslisp-utilities:register-ros-init-function init-tf)
 
 (defun get-holding-gripper (obj)
   "Retruns the gripper which contians `obj' if it is being contained by any.
@@ -166,30 +174,38 @@ If there isn't any `nil' is returned."
           source-frame target-frame timeout intents)
   (let ((result nil)
         (time (roslisp:ros-time))
-        (additional-time 0))
-    (loop while (or (and (not intents) (not result)) (and (not result) (> intents 0)))
-          do (setf result
-                   (if timeout
-                       (tf:wait-for-transform (get-tf)
-                                              :timeout (+ timeout additional-time)
-                                              :time time
-                                              :source-frame source-frame
-                                              :target-frame target-frame)
-                       (tf:wait-for-transform (get-tf)
-                                              :time time
-                                              :source-frame source-frame
-                                              :target-frame target-frame)))
-             (format t "result: ~a~%" result)
-             (if (not result)
-                 (progn
-                   (format t "No result. Time: ~a, result: ~a, *tf*: ~a. Retrying.~%" time result *tf*)
-                   (if intents
-                       (decf intents)
-                       (incf additional-time))
-                   (setf time (roslisp:ros-time)))))
+        (additional-time 0)
+        (times-tried 1)
+        (tf (get-tf nil)))
+    (loop while (or (and (not intents) (not result)) (and (not result) (> intents 0))) do
+      (if (eq (mod times-tried 7) 0)
+          (progn
+            (setf additional-time 0)
+            (setf times-tried 0)
+            (setf tf (get-tf t))))
+      (setf result
+            (if timeout
+                (tf:wait-for-transform tf
+                                       :timeout (+ timeout additional-time)
+                                       :time time
+                                       :source-frame source-frame
+                                       :target-frame target-frame)
+                (tf:wait-for-transform tf
+                                       :time time
+                                       :source-frame source-frame
+                                       :target-frame target-frame)))
+      (format t "result: ~a~%" result)
+      (if (not result)
+          (progn
+            (format t "No result. Time: ~a, result: ~a, tf: ~a. Retrying.~%" time result tf)
+            (if intents
+                (decf intents)
+                (incf additional-time))
+            (setf time (roslisp:ros-time))))
+      (incf times-tried))
     (if result
         (progn
-          (tf:lookup-transform *tf*
+          (tf:lookup-transform tf
                                :time time
                                :source-frame source-frame
                                :target-frame target-frame))

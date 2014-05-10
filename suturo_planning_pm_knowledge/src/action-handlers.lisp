@@ -73,7 +73,9 @@
                                           `((at ,loc-desig))
                                           (description x)))))
                   objs))
-        (roslisp:ros-warn nil "Could not receive graspable objects."))))
+        (progn
+          (roslisp:ros-warn nil "Could not receive graspable objects.")
+          nil))))
 
 (def-action-handler get-static-object (object-name)
   "Returns a object designator of the object in the semantic map with the

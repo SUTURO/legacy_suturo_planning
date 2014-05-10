@@ -10,7 +10,7 @@ Initially the PR2 has to be positioned in front of the object. The object has to
          (unknown (desig-prop-value obj 'unknown)))
     (if (not unknown)
         (cpl:error 'object-not-unknown))
-    (with-failure-handling ((simple-plan-failure (e)
+    (with-failure-handling ((plan-failure (e)
                               (format t "Know unknown object failed: ~a~%" e)
                               (format t "Aborting learn process.~%")
                               (perform (make-designator 'action `((to learn-object)
@@ -27,6 +27,7 @@ Initially the PR2 has to be positioned in front of the object. The object has to
         (format t "obj-on-name: ~a~%" obj-on-name)
         (format t "obj-on: ~a~%" obj-on)
         (format t "Moving in front of unknown object.~%")
+        #|
         (achieve `(robot-at ,(pose->pose-stamped
                               (cl-transforms:transform
                                base-link-in-map
@@ -34,6 +35,7 @@ Initially the PR2 has to be positioned in front of the object. The object has to
                                                         (cl-tf:make-3d-vector 0 (cl-transforms:y obj-in-base-link-origin) 0)
                                                         (cl-tf:make-identity-rotation)))
                               "/map")))
+        |#
         (achieve `(home-pose both-arms))
         (format t "Grasping unknown object.~%")
         (grasp obj arm :intents 1 :force-update-planning-scene nil)
@@ -125,6 +127,25 @@ Initially the PR2 has to be positioned in front of the object. The object has to
           (perform (make-designator 'action `((to learn-object)
                                               (action learn-object-finish)))))))))
 
+(defun arm-home-after-grasp (arm)
+  (format t "arm-home-after-grasp~%")
+  (with-failure-handling
+      ((pose-not-reached (e)
+         (declare (ignore e))
+         (format t "Failed to move ~a to home pose.~%" arm)
+         (format t "Trying to lift arm and reach home pose again.~%")
+         (achieve
+          `(arm-at ,arm
+                   ,(cl-tf:make-pose-stamped (get-gripper-frame arm) 0.0
+                                             (cl-transforms:make-3d-vector -0.05 0 0)
+                                             (cl-transforms:make-identity-rotation))))
+         (format t "Moving ~a to home pose.~%" arm)
+         (achieve `(home-pose ,arm))
+         (return)))
+    (format t "Moving ~a to home pose.~%" arm)
+    (achieve `(home-pose ,arm))))
+  
+
 (defun update-planning-scene (obj-desig)
   (format t "Updating planning scene.~%")
   (let* ((obj (current-desig obj-desig))
@@ -132,27 +153,31 @@ Initially the PR2 has to be positioned in front of the object. The object has to
          (obj-on-name (desig-prop-value-concat obj '(at on name)))
          (success nil))
     (format t "Looking for object ~a~%" obj-name)
+    (format t "Removing object from planning scene.~%")
+    (json-prolog:prolog-simple-1 (format nil "removeFromPS('~a')" obj-name))
     (loop while (not success) do
       (format t "Looping. success: ~a~%" success)
       (perform (make-designator 'action
                                 `((to update-semantic-map))))
       (let ((objects (sp-knowledge::call-action
                       'sp-knowledge::get-graspable-objects
-                      sp-planlib::*table-name*)))
-        (loop for object in objects do
-          (let ((object-name (desig-prop-value object 'name)))
-            (format t "Current object: ~a~%" object-name)
-            (if (equal obj-name object-name)
-                (progn
-                  (format t "Matching object found. Checking position...~%")
-                  (let* ((object-in-base-link-x (cl-tf:x (transform-get-origin
-                                                          (desig-prop-value object 'name)
-                                                          "/base_link" :timeout 2))))
-                    (format t "object-in-base-link-x: ~a~%" object-in-base-link-x)
-                    (if (< (abs object-in-base-link-x) 0.15)
-                        (progn
-                          (format t "Object inside range of tolerance.~%")
-                          (setf success t))))))))))
+                      obj-on-name)))
+        (if (typep objects 'cons)
+            (loop for object in objects do
+              (let ((object-name (desig-prop-value object 'name)))
+                (format t "Current object: ~a~%" object-name)
+                (if (equal obj-name object-name)
+                    (progn
+                      (format t "Matching object found. Checking position...~%")
+                      (let* ((object-in-base-link-y (cl-tf:y (transform-get-origin
+                                                              (desig-prop-value object 'name)
+                                                              "/base_link" :timeout 2))))
+                        (format t "object-in-base-link-y: ~a~%" object-in-base-link-y)
+                        (if (< (abs object-in-base-link-y) 0.15)
+                            (progn
+                              (format t "Object inside range of tolerance.~%")
+                              (setf success t))))))))
+            (format t "No graspable object found.~%"))))
     (if success
         (format t "Updating planning scene succeeded.~%")
         (format t "Updating planning scene FAILED.~%"))))
@@ -168,8 +193,7 @@ Initially the PR2 has to be positioned in front of the object. The object has to
                   (not intents)
                   (> intents 0))
         do (format t "Learning to know object. Intents left: ~a~%" intents)
-           (format t "Moving arm to home pose.~%")
-           (achieve `(home-pose ,arm))
+           (arm-home-after-grasp arm)
            (format t "Moving head to home pose.~%")
            (achieve `(home-pose head))
            (update-planning-scene obj)
