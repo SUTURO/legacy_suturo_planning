@@ -94,6 +94,7 @@
    #:arm
    #:left-arm
    #:right-arm
+   #:unknown
    ;; Objects
    #:obj
    #:volume

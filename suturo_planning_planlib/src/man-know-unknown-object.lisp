@@ -135,8 +135,7 @@ Initially the PR2 has to be positioned in front of the object. The object has to
     (loop while (not success) do
       (format t "Looping. success: ~a~%" success)
       (perform (make-designator 'action
-                                `((to update-objects-on)
-                                  (name ,obj-on-name))))
+                                `((to update-semantic-map))))
       (let ((objects (sp-knowledge::call-action
                       'sp-knowledge::get-graspable-objects
                       sp-planlib::*table-name*)))
@@ -144,15 +143,16 @@ Initially the PR2 has to be positioned in front of the object. The object has to
           (let ((object-name (desig-prop-value object 'name)))
             (format t "Current object: ~a~%" object-name)
             (if (equal obj-name object-name)
-                (format t "Matching object found. Checking position...~%")
-                (let* ((object-in-base-link-x (cl-tf:x (transform-get-origin
-                                                        (desig-prop-value object 'name)
-                                                        "/base_link" :timeout 2))))
-                  (format t "object-in-base-link-x: ~a~%" object-in-base-link-x)
-                  (if (< (abs object-in-base-link-x) 0.15)
-                      (progn
-                        (format t "Object inside range of tolerance.~%")
-                        (setf success t)))))))))
+                (progn
+                  (format t "Matching object found. Checking position...~%")
+                  (let* ((object-in-base-link-x (cl-tf:x (transform-get-origin
+                                                          (desig-prop-value object 'name)
+                                                          "/base_link" :timeout 2))))
+                    (format t "object-in-base-link-x: ~a~%" object-in-base-link-x)
+                    (if (< (abs object-in-base-link-x) 0.15)
+                        (progn
+                          (format t "Object inside range of tolerance.~%")
+                          (setf success t))))))))))
     (if success
         (format t "Updating planning scene succeeded.~%")
         (format t "Updating planning scene FAILED.~%"))))
@@ -172,7 +172,6 @@ Initially the PR2 has to be positioned in front of the object. The object has to
            (achieve `(home-pose ,arm))
            (format t "Moving head to home pose.~%")
            (achieve `(home-pose head))
-           (format t "Updating planning scene.~%")
            (update-planning-scene obj)
            (format t "~%~%### Knowledge is doing its magic now... ###~%~%")
            (setf result (perform (make-designator 'action `((to learn-object)
@@ -264,7 +263,6 @@ Initially the PR2 has to be positioned in front of the object. The object has to
                      (achieve `(home-pose ,arm))
                      (format t "Moving head to home pose.~%")
                      (achieve `(home-pose head))
-                     (format t "Updating planning scene.~%")
                      (update-planning-scene obj)))
                (retry))))
         (achieve `(object-in-hand ,obj ,arm sp-manipulation::grasp-action-above 10))))))
