@@ -9,6 +9,9 @@
                                   (frame "/base_link")))))
 
 (def-goal (perceive (?obj))
+  "Moves the Robot to the a position from where he can see the location of
+   object. Then updates the Perception and returns the objects that match
+   the description of `?obj'."
   (let* ((objs nil)
          (loc (desig-prop-value ?obj 'at))
          (loc-to-see (make-designator 'location `((to reach) (loc ,loc))))
@@ -22,20 +25,21 @@
                                        `((to update-objects-on) 
                                          (name ,name)))))
     (look-for-unknown-objs (get-objects-on name) name)
-    (setf objs (get-objects-on name))
     (setf objs (remove-if (lambda (desig) 
                             (not (eql (desig-prop-value desig 'edible)
                                       edible)))
-                          objs))
+                          (get-objects-on name)))
     objs))
 
 (defun get-objects-on (name)
+  "Returns all perceived objects over the surface of `name'"
   (perform (make-designator 'action
                             `((to get-graspable-objects)
                               (name ,name)))))
- ; (json-prolog->designators (json-prolog:prolog-simple-1 (format nil "onObject('~a',Out)" name))))
 
 (defun look-for-unknown-objs (objs table)
+  "Takes a list of objects and faces all unknown objects and
+   updates the perception."
   (loop for obj in objs
         do (when (desig-prop-value obj 'unknown)
              (achieve `(face-loc ,(desig-prop-value obj 'at)))
