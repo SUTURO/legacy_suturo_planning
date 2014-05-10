@@ -7,8 +7,8 @@
     (if (not arm) 
         (let* ((loc-to-reach (make-designator 'location 
                                               `((to reach) (obj ,?obj)))))
-          (format t "Moving Robot")
-          (achieve `(robot-at ,loc-to-reach))
+          ;(format t "Moving Robot")
+          ;(achieve `(robot-at ,loc-to-reach))
           (format t "Taking home-pose")
           (achieve `(home-pose))
           (format t "Grasping Objekt")
@@ -37,9 +37,10 @@
           (achieve `(gripper-rotated left-arm ,*deg*))
           (retry))))
       (let ((scanned-barcode-object (subseq (first (first (perform (make-designator 'action `((to scan-barcode) (obj ,?obj)))))) 1)))
-        (case (first scanned-barcode-object)
-          (exec::|'nobarcode'| (fail 'suturo-planning-common::barcode-scan-failed))
-          (exec::|'nothingfound'| (error-out (plan barcode scan) "Barcode scan failed!"))
+        (format t "~a~%" (symbol-name (first scanned-barcode-object)))
+        (alexandria:switch ((symbol-name (first scanned-barcode-object)) :test #'equal)
+          ("'nobarcode'" (fail 'suturo-planning-common::barcode-scan-failed))
+          ("'nothingfound'" (error-out (plan barcode scan) "Barcode scan failed!"))
           (otherwise (list->designator scanned-barcode-object)))))))
 
 (def-goal (achieve (gripper-rotated ?arm ?degree))
@@ -81,7 +82,7 @@
       (with-designators ((grasp-obj (action `((to grasp)
                                               (obj ,?obj)
                                               (arm ,other-arm)
-                                              (grasp-action sp-manipulation::grasp-action-grasp)
+                                              (grasp-action sp-manipulation::grasp-action-)
                                               (tolerance nil))))
                          (monitor-gripper (action `((to monitor-gripper)
                                                     (arm ,other-arm)))))
@@ -89,16 +90,18 @@
         (if (perform monitor-gripper) 
             (cpl:fail 'grasping-failed)))
       
-      (let* ((dummy-loc (make-designator 'location `((in ,(if (eq holding-arm 'right-arm)
+      (let* ((arm (if (eq holding-arm 'right-arm)
           'right-gripper
-          'left-gripper)))))
+          'left-gripper))
+             (dummy-loc (make-designator 'location `((in ,arm))))
              (dummy-obj (make-designator 'object `((at ,dummy-loc)))))
-        (achieve `(empty-hand ,dummy-obj nil)))))) 
+        (achieve `(empty-hand ,dummy-obj nil))
+        (achieve `(home-pose ,holding-arm)))))) 
   
 
 (def-goal (achieve (obj-in-front-of-webcam ?obj))
   (let ((retry-cnt 6)
-        (distance-to-cam 0.25)
+        (distance-to-cam 0.28)
         (y (first (transform-coords-to-frame (format nil "/~a" (desig-prop-value ?obj 'name))
                                              "/l_wrist_roll_link"
                                              '(0 0 0)
