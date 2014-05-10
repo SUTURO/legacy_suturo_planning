@@ -11,7 +11,7 @@
       (loop for obj-prep-loc in ?obj-prep-locs
             do (destructuring-bind (?obj ?prep ?loc) obj-prep-loc
                  (achieve `(all ,(remove-if #'(lambda (obj)
-                                                (object-matches-description obj ?obj))
+                                                (not (object-matches-description obj ?obj)))
                                             known-objs) 
                                 ,?prep ,?loc))))
       ;; scan unknown objects and clean them up
