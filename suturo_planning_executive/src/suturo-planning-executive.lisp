@@ -42,12 +42,9 @@
                                             (name ,*trash-name*))))
                      (objs-inedible (object `((edible nil)
                                               (at ,loc-table)))))
-    (achieve `(all ,objs-inedible in ,loc-trash))
-    (achieve `(all ,objs-edible on ,loc-counter))
+    (achieve `(all ((,objs-inedible in ,loc-trash) (,objs-edible on ,loc-counter))))
     (achieve '(home-pose))
     (info-out (suturo executive) "Yeah!!! I've done it.")))
-
-
 
 
 ;;;;;;;;;;;;;;; things to make testing easier
@@ -72,7 +69,7 @@
                          (loc-box (location `((on ,*trash-name*)
                                               (name ,*trash-name*))))
                          (objs-edible (object `((at ,loc-table)))))
-        (achieve `(all ,objs-edible in ,loc-box)))))
+        (achieve `(all ((,objs-edible in ,loc-box)))))))
 
 (def-top-level-cram-function from-island-to-sink ()
   (with-process-modules
@@ -82,7 +79,7 @@
                        (loc-counter (location `((on ,*counter-name*)
                                                 (name ,*counter-name*))))
                        (objs (object `((at ,loc-table)))))
-      (achieve `(all ,objs in ,loc-counter)))))
+      (achieve `(all ((,objs in ,loc-counter)))))))
 
 (def-top-level-cram-function test-plan ()
   (with-process-modules
@@ -90,7 +87,7 @@
                        (loc-table (location `((on ,table)
                                               (name ,*table-name*))))
                        (objs (object `((at ,loc-table)))))
-      (achieve `(all ,objs in ,loc-table)))))
+      (achieve `(all ((,objs in ,loc-table)))))))
 
 (defun how-do-i-reach-these-thiiiiiiiiiiings ()
   (test-plan))

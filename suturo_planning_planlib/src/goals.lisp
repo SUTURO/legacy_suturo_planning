@@ -174,8 +174,7 @@
       (with-designators ((open-hand (action `((to open-hand)
                                               (obj ,?obj)
                                               (target-on ,?target-on)))))
-        (perform open-hand))))
-  (info-out (suturo planlib) "Dropped object"))
+        (perform open-hand)))))
 
 (def-goal (achieve (object-in-box ?obj ?box))
   "The object should be in the box"
