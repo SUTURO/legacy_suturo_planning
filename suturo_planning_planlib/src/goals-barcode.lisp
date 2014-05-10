@@ -61,17 +61,33 @@
 
 
 
-#|
-(def-goal (achive (object-passed-over ?obj))
-  ;holding-arm in right position
-    (let* ((holding-arm (get-holding-arm ?obj))(other-arm 'right-arm))
-      (if
-        (eq holding-arm 'right-arm) (setf other-arm 'left-arm))
-      (achive arm-at ... )
-  ;grasp with other arm
-    (achive `(object-in-hand ?obj other-arm sp-manipulation::grasp-action-grasp nil))
-  (achive `(empty-hand ?obj nil)))) ;geht das? taget-on? 
-|#
+
+(def-goal (achieve (object-passed-over ?obj))
+  (let* ((other-arm 'right-arm)
+         (holding-arm (get-holding-arm (current-desig ?obj)))
+         (rot-deg -90))
+    (if (eq holding-arm 'right-arm) 
+        (progn (setf other-arm 'left-arm) (setf rot-deg 90)))
+    (let ((loc-to-pass (make-designator 'location `((coords (0.35 0 0.8))
+                                                    (pose ,(cl-transforms-euler-degree->quaternion-as-list :az rot-deg))
+                                                    (frame "/base_link")))))
+      (format t "Arm to loc-to-pass. Obj in arm:~a~%" holding-arm)
+      (achieve `(arm-at ,holding-arm ,loc-to-pass))
+     ;; (achieve `(object-in-hand ,?obj ,other-arm sp-manipulation::grasp-action-grasp nil))
+      (with-designators ((grasp-obj (action `((to grasp)
+                                              (obj ,?obj)
+                                              (arm ,other-arm)
+                                              (grasp-action sp-manipulation::grasp-action-grasp)
+                                              (tolerance nil))))
+                         (monitor-gripper (action `((to monitor-gripper)
+                                                    (arm ,other-arm)))))
+        (perform grasp-obj)
+        (if (perform monitor-gripper) 
+            (cpl:fail 'grasping-failed)))
+      (let* ((dummy-loc (make-designator 'location `((in right-gripper))))
+             (dummy-obj (make-designator 'object `((at ,dummy-loc)))))
+        (achieve `(empty-hand ,dummy-obj nil)))))) 
+  
 
 (def-goal (achieve (obj-in-front-of-webcam ?obj))
   (let ((retry-cnt 6)
