@@ -3,25 +3,29 @@
 (def-goal (achieve (scanned-from ?obj))
   "Moves an object `?obj' in fornt of the webcam and rotates it until a barcode was found and scanned. The `?obj' has to be held by a gripper."
   (format t "Try to scan Barcode from ~a~%" ?obj)
-  (let* ((loc-to-reach (make-designator 'location 
-                                       `((to reach) (obj ,?obj)))))
-    (format t "Moving Robot")
-    (achieve `(robot-at ,loc-to-reach))
-    (format t "Taking home-pose")
-    (achieve `(home-pose))
-    (format t "Grasping Objekt")
-    (with-retry-counters ((cnt 3))
-      (with-failure-handling
-          ((suturo-planning-common::grasping-failed (e)
-             (declare (ignore e))
-             (do-retry cnt
-               (retry))))
-        (achieve `(object-in-hand ,?obj left-arm sp-manipulation::grasp-action-above 360))))
-    (format t "Moving Objekt in front of camera")
-    (achieve `(home-pose left-arm-campose))
-    (format t "Scanning barcode.")
-    (achieve `(scan-barcode ,?obj))))
- 
+  (let* ((arm (get-holding-arm ?obj)))
+    (if (not arm) 
+        (let* ((loc-to-reach (make-designator 'location 
+                                              `((to reach) (obj ,?obj)))))
+          (format t "Moving Robot")
+          (achieve `(robot-at ,loc-to-reach))
+          (format t "Taking home-pose")
+          (achieve `(home-pose))
+          (format t "Grasping Objekt")
+          (with-retry-counters ((cnt 3))
+            (with-failure-handling
+                ((suturo-planning-common::grasping-failed (e)
+                   (declare (ignore e))
+                   (do-retry cnt
+                     (retry))))
+              (achieve `(object-in-hand ,?obj left-arm sp-manipulation::grasp-action-above 360)))))
+        (if (eq arm 'right-arm)
+            (achieve `(object-passed-over ,?obj)))))
+  (format t "Moving Objekt in front of camera")
+  (achieve `(obj-in-front-of-webcam ,?obj))
+  (format t "Scanning barcode.")
+  (achieve `(scan-barcode ,?obj))))
+
 (defparameter *deg* 90) ;degrees rotated each step
 
 (def-goal (achieve (scan-barcode ?obj))
