@@ -101,6 +101,10 @@
   ((result :initarg :result :reader result :initform nil))
   (:default-initargs :format-control "unhandled-value"))
 
+(define-condition object-not-unknown (simple-plan-failure)
+  ((result :initarg :result :reader result :initform nil))
+  (:default-initargs :format-control "object-not-unknown"))
+
 ;;; Conditions thrown by knowledge
 
 (define-condition barcode-scan-failed (simple-plan-failure)

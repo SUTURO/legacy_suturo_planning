@@ -42,6 +42,7 @@
            objs-in-on-failed
            calc-gripper-offset
            object-not-hold-by-any-gripper
+           object-not-unknown
            ;; tf
            pose-stamped->pose
            pose->pose-stamped
