@@ -18,6 +18,7 @@
   (:desig-properties #:to
                      #:arm
                      #:in
+                     #:unknown
                      #:on
                      #:both-arms
                      #:both-arms-move

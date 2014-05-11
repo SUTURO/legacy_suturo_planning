@@ -73,7 +73,9 @@
                                           `((at ,loc-desig))
                                           (description x)))))
                   objs))
-        (roslisp:ros-warn nil "Could not receive graspable objects."))))
+        (progn
+          (roslisp:ros-warn nil "Could not receive graspable objects.")
+          nil))))
 
 (def-action-handler get-static-object (object-name)
   "Returns a object designator of the object in the semantic map with the
@@ -102,4 +104,4 @@
 
 (def-action-handler scan-barcode (obj)
   "Scan barcode and retrieve found object"
-  (json-prolog:prolog-simple-1 (format nil "scanObject(~a, Out)" (suturo-planning-common::param->string (desig-prop-value obj 'name)))))
+  (json-prolog:prolog-simple-1 (format nil "scanObject('~a', Out)" (desig-prop-value obj 'name))))

@@ -20,6 +20,7 @@
                      #:frame
                      #:edible
                      #:obj
+                     #:unknown
                      #:props
                      #:use
                      #:grip-force

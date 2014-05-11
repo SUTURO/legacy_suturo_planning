@@ -71,4 +71,4 @@ The location has to be reachable without having to move the robot's base."
                                                  ,(cl-transforms:w (cl-tf:orientation gripper-pose-stamped))))))))
                 (achieve `(arm-at ,arm ,location))
                 (achieve `(empty-hand ,?obj ,(make-designator 'object `((name ,tgt-on-name)))))
-                (info-out (suturo planlib) "Placed object gently as you requested, master!~%")))))))))
+                (info-out (suturo planlib) "Placed object gently")))))))))

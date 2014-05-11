@@ -89,6 +89,7 @@
     (subseq ss 1 (- (length ss) 1))))
 
 (defun list->designator (jj)
+  (format t "~a~%" jj)
   (eval `(bind-pattern (edible name centroid frame-id grip-force unknown use dimensions pose) ,jj
     (make-designator 'object `((edible ,(equal "true" (parse-symbol-name `,edible)))
                                  (name ,(parse-symbol-name `,name))

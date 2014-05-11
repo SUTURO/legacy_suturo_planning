@@ -44,6 +44,8 @@
                      #:head
                      #:all
                      #:right-arm
+                     #:right-gripper
+                     #:left-gripper
                      #:body-part
                      #:home-pose
                      #:pose

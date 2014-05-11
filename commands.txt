@@ -1,4 +1,5 @@
 (defparameter cafe  (make-designator 'object `((name "cafetfilter")
+				       (edible nil)
                                        (dimensions (0.132 0.197 0.037))
                                        (grip-force 50)
                                        (at ,(make-designator 'location `((frame ,"/base_footprint")
@@ -21,6 +22,8 @@
 
 (defparameter obj (sp-knowledge::call-action 'sp-knowledge::get-graspable-objects sp-planlib::*table-name*))
 
+(defparameter corn (make-designator 'object (update-designator-properties '((unknown t)) (description corny))))
+
 ;(defparameter loc (make-designator 'location '((on cupboard) (name "kitchen_island"))))
 (defparameter loc (make-designator 'location `((on ,sp-planlib::*table-name*) (name ,sp-planlib::*table-name*))))
 (defparameter loc2 (make-designator 'location `((on ,sp-planlib::*counter-name*) (name ,sp-planlib::*counter-name*))))
@@ -30,7 +33,17 @@
 (call-grasp-action dlink 'right-arm)
 
 (call-initial-action 'left-arm)
-(call-initial-action 'right-arm)
+(call-initial-action 'right-arm)\
+
+
+(defparameter base-link-in-map (transform "/base_link" "/map" :timeout 2))
+(call-move-base-action
+                  (pose->pose-stamped
+                   (cl-transforms:transform base-link-in-map
+                                            (cl-tf:make-pose-stamped "/base_link" 0.0
+                                                                     (cl-tf:make-3d-vector 0 0.2 0)
+                                                                     (cl-tf:make-identity-rotation)))
+                   "/map"))
 
 
 (call-move-arm-action (make-designator 'location '((frame "/odom_combined") (coords (0.00 0.65 1.15)) (pose (0.5 -0.5 0.5 0.5)))) 'left-arm)

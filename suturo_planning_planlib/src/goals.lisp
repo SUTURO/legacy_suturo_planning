@@ -31,10 +31,10 @@
                           ((typep ?loc 'location-designator) (reference ?loc))
                           ((typep ?loc 'cl-tf:pose-stamped) ?loc)
                           (t (cpl:error 'suturo-planning-common::unhandled-value)))))
-      (publish-visualization-marker pose-stamped)
+      (publish-visualization-marker pose-stamped :min-z 1.2 :scale-x 0.24
+                                    :scale-y 0.1 :scale-z 0.1)
       (perform (make-designator 'action `((to move-base) 
                                           (pose ,pose-stamped)))))))
- 
                      
 (def-goal (achieve (home-pose))
   "Moves the robot in the initial position"
@@ -60,13 +60,12 @@
                          "Failed to bring ~a into the initial pose"
                          ?body-part)
               (do-retry retry-counter
-                ;(info-out (suturo planlib) "Trying again")
+                (ros-info (suturo planlib) "Trying again")
                 (retry))))
          (perform take-home-pose)))))
 
 (def-goal (achieve (arm-at ?arm ?loc))
   "Brings the specified arm `?arm' to the location `?loc'"
-  (format t "Achieving ~a at ~a~%" ?arm ?loc)
   (with-retry-counters ((retry-counter 1))
      (with-designators ((move (action 
                                `((to move-arm)
@@ -75,11 +74,11 @@
        (with-failure-handling 
            ((move-arm-failed (f)
               (declare (ignore f))
-              (error-out (suturo planlib) 
+              (ros-warn (suturo planlib) 
                          "Failed to move ~a"
                          ?arm)
               (do-retry retry-counter
-                ;(info-out (suturo planlib) "Trying again")
+                (ros-info (suturo planlib) "Trying again")
                 (retry))))
          (publish-visualization-marker2 (cond
                                           ((typep ?loc 'location-designator) ?loc)
@@ -107,18 +106,16 @@
                     (setf arm (switch-arms arm))
                     (retry))
                    ((eql (mod retry-counter 2) 0)
-                    (format t "Move around~%")
+                    (ros-info (suturo planlib) "Trying different Position to reach the object.")
                     (retry-with-next-solution loc-to-reach))))
              (achieve `(home-pose ,arm))))
-        (format t "Grasp position~%")
         (achieve `(robot-at ,loc-to-reach))
-        (format t "Grasping~%")
         (achieve `(object-in-hand ,?obj ,arm sp-manipulation::grasp-action-grasp nil))))))
   
 (def-goal (achieve (object-in-hand ?obj ?arm ?grasp-action ?tolerance))
   "Takes the object in one hand"
   (achieve '(home-pose both-arms))
-  (info-out (suturo planlib) "Grasping object with ~a" ?arm)
+  (info-out (suturo planlib) "Grasping object ~a with ~a" ?obj ?arm)
   (with-designators ((grasp-obj (action `((to grasp)
                                           (obj ,?obj)
                                           (arm ,?arm)
@@ -127,7 +124,6 @@
                      (monitor-gripper (action `((to monitor-gripper)
                                                 (arm ,?arm)))))
     (perform grasp-obj)
-    ;;(sp-manipulation::call-grasp-action ?obj ?arm ?grasp-action ?tolerance)
     (if (perform monitor-gripper) 
         (cpl:fail 'grasping-failed))))  
 
@@ -139,28 +135,30 @@
       (with-failure-handling
           ((move-arm-failed (f)
              (declare (ignore f))
-             (error-out (suturo planlib) "Failed to move arm")
+             (ros-warn (suturo planlib) "Failed to move arm")
              (do-retry move-arm-retry-counter
                (when (next-solution loc)
-                 ;(info-out (suturo planlib) "Trying again")
+                 (ros-info (suturo planlib) "Trying again")
                  (retry)))))
         (let* ((loc-pose-stamp (reference loc))
                (orientation (cl-tf:orientation loc-pose-stamp))
                (loc-pose `(,(cl-tf:x orientation) ,(cl-tf:y orientation) 
-                                                  ,(cl-tf:z orientation) ,(cl-tf:w orientation)))
+                                                  ,(cl-tf:z orientation)
+                                                  ,(cl-tf:w orientation)))
                (loc-origin (cl-tf:origin loc-pose-stamp))
+               ;; Assumes z is the height
                (coords-over `(,(cl-tf:x loc-origin) ,(cl-tf:y loc-origin) 
                               ,(+ (cl-tf:z loc-origin) 0.3)))
                (loc-over (make-designator 'location 
                                           (update-designator-properties 
                                            `((coords ,coords-over)
-                                             (frame "/map")
+                                             (frame ,(cl-tf:frame-id loc-pose-stamp))
                                              (pose ,loc-pose))
                                            (description loc)))))
           (achieve `(arm-at ,?arm ,loc-over)))))))
 
 (def-goal (achieve (empty-hand ?obj ?target-on))
-  "Opens the hand of the given arm"
+  "Opens the hand of the given arm and changes its location to ?target-on."
   (info-out (suturo planlib) "Opening, hand")
   (sleep 1.5)
   (with-retry-counters ((open-retry-counter 1))
@@ -170,15 +168,13 @@
            (error-out (suturo planlib) "Failed to open hand")
            (sleep 1.5)
            (do-retry open-retry-counter
-             ;(info-out (suturo planib) "Trying again.")
+             (ros-info (suturo planib) "Trying again.")
              (sleep 1.5)
              (retry))))
       (with-designators ((open-hand (action `((to open-hand)
                                               (obj ,?obj)
                                               (target-on ,?target-on)))))
-        (perform open-hand))))
-        ;;(sp-manipulation::call-open-hand-action ?obj ?target-on))))      
-  (info-out (suturo planlib) "Dropped, object"))
+        (perform open-hand)))))
 
 (def-goal (achieve (object-in-box ?obj ?box))
   "The object should be in the box"
@@ -189,6 +185,7 @@
            (declare (ignore f))
            (achieve `(empty-hand ,?obj))
            (achieve '(home-pose))))
+      ;;TODO fix policy
       ;;(with-named-policy 'dont-drop-object (arm)
         (achieve `(hand-over ,?box ,arm)))
     (achieve `(empty-hand ,?obj))
@@ -209,17 +206,6 @@
       (with-designators ((move-head (action `((to move-head)
                                               (direction ,?loc)))))
         (perform move-head)))))
-
-(def-goal (achieve (examine-unknown-objects ?objs))
-  "Filters the list for unknown objects. If an object is unknown
-   the plan tries to scan the Barcode. If the barcode belongs to a
-   object unknown to the knowledge the objects gets added to
-   the knowledgebase. Returns all known objects after the process
-   in an unordered"
-  (let* ((filtered-objs (seperate-known-from-unknown-objects ?objs))
-         (known-objs (nth-value 0 filtered-objs))
-         (unknown-objs (nth-value 1 filtered-objs)))
-    (append known-objs unknown-objs)))
 
 (defun seperate-known-from-unknown-objects (objs)
   "Gets a list of objects and returns two values. The first is the

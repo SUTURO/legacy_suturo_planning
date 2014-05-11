@@ -182,14 +182,12 @@
                      'suturo-planning-pm-knowledge::get-static-object obj-on-name))
          (gripper-frame (get-gripper-frame arm))
          (object-on-height (first (desig-prop-value obj-on 'dimensions)))
-         (object-on-origin (transform-get-origin obj-on-name "/odom_combined" :timeout 2))
-         (object-origin (transform-get-origin (desig-prop-value curr-obj 'name) "/odom_combined" :timeout 2))
+         (object-on-origin (transform-get-origin obj-on-name "/map" :timeout 2))
+         (object-origin (transform-get-origin (desig-prop-value curr-obj 'name) "/map" :timeout 2))
          (object-height
            (* 2 (- (- (cl-transforms:z object-origin)
                       (cl-transforms:z object-on-origin))
                    (/ object-on-height 2.0))))
-         (obj-on-to-obj (transform obj-name obj-on-name :timeout 2))
-         (obj-on-to-gripper (transform gripper-frame obj-on-name :timeout 2))
          (obj-on-to-object (transform obj-name obj-on-name :timeout 2))
          (target-to-object (cl-tf:make-stamped-transform
                             "/target-point"
@@ -213,8 +211,7 @@
                                           :timeout 2)))
                                 (description (desig-prop-value curr-obj 'at))))))
     (format t "~%obj-on: ~a~%~%" obj-on)
-    (format t "~%obj-on-to-obj: ~a~%~%" obj-on-to-obj)
-    (format t "~%obj-on-to-gripper: ~a~%~%" obj-on-to-gripper)
+    (format t "~%obj-on-to-object: ~a~%~%" obj-on-to-object)
     (format t "~%target-to-gripper: ~a~%" target-to-gripper)
     (format t "~%target-to-object: ~a~%" target-to-object)
     (format t "~%object-to-gripper: ~a~%" object-to-gripper)
@@ -235,8 +232,8 @@
          (object-on-height (first (desig-prop-value object-on 'dimensions)))
          (object-on-height-half (/ object-on-height 2.0))
          (gripper-frame (get-gripper-frame arm))
-         (object-on-origin (transform-get-origin obj-on-name "/odom_combined" :timeout 2))
-         (object-origin (transform-get-origin obj-name "/odom_combined" :timeout 2))
+         (object-on-origin (transform-get-origin obj-on-name "/map" :timeout 2))
+         (object-origin (transform-get-origin obj-name "/map" :timeout 2))
          (object-height
            (* 2 (- (- (cl-transforms:z object-origin)
                       (cl-transforms:z object-on-origin))
@@ -399,17 +396,20 @@
   "suturo_manipulation_msgs/suturo_manipulation_baseActionResult")
 (defvar *move-base-status-topic-type* "actionlib_msgs/GoalStatusArray")
 
-(defun make-move-base-goal (pose-stamped)
-  (format t "make-move-base-goal pose-stamped: ~a~%" pose-stamped)
+(defun make-move-base-goal (pose-stamped tolerance)
+  (format t "make-move-base-goal pose-stamped: ~a, tolerance: ~a~%"
+          pose-stamped tolerance)
   (actionlib:make-action-goal *action-client-move-base* 
-                              ps pose-stamped))
+                              ps pose-stamped
+                              range tolerance))
 
-(defun call-move-base-action (pose-stamped)
-  (format t "call-move-base-action. pose-stamped:~a~%" pose-stamped)
+(defun call-move-base-action (pose-stamped &key (tolerance 0.025))
+  (format t "call-move-base-action. pose-stamped:~a, tolerance: ~a~%"
+          pose-stamped tolerance)
   (setf *action-client-move-base* (get-action-client 'move-base))
   (with-lost-in-resultation-workaround
       *action-client-move-base*
-    (make-move-base-goal (cl-tf:pose-stamped->msg pose-stamped))
+    (make-move-base-goal (cl-tf:pose-stamped->msg pose-stamped) tolerance)
     *move-base-timeout*
     'suturo-planning-common::move-base-failed
     *action-client-move-base-server*
