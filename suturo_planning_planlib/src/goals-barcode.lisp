@@ -7,9 +7,7 @@
     (if (not arm) 
         (let* ((loc-to-reach (make-designator 'location 
                                               `((to reach) (obj ,?obj)))))
-          ;(format t "Moving Robot")
-          ;(achieve `(robot-at ,loc-to-reach))
-          (format t "Taking home-pose")
+          (achieve `(robot-at ,loc-to-reach))
           (achieve `(home-pose))
           (format t "Grasping Objekt")
           (with-retry-counters ((cnt 3))
@@ -21,9 +19,9 @@
               (achieve `(object-in-hand ,?obj left-arm sp-manipulation::grasp-action-above 360)))))
         (if (eq arm 'right-arm)
             (achieve `(object-passed-over ,?obj)))))
-  (format t "Moving Objekt in front of camera")
+  (info-out (planlib) "Moving Objekt in front of camera")
   (achieve `(obj-in-front-of-webcam ,?obj))
-  (format t "Scanning barcode.")
+  (info-out (planlib) "Scanning barcode.")
   (achieve `(scan-barcode ,?obj)))
 
 (defparameter *deg* 90) ;degrees rotated each step
