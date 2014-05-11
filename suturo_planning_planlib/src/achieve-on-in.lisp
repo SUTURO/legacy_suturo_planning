@@ -58,14 +58,14 @@
       (if failed-objs
           (fail 'objs-in-on-failed)))))
 
-
+;;DEPRECATED
 (def-goal (achieve (a ?obj ?prep ?loc))
   "Puts one object matching the description of ?obj on ?loc"
   (let ((objs (perceive `(,?obj)))
         (obj nil))
     (if (not objs)
-        (fail 'no-object-with-that-description))
-    (setf obj (pop objs))
+        (fail 'no-object-with-that-description)
+        (setf obj (pop objs)))
     (with-failure-handling 
         ((simple-plan-failure (f)
            (declare (ignore f))
@@ -86,10 +86,13 @@
         ((place-failed (f)
            (declare (ignore f))
            (retry-with-next-solution ?loc)))
-      (achieve `(,?obj placed-gently ,?loc)))))
+      (achieve `(,?obj placed-gently ,?loc))
+      ;; calling next-solution the robot doesn't try to place the 
+      ;; object on the same location
+      (next-solution ?loc))))
 
 (def-goal (achieve (the ?obj in ?loc))
-  "Drops the object ?obj in the loaction ?loc"
+  "Drops the object ?obj in the location ?loc"
   (with-designators ((loc-to-reach (location `((to reach) (loc ,?loc))))
                      (remove-object (action `((to placed-object-in-box)
                                               (obj ,?obj)

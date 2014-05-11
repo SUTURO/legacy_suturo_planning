@@ -1,4 +1,5 @@
 (defparameter cafe  (make-designator 'object `((name "cafetfilter")
+				       (edible nil)
                                        (dimensions (0.132 0.197 0.037))
                                        (grip-force 50)
                                        (at ,(make-designator 'location `((frame ,"/base_footprint")

@@ -31,7 +31,7 @@
                           ((typep ?loc 'location-designator) (reference ?loc))
                           ((typep ?loc 'cl-tf:pose-stamped) ?loc)
                           (t (cpl:error 'suturo-planning-common::unhandled-value)))))
-      (publish-visualization-marker pose-stamped :min-z 1.2 :scale-x 0.2
+      (publish-visualization-marker pose-stamped :min-z 1.2 :scale-x 0.24
                                     :scale-y 0.1 :scale-z 0.1)
       (perform (make-designator 'action `((to move-base) 
                                           (pose ,pose-stamped)))))))

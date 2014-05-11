@@ -79,7 +79,7 @@
                        (loc-counter (location `((on ,*counter-name*)
                                                 (name ,*counter-name*))))
                        (objs (object `((at ,loc-table)))))
-      (achieve `(all ((,objs in ,loc-counter)))))))
+      (achieve `(all ((,objs on ,loc-counter)))))))
 
 (def-top-level-cram-function test-plan ()
   (with-process-modules
@@ -109,7 +109,6 @@
 
 (defun on-table ()
   (suturo-planning-pm-knowledge::call-action 'suturo-planning-pm-knowledge::get-graspable-objects *table-name*))
- ;; (json-prolog:prolog-simple-1 "onObject('http://ias.cs.tum.edu/kb/knowrob.owl#kitchen_island_counter_top', Out)"))
 
 (defun publish-sematic-map ()
   (json-prolog:prolog-simple-1 "publishSemanticMap"))

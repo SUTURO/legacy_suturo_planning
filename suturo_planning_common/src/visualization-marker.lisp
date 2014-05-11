@@ -79,9 +79,9 @@
                            (y orientation pose) (second orientation)
                            (z orientation pose) (third orientation)
                            (w orientation pose) (fourth orientation)
-                           (x scale) 0.2
-                           (y scale) 0.15
-                           (z scale) 0.15
+                           (x scale) 0.1
+                           (y scale) 0.05
+                           (z scale) 0.05
                            (a color) 1
                            (r color) 0
                            (g color) 1
