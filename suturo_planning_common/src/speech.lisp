@@ -7,11 +7,19 @@
 
 (roslisp-utilities:register-ros-init-function common-init)
 
+(defun parse-name (name)
+  (let* ((ident (split-string (first (last (split-string name "/"))) "#"))
+         (id (first (last ident)))
+         (typ (first ident)))
+    (if (equal typ "unclassified")
+      "unknown"
+      id)))
+
 (defmacro error-out (domain msg &rest arg)
   `(let
       ((str (apply #'format nil ,msg (mapcar #'(lambda (x)
         (if (eq (type-of x) 'OBJECT-DESIGNATOR)
-          (first (last (split-string (desig-prop-value x 'name) "#")))
+          (parse-name (desig-prop-value x 'name))
           x)) (list ,@arg)))))
       (roslisp:ros-error ,domain ,msg ,@arg)
       (speak str)))
@@ -20,7 +28,7 @@
   `(let
       ((str (apply #'format nil ,msg (mapcar #'(lambda (x)
         (if (eq (type-of x) 'OBJECT-DESIGNATOR)
-          (first (last (split-string (desig-prop-value x 'name) "#")))
+          (parse-name (desig-prop-value x 'name))
           x)) (list ,@arg)))))
       (roslisp:ros-info ,domain ,msg ,@arg)
       (speak str)))
