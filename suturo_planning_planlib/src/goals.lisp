@@ -60,7 +60,7 @@
                          "Failed to bring ~a into the initial pose"
                          ?body-part)
               (do-retry retry-counter
-                (info-out (suturo planlib) "Trying again")
+                (ros-info (suturo planlib) "Trying again")
                 (retry))))
          (perform take-home-pose)))))
 

@@ -1,7 +1,9 @@
 (in-package :suturo-planning-planlib)
 
 (defun get-locations-to-face ()
-  `(,(make-designator 'location '((coords (1 0.4 0.4))
+  `(;; had to disable had movement since it caused problems
+    ;; with the knowledge representation
+    ,(make-designator 'location '((coords (1 0.4 0.4))
                                   (frame "/base_link")))
     ,(make-designator 'location '((coords (1 -0.4 0.4))
                                   (frame "/base_link")))

@@ -188,8 +188,6 @@
            (* 2 (- (- (cl-transforms:z object-origin)
                       (cl-transforms:z object-on-origin))
                    (/ object-on-height 2.0))))
-         (obj-on-to-obj (transform obj-name obj-on-name :timeout 2))
-         (obj-on-to-gripper (transform gripper-frame obj-on-name :timeout 2))
          (obj-on-to-object (transform obj-name obj-on-name :timeout 2))
          (target-to-object (cl-tf:make-stamped-transform
                             "/target-point"
@@ -213,8 +211,7 @@
                                           :timeout 2)))
                                 (description (desig-prop-value curr-obj 'at))))))
     (format t "~%obj-on: ~a~%~%" obj-on)
-    (format t "~%obj-on-to-obj: ~a~%~%" obj-on-to-obj)
-    (format t "~%obj-on-to-gripper: ~a~%~%" obj-on-to-gripper)
+    (format t "~%obj-on-to-object: ~a~%~%" obj-on-to-object)
     (format t "~%target-to-gripper: ~a~%" target-to-gripper)
     (format t "~%target-to-object: ~a~%" target-to-object)
     (format t "~%object-to-gripper: ~a~%" object-to-gripper)

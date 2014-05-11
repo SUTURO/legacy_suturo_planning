@@ -102,7 +102,8 @@
         (achieve '(home-pose))))
 
 (defun clear-perceived ()
-  (json-prolog:prolog-simple-1 "clearPerceived"))
+  (json-prolog:prolog-simple-1 "clearPerceived")
+  (publish-semantic-map))
 
 (defun update-perception ()
   (json-prolog:prolog-simple-1 "updatePerception(O)"))
@@ -110,7 +111,7 @@
 (defun on-table ()
   (suturo-planning-pm-knowledge::call-action 'suturo-planning-pm-knowledge::get-graspable-objects *table-name*))
 
-(defun publish-sematic-map ()
+(defun publish-semantic-map ()
   (json-prolog:prolog-simple-1 "publishSemanticMap"))
 
 (defun update-on-table ()
