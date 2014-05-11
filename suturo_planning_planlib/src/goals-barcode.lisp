@@ -78,11 +78,11 @@
                                                     (frame "/base_link")))))
       (format t "Arm to loc-to-pass. Obj in arm:~a~%" holding-arm)
       (achieve `(arm-at ,holding-arm ,loc-to-pass))
-     ;; (achieve `(object-in-hand ,?obj ,other-arm sp-manipulation::grasp-action-grasp nil))
+      ;; (achieve `(object-in-hand ,?obj ,other-arm sp-manipulation::grasp-action-grasp nil))
       (with-designators ((grasp-obj (action `((to grasp)
                                               (obj ,?obj)
                                               (arm ,other-arm)
-                                              (grasp-action sp-manipulation::grasp-action-)
+                                              (grasp-action sp-manipulation::grasp-action-grasp)
                                               (tolerance nil))))
                          (monitor-gripper (action `((to monitor-gripper)
                                                     (arm ,other-arm)))))
@@ -91,12 +91,30 @@
             (cpl:fail 'grasping-failed)))
       
       (let* ((arm (if (eq holding-arm 'right-arm)
-          'right-gripper
-          'left-gripper))
+                      'right-gripper
+                      'left-gripper))
              (dummy-loc (make-designator 'location `((in ,arm))))
              (dummy-obj (make-designator 'object `((at ,dummy-loc)))))
-        (achieve `(empty-hand ,dummy-obj nil))
-        (achieve `(home-pose ,holding-arm)))))) 
+        (achieve `(empty-hand ,dummy-obj nil)))
+        (with-retry-counters ((retry-cnt 3))
+          (with-failure-handling
+              ((suturo-planning-common::pose-not-reached (e)
+                 (declare (ignore e))
+                 (format t "Failed to reach home-pose.~%")
+                 (do-retry retry-cnt
+                   (let* ((mv-range (if (eq holding-arm 'right-arm) -0.05 0.05))
+                          (rot-deg (if (eq holding-arm 'right-arm) 90 -90))
+                          (trans-coords (transform-coords-to-frame (get-gripper-frame holding-arm)
+                                                                   "/base_link"
+                                                                   '(0 0 0)
+                                                                   :timeout 2))
+                          (new-coords (list (first trans-coords) (+ (second trans-coords) mv-range) (third trans-coords)))
+                          (new-loc (make-designator 'location `((coords ,new-coords)
+                                                                (pose ,(cl-transforms-euler-degree->quaternion-as-list :az rot-deg))
+                                                                (frame "/base_link")))))
+                    (achieve `(arm-at ,holding-arm ,new-loc))
+                   (retry)))))
+          (achieve `(home-pose ,holding-arm)))))))
   
 
 (def-goal (achieve (obj-in-front-of-webcam ?obj))
